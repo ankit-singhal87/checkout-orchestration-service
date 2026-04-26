@@ -11,13 +11,22 @@ use App\Http\ViewModels\ProductViewModelFactory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Renders tenant-scoped product detail pages.
+ */
 final class ProductController extends Controller
 {
+    /**
+     * Create the product page controller.
+     */
     public function __construct(
         private readonly CatalogReader $catalog,
         private readonly ProductViewModelFactory $viewModels,
     ) {}
 
+    /**
+     * Show a product by slug for the resolved tenant.
+     */
     public function show(Request $request, string $slug): View
     {
         /** @var TenantContext $tenant */

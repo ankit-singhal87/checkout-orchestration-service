@@ -17,4 +17,4 @@ fi
 
 echo "Local development services are starting."
 echo "Use COMPOSE_PROFILES=app sh scripts/dev/up.sh to include the checkout container."
-echo "Use COMPOSE_PROFILES=observability,identity sh scripts/dev/up.sh for optional support services."
+echo "Use COMPOSE_PROFILES=search,observability,identity sh scripts/dev/up.sh for optional support services."

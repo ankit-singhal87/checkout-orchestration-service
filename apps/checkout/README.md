@@ -2,7 +2,7 @@
 
 Laravel is the first application boundary for the MVP. It owns the Blade UI, public checkout API, application services, validation, persistence, idempotency, and checkout orchestration.
 
-Application code targets PHP 8.5 and follows `../../docs/coding-standards/php-8.5.md`.
+Application code targets PHP 8.5 and follows [docs/agent/coding-standards/php-8.5.md](../../docs/agent/coding-standards/php-8.5.md).
 
 Blade is included with Laravel. Blade templates live under `resources/views`, and route/controller code returns them with Laravel's `view()` helper.
 
@@ -28,7 +28,7 @@ The host does not need PHP or Composer. Bootstrap is handled through Docker and 
 sh scripts/dev/bootstrap-checkout-app.sh
 ```
 
-After bootstrapping, review generated files before committing. The app should continue to follow the folder conventions in `apps/checkout/docs`.
+After bootstrapping, review generated files before committing. The app should continue to follow the folder conventions in [apps/checkout/docs](docs).
 
 ## Dependency Versioning
 

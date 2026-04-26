@@ -7,8 +7,15 @@ namespace App\Application\Tenant;
 use App\Domain\Tenant\TenantContext;
 use App\Infrastructure\Persistence\Eloquent\TenantRecord;
 
-final class TenantResolver
+/**
+ * Resolves the tenant context for an incoming checkout host.
+ */
+final readonly class TenantResolver
 {
+    /**
+     * Resolve a lowercase host into its persisted tenant context.
+     */
+    #[\NoDiscard]
     public function resolveHost(string $host): ?TenantContext
     {
         $record = TenantRecord::query()

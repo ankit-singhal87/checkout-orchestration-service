@@ -5,12 +5,12 @@
     "productId": "fashion-product-001",
     "slug": "rain-ready-shell-jacket",
     "name": "Rain Ready Shell Jacket",
-    "description": "Lightweight jacket for changing weather.",
+    "description": "Lightweight recycled shell with sealed seams, a packable hood, and a dry-touch lining.",
     "image": {
-      "alt": "Purple shell jacket product placeholder",
+      "alt": "Purple shell jacket product silhouette",
       "placeholder": "fashion-jacket-001"
     },
-    "badges": ["easy returns", "water resistant"],
+    "badges": ["easy returns", "water resistant", "recycled shell"],
     "variants": [
       {
         "variantId": "fashion-variant-001-purple-s",
@@ -27,23 +27,167 @@
     ]
   },
   {
+    "tenantId": "fashion-store",
+    "categoryId": "fashion-category-dresses",
+    "productId": "fashion-product-002",
+    "slug": "studio-knit-midi-dress",
+    "name": "Studio Knit Midi Dress",
+    "description": "Ribbed midi dress with a structured waist, soft stretch, and day-to-evening finish.",
+    "image": {
+      "alt": "Deep green midi dress product silhouette",
+      "placeholder": "fashion-dress-002"
+    },
+    "badges": ["size guidance", "soft stretch"],
+    "variants": [
+      {
+        "variantId": "fashion-variant-002-green-xs",
+        "options": { "color": "green", "size": "XS" },
+        "price": { "amount": 7495, "currency": "EUR" },
+        "stock": { "available": 6, "state": "in_stock" }
+      },
+      {
+        "variantId": "fashion-variant-002-green-s",
+        "options": { "color": "green", "size": "S" },
+        "price": { "amount": 7495, "currency": "EUR" },
+        "stock": { "available": 2, "state": "low_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "fashion-store",
+    "categoryId": "fashion-category-accessories",
+    "productId": "fashion-product-003",
+    "slug": "weekday-crossbody-bag",
+    "name": "Weekday Crossbody Bag",
+    "description": "Compact crossbody with a recycled nylon shell, internal card pocket, and adjustable strap.",
+    "image": {
+      "alt": "Black crossbody bag product silhouette",
+      "placeholder": "fashion-bag-003"
+    },
+    "badges": ["secure checkout", "vegan trim"],
+    "variants": [
+      {
+        "variantId": "fashion-variant-003-black-one-size",
+        "options": { "color": "black", "size": "one-size" },
+        "price": { "amount": 3995, "currency": "EUR" },
+        "stock": { "available": 14, "state": "in_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "fashion-store",
+    "categoryId": "fashion-category-footwear",
+    "productId": "fashion-product-004",
+    "slug": "city-walk-sneaker",
+    "name": "City Walk Sneaker",
+    "description": "Low-profile sneaker with cushioned footbed, tonal panels, and flexible rubber sole.",
+    "image": {
+      "alt": "Ivory city sneaker product silhouette",
+      "placeholder": "fashion-sneaker-004"
+    },
+    "badges": ["easy returns", "comfort fit"],
+    "variants": [
+      {
+        "variantId": "fashion-variant-004-ivory-38",
+        "options": { "color": "ivory", "size": "38" },
+        "price": { "amount": 6495, "currency": "EUR" },
+        "stock": { "available": 5, "state": "in_stock" }
+      },
+      {
+        "variantId": "fashion-variant-004-ivory-39",
+        "options": { "color": "ivory", "size": "39" },
+        "price": { "amount": 6495, "currency": "EUR" },
+        "stock": { "available": 1, "state": "low_stock" }
+      }
+    ]
+  },
+  {
     "tenantId": "sports-outlet",
     "categoryId": "sports-category-training",
     "productId": "sports-product-001",
     "slug": "trail-runner-pack",
     "name": "Trail Runner Pack",
-    "description": "Compact running pack with reflective details.",
+    "description": "Compact running pack with reflective details, soft flask pockets, and bounce-free fit.",
     "image": {
-      "alt": "Teal trail running pack placeholder",
+      "alt": "Teal trail running pack product silhouette",
       "placeholder": "sports-pack-001"
     },
-    "badges": ["stock confidence", "bundle eligible"],
+    "badges": ["stock confidence", "bundle eligible", "reflective"],
     "variants": [
       {
         "variantId": "sports-variant-001-teal-one-size",
         "options": { "color": "teal", "size": "one-size" },
         "price": { "amount": 5495, "currency": "EUR" },
         "stock": { "available": 3, "state": "low_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "sports-outlet",
+    "categoryId": "sports-category-footwear",
+    "productId": "sports-product-002",
+    "slug": "tempo-road-shoe",
+    "name": "Tempo Road Shoe",
+    "description": "Responsive road shoe with a breathable mesh upper and stable daily-training platform.",
+    "image": {
+      "alt": "Blue road running shoe product silhouette",
+      "placeholder": "sports-sneaker-002"
+    },
+    "badges": ["stock confidence", "daily training"],
+    "variants": [
+      {
+        "variantId": "sports-variant-002-blue-42",
+        "options": { "color": "blue", "size": "42" },
+        "price": { "amount": 11995, "currency": "EUR" },
+        "stock": { "available": 7, "state": "in_stock" }
+      },
+      {
+        "variantId": "sports-variant-002-blue-43",
+        "options": { "color": "blue", "size": "43" },
+        "price": { "amount": 11995, "currency": "EUR" },
+        "stock": { "available": 4, "state": "in_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "sports-outlet",
+    "categoryId": "sports-category-recovery",
+    "productId": "sports-product-003",
+    "slug": "mobility-yoga-mat",
+    "name": "Mobility Yoga Mat",
+    "description": "Grip-focused mat with alignment marks, dense cushioning, and carry strap.",
+    "image": {
+      "alt": "Charcoal yoga mat product silhouette",
+      "placeholder": "sports-yoga-003"
+    },
+    "badges": ["bundle offers", "grip surface"],
+    "variants": [
+      {
+        "variantId": "sports-variant-003-charcoal-one-size",
+        "options": { "color": "charcoal", "size": "one-size" },
+        "price": { "amount": 4295, "currency": "EUR" },
+        "stock": { "available": 12, "state": "in_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "sports-outlet",
+    "categoryId": "sports-category-tech",
+    "productId": "sports-product-004",
+    "slug": "interval-sport-watch",
+    "name": "Interval Sport Watch",
+    "description": "Lightweight training watch with interval presets, route tracking, and week-long battery.",
+    "image": {
+      "alt": "Graphite sport watch product silhouette",
+      "placeholder": "sports-watch-004"
+    },
+    "badges": ["secure checkout", "gps ready"],
+    "variants": [
+      {
+        "variantId": "sports-variant-004-graphite-one-size",
+        "options": { "color": "graphite", "size": "one-size" },
+        "price": { "amount": 15995, "currency": "EUR" },
+        "stock": { "available": 5, "state": "in_stock" }
       }
     ]
   }

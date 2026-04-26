@@ -3,18 +3,23 @@
     :tenant-name="$view->tenant->displayName"
     :tenant-color="$view->tenant->primaryColor"
 >
-    <section class="card">
-        <h2>Your cart</h2>
+    <section class="page-head">
+        <p class="eyebrow">Cart</p>
+        <h1>Your cart</h1>
+    </section>
 
+    <section class="card panel stack">
         @if ($view->items === [])
-            <p>Your cart is empty.</p>
+            <p class="lede">Your cart is empty.</p>
+            <p><a class="button" href="{{ route('shop.index') }}">Browse products</a></p>
         @else
             @foreach ($view->items as $item)
-                <article>
-                    <h3>{{ $item['productName'] }}</h3>
-                    <p>{{ $item['variantLabel'] }}</p>
-                    <p>Quantity: {{ $item['quantity'] }}</p>
-                    <p>{{ $item['priceLabel'] }}</p>
+                <article class="row">
+                    <span>
+                        <strong>{{ $item['productName'] }}</strong><br>
+                        <span class="muted">{{ $item['variantLabel'] }} &middot; Quantity {{ $item['quantity'] }}</span>
+                    </span>
+                    <strong>{{ $item['priceLabel'] }}</strong>
                 </article>
             @endforeach
         @endif
@@ -24,5 +29,11 @@
                 <li class="badge">{{ $badge }}</li>
             @endforeach
         </ul>
+
+        @if ($view->items !== [])
+            <p>
+                <a class="button" href="{{ route('checkout.show') }}">Continue to checkout</a>
+            </p>
+        @endif
     </section>
 </x-layouts.shop>

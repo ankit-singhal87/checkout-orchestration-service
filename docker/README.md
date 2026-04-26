@@ -12,4 +12,4 @@ Docker Compose remains the default local runtime entry point.
 
 ## Checkout Image
 
-`docker/checkout.Dockerfile` provides PHP CLI, Composer, and required PHP extensions for bootstrapping and testing the Laravel checkout app without installing PHP or Composer on the host.
+[docker/checkout.Dockerfile](checkout.Dockerfile) provides PHP CLI, Composer, and required PHP extensions for bootstrapping and testing the Laravel checkout app without installing PHP or Composer on the host.

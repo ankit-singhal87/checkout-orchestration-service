@@ -1,0 +1,21 @@
+<?php
+
+use App\Http\Controllers\Api\CheckoutAddressController;
+use App\Http\Controllers\Api\CheckoutConfigController;
+use App\Http\Controllers\Api\CheckoutOrderConfirmationController;
+use App\Http\Controllers\Api\CheckoutPaymentMethodController;
+use App\Http\Controllers\Api\CheckoutShippingOptionController;
+use App\Http\Controllers\Api\CheckoutStateController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('tenant')->group(function (): void {
+    Route::get('/checkout/config', [CheckoutConfigController::class, 'show'])->name('api.checkout.config.show');
+
+    Route::put('/checkout/state', [CheckoutStateController::class, 'put'])->name('api.checkout.state.put');
+    Route::get('/checkout/state', [CheckoutStateController::class, 'show'])->name('api.checkout.state.show');
+
+    Route::put('/checkout/state/address', [CheckoutAddressController::class, 'put'])->name('api.checkout.address.put');
+    Route::put('/checkout/state/shipping-option', [CheckoutShippingOptionController::class, 'put'])->name('api.checkout.shipping-option.put');
+    Route::put('/checkout/state/payment-method', [CheckoutPaymentMethodController::class, 'put'])->name('api.checkout.payment-method.put');
+    Route::post('/checkout/state/order-confirmation', [CheckoutOrderConfirmationController::class, 'store'])->name('api.checkout.order-confirmation.store');
+});

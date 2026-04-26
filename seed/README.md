@@ -7,7 +7,7 @@ Deterministic demo data for tenants, catalog, products, carts, checkout scenario
 - Define seed data shape before generating large fixtures.
 - Start with two tenants: `fashion-store` and `sports-outlet`.
 - Keep data realistic enough for checkout demos without using copyrighted brand assets.
-- Keep source fixtures under `seed/fixtures`.
+- Keep source fixtures under [seed/fixtures](fixtures).
 - Treat MySQL, Redis, and OpenSearch state as rebuildable outputs.
 
 ## Reset Rule

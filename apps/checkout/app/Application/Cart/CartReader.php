@@ -7,8 +7,14 @@ namespace App\Application\Cart;
 use App\Domain\Tenant\TenantContext;
 use App\Infrastructure\Persistence\Eloquent\CartRecord;
 
-final class CartReader
+/**
+ * Reads tenant-scoped carts for the current shopper session.
+ */
+final readonly class CartReader
 {
+    /**
+     * Find a cart by tenant and session cart id.
+     */
     public function cartForSession(TenantContext $tenant, string $cartId): ?CartRecord
     {
         $cart = CartRecord::query()

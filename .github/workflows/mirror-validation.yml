@@ -19,12 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout mirror
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Validate Phase 0 scaffold
         run: |
           sh scripts/ci/validate-scaffold.sh
           sh scripts/ci/validate-phase1.sh
+          git fetch --no-tags origin ${{ github.event.repository.default_branch }}:refs/remotes/origin/${{ github.event.repository.default_branch }}
+          sh scripts/git/check-migration-immutability.sh origin/${{ github.event.repository.default_branch }}
 
   checkout-tests:
     name: Checkout tests
@@ -50,7 +54,7 @@ jobs:
           - 6379:6379
     steps:
       - name: Checkout mirror
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Tenant;
 
+/**
+ * Immutable tenant identity and branding resolved for a request.
+ */
 final readonly class TenantContext
 {
     /**
-     * @param list<string> $trustBadges
+     * Create a tenant context for application and presentation layers.
+     *
+     * @param  list<string>  $trustBadges
      */
     public function __construct(
         public int $recordId,
