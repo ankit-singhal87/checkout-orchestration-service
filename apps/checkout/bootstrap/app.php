@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\PublishOutboxEvents;
 use App\Domain\Tenant\TenantContext;
 use App\Http\Middleware\ObserveHttpRequest;
 use App\Http\Middleware\ResolveTenant;
@@ -16,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        PublishOutboxEvents::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(ObserveHttpRequest::class);
         $middleware->alias([

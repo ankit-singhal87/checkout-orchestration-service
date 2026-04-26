@@ -18,8 +18,8 @@ RUN apt-get update \
     mbstring \
     pdo_mysql \
     zip \
-  && pecl install xdebug \
-  && docker-php-ext-enable xdebug \
+  && pecl install redis xdebug \
+  && docker-php-ext-enable redis xdebug \
   && { \
     echo "zend_extension=xdebug"; \
     echo "xdebug.mode=off"; \
