@@ -84,8 +84,9 @@ Local/dev mode:
 
 Deploy mode:
 
-- Targets Amazon EKS through Terraform and Kubernetes manifests.
+- Targets Amazon EKS through Terraform and Kubernetes manifests for application workloads.
 - Uses RDS MySQL, ElastiCache Redis, optional AWS OpenSearch, CloudFront with HTTP/3 for viewer connections, AWS WAF, ALB Ingress, an OpenTelemetry-compatible telemetry pipeline, optional observability exporter profiles, and AWS SQS/SNS for async messaging.
+- Uses Amazon RDS for MySQL as the production database. Do not run self-managed MySQL inside EKS for production; Docker Compose MySQL and any future `kind` MySQL binding are local/dev/test parity tools only.
 - Keeps cloud deployment manual/optional until an AWS account and budget guardrails exist.
 - Includes cost controls, TTL tags, budget alarms, and destroy runbooks before any `terraform apply`.
 
@@ -123,6 +124,7 @@ Initial bounded contexts:
 MySQL layout:
 
 - Use one MySQL instance in local mode.
+- Use Amazon RDS for MySQL in production deploy mode; keep EKS for application workloads and bind apps to RDS rather than operating MySQL inside the cluster.
 - Use multiple logical schemas, for example `tenant`, `catalog`, `checkout`, `orders`, `identity`, and `observability_demo`.
 - Keep schema ownership aligned with bounded contexts.
 - Design repository interfaces so a schema can later move to a separate database or instance without rewriting controllers/views.
@@ -511,7 +513,7 @@ Minimum paid/cloud milestone:
 - Use one short-lived EKS cluster.
 - Use CloudFront only for cacheable product/config/static assets.
 - Prefer small worker nodes or Fargate only where cost is understood.
-- Use single-AZ RDS MySQL for demo only.
+- Use RDS MySQL for the production database shape; single-AZ is acceptable only for a short-lived demo, while production planning should account for managed backups, patching, Multi-AZ/failover options, and restore testing.
 - Use one small Redis node or skip managed Redis and run Redis in-cluster for the cheapest demo.
 - Prefer local OpenSearch unless the search tradeoff itself is being demonstrated.
 - Add budgets, cost alerts, Terraform destroy docs, and TTL tags before any cloud deployment.
@@ -698,9 +700,9 @@ Phase 5: Demo polish
 - Tenancy is shared-database with strict tenant scoping for the MVP.
 - Local MySQL uses multiple schemas aligned to DDD bounded contexts.
 - Checkout/order writes use ACID transactions; async projections and side effects use eventual consistency.
-- Kubernetes target is local Kubernetes first and Amazon EKS optionally.
+- Kubernetes target is local Kubernetes first and Amazon EKS optionally for application workloads.
 - Search default is local OpenSearch, then AWS OpenSearch when an AWS account is available, with Elastic Cloud covered as a documented alternative.
-- MySQL source of truth is local MySQL first and AWS RDS only for optional cloud deployment.
+- MySQL source of truth is local MySQL for dev/test and Amazon RDS for MySQL for production deploy mode; self-managed MySQL in EKS is not a production target.
 - Redis target is local Redis first and ElastiCache only for optional cloud deployment.
 - RoadRunner runs Laravel in production-style PHP containers.
 - OpenTelemetry/OTLP is the standard telemetry interface; the observability backend remains swappable through explicit profiles.

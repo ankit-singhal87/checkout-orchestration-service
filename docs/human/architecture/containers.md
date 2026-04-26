@@ -44,9 +44,12 @@ flowchart LR
 
 Deploy mode remains optional and manually approved. RoadRunner, Kubernetes, OpenSearch projections, workers, and cloud telemetry exporters are planned deployment capabilities, not required for the current Phase 1 local checkout path.
 
+Amazon EKS is the production target for application workloads. Production MySQL runs on Amazon RDS for MySQL, not as a self-managed StatefulSet or other in-cluster database on EKS. Local Docker Compose MySQL, and any future `kind` MySQL binding, exist only for development, testing, and local manifest validation.
+
 ## Non-Negotiable Boundaries
 
 - MySQL decides whether checkout state and orders exist.
+- Production MySQL is Amazon RDS for MySQL; this keeps managed backups, patching, Multi-AZ/failover options, and stateful database operations outside EKS.
 - OpenSearch is a rebuildable projection/read model only.
 - The transactional outbox table exists; publishing to Redis Streams or SQS/SNS is later work.
 - Go workers/services require a documented concurrency, async, or latency reason plus a stable contract.
