@@ -1,0 +1,25 @@
+name: Mirror Validation
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+      - "fix/**"
+      - "docs/**"
+      - "experiment/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-scaffold:
+    name: Validate scaffold
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout mirror
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 0 scaffold
+        run: sh scripts/ci/validate-scaffold.sh

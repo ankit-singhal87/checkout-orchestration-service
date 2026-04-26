@@ -1,0 +1,48 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Secrets and credentials
+*.pem
+*.key
+*.p12
+*.kubeconfig
+credentials.json
+secrets.json
+
+# Dependency directories
+vendor/
+node_modules/
+
+# Build and cache output
+dist/
+build/
+coverage/
+.phpunit.cache/
+.pytest_cache/
+.turbo/
+
+# Runtime files
+storage/logs/
+tmp/
+*.log
+
+# Docker and local data
+.docker-data/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
