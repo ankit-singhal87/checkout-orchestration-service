@@ -11,6 +11,7 @@ This project uses the C4 model for architecture documentation.
 
 ## Principles
 
+- Build the checkout app as a Laravel modular monolith with clean boundaries: `Http / Infrastructure -> Application -> Domain`.
 - Prefer diagrams that clarify boundaries and data flow.
 - Avoid diagramming every class.
 - Keep local/dev mode and deploy mode visibly separate.

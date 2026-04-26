@@ -22,12 +22,30 @@ cp .env.example .env
 sh scripts/dev/up.sh
 ```
 
-The Phase 0 Docker Compose file starts supporting infrastructure only. The Laravel app and Go workers are added in later phases.
+By default, Docker Compose starts supporting infrastructure. Start the Laravel checkout container with:
+
+```bash
+COMPOSE_PROFILES=app sh scripts/dev/up.sh
+```
+
+The checkout app skeleton exists and listens on `http://localhost:8080` by default. Go workers are added in later phases.
+
+Bootstrap is idempotent and exits when `apps/checkout/artisan` already exists:
+
+```bash
+sh scripts/dev/bootstrap-checkout-app.sh
+```
 
 ## Useful Docs
 
 - `docs/planning/checkout-mvp-plan.md` - full MVP plan and implementation phases
+- `docs/phase-1-foundation.md` - Phase 1 work streams and acceptance criteria
 - `docs/agents.md` - named project-agent roles and ownership boundaries
+- `docs/contracts` - tenant, checkout state, error, event, and seed data contracts
+- `docs/api/openapi.checkout.yaml` - initial checkout API contract
+- `apps/checkout/docs` - Laravel app conventions and route surface
+- `docs/contracts/bdd-tdd.md` - BDD/TDD workflow for implementation
+- `docs/coding-standards/php-8.5.md` - PHP 8.5 coding standards
 - `docs/phase-0-risk-register.md` - risks and mitigations
 - `docs/architecture/README.md` - C4 architecture documentation index
 - `docs/adr/README.md` - architecture decision records
@@ -38,7 +56,7 @@ The Phase 0 Docker Compose file starts supporting infrastructure only. The Larav
 
 ## CI
 
-GitLab CI is primary and runs `scripts/ci/validate-scaffold.sh`. GitHub Actions is mirror validation only and must not deploy.
+GitLab CI is primary and runs `scripts/ci/validate-scaffold.sh` and `scripts/ci/validate-phase1.sh`. GitHub Actions is mirror validation only and must not deploy.
 
 ## Repository Workflow
 

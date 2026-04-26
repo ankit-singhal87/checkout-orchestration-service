@@ -7,13 +7,13 @@ todos:
     status: completed
   - id: repo-foundation
     content: Create monorepo structure with service, infra, docs, proto, Docker, and GitLab CI folders.
-    status: pending
+    status: in_progress
   - id: architecture-docs
     content: Write C4 architecture overview, local/deploy modes, DDD boundaries, multi-tenant checkout flow, ADRs, cost strategy, and named project-agent definitions.
     status: pending
   - id: contracts
     content: Define SCAYLE-inspired checkout contract, Blade view models, latency SLOs, domain events, and internal service contracts.
-    status: pending
+    status: in_progress
   - id: local-runtime
     content: Add free local Docker Compose or local Kubernetes baseline for Laravel RoadRunner API, Go services, MySQL, Redis, search, identity, and observability services.
     status: pending
@@ -585,7 +585,7 @@ Initial files and agent guidance:
 
 Local tools and debugging setup:
 
-- Confirm/install PHP, Composer, Go, Docker, Docker Compose, Node.js only if frontend assets require it, Git, GitLab CLI or `glab` if desired, Terraform, `kubectl`, `kind` or `k3d`, and `protoc` tooling when gRPC starts.
+- Confirm/install PHP 8.5, Composer, Go, Docker, Docker Compose, Node.js only if frontend assets require it, Git, GitLab CLI or `glab` if desired, Terraform, `kubectl`, `kind` or `k3d`, and `protoc` tooling when gRPC starts.
 - Add `.editorconfig`, `.gitignore`, and local `.env.example` files.
 - Add `docker-compose.yml` skeleton for Laravel/RoadRunner, MySQL, Redis, OpenSearch, OpenTelemetry Collector, Prometheus, Loki, Grafana, and Jaeger or Tempo.
 - Add debugging guidance for Laravel logs, RoadRunner worker reloads, Xdebug optional use, Go debugger optional use, database inspection, Redis inspection, and trace lookup.
@@ -618,6 +618,11 @@ AI tooling strategy:
 - Cursor work should produce normal commits for GitLab. GitHub receives mirrored updates from GitLab.
 - Commit messages should describe the actual change, not the tool that made it.
 - Agents may push branches to GitLab when asked. Merge request creation and merge are manual.
+- Treat the active Cursor session agent as the lead orchestrator for task slicing, integration, validation, commits, and push requests unless the user assigns that role elsewhere.
+- Use bounded specialist agents for parallel review or implementation work packages with explicit allowed paths, acceptance criteria, validation commands, and stop conditions.
+- Increase agent autonomy only when CI validation, path boundaries, and manual GitLab review gates are clear.
+- Require agents to follow existing coding standards, and add a standards document before introducing substantial code in a new implementation technology.
+- Follow agile slices instead of phase-completion batching: scenario, test, smallest implementation, validation, review, integration.
 - Use the ChatGPT/Codex $200 plan as a separate assistant for second opinions, architecture review, test-case generation, and code review prompts.
 - Do not assume the ChatGPT/Codex subscription pays for Cursor model usage. Cursor supports provider API keys, but OpenAI API usage is billed separately from ChatGPT Plus/Pro/Codex subscriptions.
 - If using a separate OpenAI API key in Cursor, configure it through `Cursor Settings > Models`, add the provider key, verify, and save. Treat this as separate API billing and note that provider-key usage may not have the same privacy/billing behavior as Cursor's included plan.
@@ -640,9 +645,10 @@ Phase 1: Repository foundation and contracts
 - Create monorepo layout, shared documentation, Docker Compose, proto contracts, and service READMEs.
 - Add C4 documentation skeleton under `[docs/architecture](docs/architecture)`.
 - Define named project agents in `[docs/agents.md](docs/agents.md)` with ownership boundaries and collaboration rules.
-- Define host tool requirements in `[docs/local-tools.md](docs/local-tools.md)`: Git, Docker, and Docker Compose are required; PHP, Composer, Node.js, and debugging helpers are recommended for editor productivity.
+- Define host tool requirements in `[docs/local-tools.md](docs/local-tools.md)`: Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
 - Keep MySQL, Redis, OpenSearch, Keycloak, OpenTelemetry Collector, Prometheus, Loki, Tempo or Jaeger, and Grafana container-managed with named volumes for persistent local data.
 - Define tenant model, checkout state machine, latency SLOs, catalog/cart seed model, and SCAYLE-inspired API contract.
+- Define BDD scenarios and TDD expectations before implementing checkout behavior, using Pest, parallel test execution, Faker, Mockery, real MySQL-backed persistence tests, and explicit race-condition scenarios.
 - Define DDD bounded contexts, MySQL schema ownership, local/deploy mode split, and consistency model.
 - Build the first Laravel + Blade MVVM-style UI for two tenants with seeded product listing, product detail, cart, checkout, and confirmation screens.
 - Keep checkout orchestration and business flow in Laravel/PHP for Phase 1.
@@ -658,7 +664,8 @@ Phase 2: Local runnable checkout path
 - Add seeders for tenants, product images, variation options, cart examples, and checkout scenarios.
 - Add Redis-backed tenant-aware idempotency/session locking.
 - Add Redis Streams and transactional outbox for async order side effects.
-- Add integration tests for the full happy path.
+- Add Pest integration tests for the full happy path against real MySQL.
+- Add concurrent execution tests for idempotency, inventory reservation, checkout state transitions, and outbox publishing.
 
 Phase 3: Observability and performance
 

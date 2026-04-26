@@ -9,3 +9,4 @@ ADRs document decisions that materially shape the demo.
 - `0003-observability-otel-first.md`
 - `0004-checkout-consistency-model.md`
 - `0005-scayle-inspired-not-cloned.md`
+- `0006-laravel-clean-boundaries.md`

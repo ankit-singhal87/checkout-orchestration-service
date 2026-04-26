@@ -10,5 +10,34 @@ validate:scaffold:
   stage: validate
   script:
     - sh scripts/ci/validate-scaffold.sh
+    - sh scripts/ci/validate-phase1.sh
+  rules:
+    - when: always
+
+checkout:tests:
+  stage: validate
+  image: composer:2
+  services:
+    - name: mysql:8.4
+      alias: mysql
+    - name: redis:7.4
+      alias: redis
+  variables:
+    CHECKOUT_TEST_RUNTIME: host
+    APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+    DB_HOST: mysql
+    DB_PORT: 3306
+    DB_DATABASE: checkout_testing
+    DB_USERNAME: root
+    DB_PASSWORD: checkout_root
+    MYSQL_DATABASE: checkout_testing
+    MYSQL_USER: checkout
+    MYSQL_PASSWORD: checkout
+    MYSQL_ROOT_PASSWORD: checkout_root
+  before_script: []
+  script:
+    - docker-php-ext-install pdo_mysql
+    - composer install --working-dir=apps/checkout --no-interaction --prefer-dist
+    - sh scripts/test/checkout-app.sh
   rules:
     - when: always
