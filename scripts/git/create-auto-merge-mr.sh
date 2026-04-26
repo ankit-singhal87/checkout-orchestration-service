@@ -22,6 +22,11 @@ if ! command -v glab >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required to read merge request metadata from the GitLab API." >&2
+  exit 1
+fi
+
 if [ "${ALLOW_DIRTY:-0}" != "1" ]; then
   if ! git diff --quiet || ! git diff --cached --quiet; then
     echo "Working tree has uncommitted changes. Commit or stash them before creating an MR." >&2
@@ -32,17 +37,10 @@ fi
 echo "Pushing $source_branch to GitLab origin."
 git push origin "$source_branch"
 
-mr_list="$(glab mr list --source-branch "$source_branch" --target-branch "$target_branch")"
+mr_json="$(glab api "projects/:fullpath/merge_requests?state=opened&source_branch=$source_branch&target_branch=$target_branch")"
+mr_iid="$(printf '%s\n' "$mr_json" | jq -r '.[0].iid // empty')"
 
-if printf '%s\n' "$mr_list" | grep -q '^No open merge requests'; then
-  mr_exists=0
-elif [ -n "$mr_list" ]; then
-  mr_exists=1
-else
-  mr_exists=0
-fi
-
-if [ "$mr_exists" -eq 1 ]; then
+if [ -n "$mr_iid" ]; then
   echo "Merge request already exists for $source_branch -> $target_branch."
 else
   glab mr create \
@@ -53,14 +51,22 @@ else
     --squash-before-merge \
     --remove-source-branch \
     --yes
+
+  mr_json="$(glab api "projects/:fullpath/merge_requests?state=opened&source_branch=$source_branch&target_branch=$target_branch")"
+  mr_iid="$(printf '%s\n' "$mr_json" | jq -r '.[0].iid // empty')"
 fi
 
-glab mr merge "$source_branch" \
-  --auto-merge \
-  --squash \
-  --squash-message "$squash_message" \
-  --remove-source-branch \
-  --sha "$head_sha" \
-  --yes
+if [ -z "$mr_iid" ]; then
+  echo "Could not find an open merge request for $source_branch -> $target_branch." >&2
+  exit 1
+fi
 
-glab mr view "$source_branch"
+glab api -X PUT "projects/:fullpath/merge_requests/$mr_iid/merge" \
+  -F auto_merge=true \
+  -F squash=true \
+  -f squash_commit_message="$squash_message" \
+  -F should_remove_source_branch=true \
+  -f sha="$head_sha" \
+  --silent
+
+glab mr view "$mr_iid"
