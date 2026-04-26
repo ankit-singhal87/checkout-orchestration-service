@@ -28,6 +28,14 @@ By default, Docker Compose starts supporting infrastructure. Start the Laravel c
 make up-app
 ```
 
+RoadRunner is available as an explicit opt-in runtime path once Laravel Octane dependencies are approved and installed:
+
+```bash
+make up-roadrunner
+```
+
+The default checkout runtime remains `php artisan serve`.
+
 By default, local infrastructure is limited to MySQL and Redis. Optional search, observability, and identity services stay behind Compose profiles.
 
 ```bash
@@ -36,7 +44,16 @@ make up-observability
 make up-identity
 ```
 
-The checkout app listens on `http://localhost:8080` by default and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`. Go workers are added in later phases.
+The checkout app listens on `http://localhost:8080` by default and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`.
+
+Outbox publication is available as a manual local async boundary:
+
+```bash
+make demo-outbox-publish
+make demo-redis-events
+```
+
+See [docs/agent/demo-runbook.md](docs/agent/demo-runbook.md) for the full Phase 2 demo flow. Go workers are added in later phases.
 
 Bootstrap is idempotent and exits when [apps/checkout/artisan](apps/checkout/artisan) already exists:
 

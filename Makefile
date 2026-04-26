@@ -6,6 +6,7 @@ help:
 	@printf '%s\n' '  make check-tools              Verify required host tools'
 	@printf '%s\n' '  make up                       Start default local services'
 	@printf '%s\n' '  make up-app                   Start local services and checkout app'
+	@printf '%s\n' '  make up-roadrunner            Start checkout app with opt-in RoadRunner runtime'
 	@printf '%s\n' '  make up-search                Start search profile services'
 	@printf '%s\n' '  make up-observability         Start observability profile services'
 	@printf '%s\n' '  make up-identity              Start identity profile services'
@@ -16,6 +17,8 @@ help:
 	@printf '%s\n' '  make validate                 Run scaffold and Phase 1 validation'
 	@printf '%s\n' '  make pre-push                 Run the repository pre-push checks'
 	@printf '%s\n' '  make pre-push-full            Run pre-push checks including checkout tests'
+	@printf '%s\n' '  make demo-outbox-publish      Publish demo outbox rows to Redis Streams'
+	@printf '%s\n' '  make demo-redis-events        Show recent Redis Stream checkout events'
 	@printf '%s\n' '  make create-auto-merge-mr     Create GitLab MR with squash and auto-merge'
 	@printf '%s\n' '  make install-hooks            Install local Git hooks'
 
@@ -30,6 +33,10 @@ up:
 .PHONY: up-app
 up-app:
 	COMPOSE_PROFILES=app sh scripts/dev/up.sh
+
+.PHONY: up-roadrunner
+up-roadrunner:
+	CHECKOUT_RUNTIME=roadrunner COMPOSE_PROFILES=app sh scripts/dev/up.sh
 
 .PHONY: up-search
 up-search:
@@ -97,6 +104,14 @@ pre-push:
 .PHONY: pre-push-full
 pre-push-full:
 	RUN_CHECKOUT_TESTS_ON_PRE_PUSH=1 sh scripts/git/pre-push.sh
+
+.PHONY: demo-outbox-publish
+demo-outbox-publish:
+	docker compose exec -T checkout php artisan checkout:outbox:publish --limit="$${LIMIT:-10}"
+
+.PHONY: demo-redis-events
+demo-redis-events:
+	docker compose exec -T redis redis-cli XRANGE "$${REDIS_STREAM:-checkout:events}" - + COUNT "$${COUNT:-5}"
 
 .PHONY: create-auto-merge-mr
 create-auto-merge-mr:

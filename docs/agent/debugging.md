@@ -5,7 +5,9 @@
 - Application logs should be structured JSON and include `trace_id`, `request_id`, `tenant_id`, and route.
 - Current local containers write JSON application logs to stderr by default through `LOG_STACK=stderr`.
 - HTTP responses include `X-Request-Id` and `X-Trace-Id`; pass either header when reproducing a request that needs correlation.
-- RoadRunner worker reload commands will be added when production-style runtime wiring becomes active.
+- `make up-roadrunner` selects the opt-in RoadRunner startup path. The default runtime remains `php artisan serve`.
+- RoadRunner currently requires approved Composer dependency installation for Laravel Octane and RoadRunner packages before it will start.
+- After dependency approval and installation, use `docker compose exec checkout php artisan octane:reload` to reload workers.
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.
 - The host only needs an IDE listener such as the Cursor or VS Code PHP Debug extension.
 - Use path mappings from the container app path, for example `/app`, to the host workspace path.

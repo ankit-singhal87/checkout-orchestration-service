@@ -11,7 +11,7 @@ This document records what is implemented in the repository after the Phase 1 fo
 - **Observability baseline:** Laravel adds request/trace correlation headers, propagates trace IDs into Problem Details, and emits structured HTTP completion logs to JSON stderr in local containers. Full OTLP metrics/traces and exporter selection remain later work.
 - **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts. Common local commands are aggregated in [Makefile](../../../Makefile).
 - **Standards:** PHP 8.5-oriented standards in [docs/agent/coding-standards/php-8.5.md](../coding-standards/php-8.5.md); clean boundaries in [docs/human/adr/0006-laravel-clean-boundaries.md](../../human/adr/0006-laravel-clean-boundaries.md).
-- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, Redis Streams outbox publishing, RoadRunner runtime wiring, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
+- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, approved RoadRunner/Octane dependency installation, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
 
 ## Laravel surface
 
@@ -41,7 +41,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 - **Problem Details:** API validation, missing checkout state, tenant access denial, checkout conflicts, and JSON clients hitting checkout web mutation paths return `application/problem+json` where implemented.
 - **Basket updates:** API clients can update or remove checkout basket items by variant ID; basket changes recalculate totals and clear shipping/payment selections.
 - **HTTP observability:** Handled HTTP responses include `X-Request-Id` and `X-Trace-Id`; structured completion logs include request ID, trace ID, route, status, latency, and safe tenant/shop slugs.
-- **Outbox:** On successful confirmation, an `outbox_events` row is written for `order.confirmed` (publication to Redis/SQS is a later step).
+- **Outbox:** On successful confirmation, an `outbox_events` row is written for `order.confirmed`; `checkout:outbox:publish` publishes unpublished rows to Redis Streams and marks them published after success.
 - **Seed data:** Two demo tenants have enough deterministic product fixtures to make the storefront and checkout flow inspectable locally.
 
 ## CI and validation
@@ -57,7 +57,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 
 ## Later-Phase Follow-ups
 
-- **Outbox consumer** (Laravel job or small worker) to mark `published_at` and optional Redis Stream publish.
+- **RoadRunner runtime** dependency approval and Laravel Octane installation for the existing opt-in startup path.
 - OpenSearch indexing/read-model projection.
 - RoadRunner production-style runtime wiring.
 - OpenTelemetry metrics/traces and exporter profile selection.
