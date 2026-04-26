@@ -20,6 +20,9 @@ it('publishes unpublished outbox events to Redis Streams', function () {
         'payload' => [
             'orderRef' => checkoutTestNamespace('order-ref'),
             'tenant' => 'fashion-store',
+            'correlationId' => checkoutTestNamespace('checkout-id'),
+            'causationId' => checkoutTestNamespace('checkout-confirmation-command'),
+            'idempotencyKey' => checkoutTestNamespace('order-confirmed-business-key'),
             'context' => [
                 'request_id' => 'request-from-outbox-context',
                 'traceId' => 'trace-from-outbox-context',
@@ -48,6 +51,9 @@ it('publishes unpublished outbox events to Redis Streams', function () {
                 && $fields['tenantId'] === 'fashion-store'
                 && $fields['shopId'] === 'fashion-main'
                 && $fields['occurredAt'] === $event->created_at?->toJSON()
+                && $fields['correlationId'] === checkoutTestNamespace('checkout-id')
+                && $fields['causationId'] === checkoutTestNamespace('checkout-confirmation-command')
+                && $fields['idempotencyKey'] === checkoutTestNamespace('order-confirmed-business-key')
                 && $fields['requestId'] === 'request-from-outbox-context'
                 && $fields['traceId'] === 'trace-from-outbox-context'
                 && $fields['traceparent'] === '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'

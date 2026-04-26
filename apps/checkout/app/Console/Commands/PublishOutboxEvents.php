@@ -166,7 +166,7 @@ final class PublishOutboxEvents extends Command
             $fields['shopId'] = (string) $event->tenant->shop_id;
         }
 
-        foreach (['traceId', 'requestId', 'traceparent'] as $key) {
+        foreach (['correlationId', 'causationId', 'idempotencyKey', 'traceId', 'requestId', 'traceparent'] as $key) {
             $value = $this->payloadContextValue($payload, $key);
 
             if ($value !== null) {

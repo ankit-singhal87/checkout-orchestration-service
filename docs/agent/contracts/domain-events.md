@@ -65,6 +65,8 @@ Required fields:
 
 Local Redis Streams map the envelope fields to message fields on stream `checkout:events`. Payload remains JSON encoded. Deploy-mode transports should keep the same envelope and only change the transport adapter.
 
+For checkout-created `order.confirmed` rows, the outbox payload must include `correlationId`, `causationId`, and `idempotencyKey` so the outbox publisher can promote them into Redis Stream envelope fields. `correlationId` is the public checkout id, `causationId` is `checkout.confirmation:{checkoutId}`, and `idempotencyKey` is `tenantId:order.confirmed:{checkoutConfirmationIdempotencyKey}`.
+
 ## Consumer Groups
 
 Consumer group names are stable deployment contracts:
