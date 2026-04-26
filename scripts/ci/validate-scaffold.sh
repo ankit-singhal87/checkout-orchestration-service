@@ -10,6 +10,7 @@ AGENTS.md
 .gitlab-ci.yml
 .github/workflows/mirror-validation.yml
 docs/planning/checkout-mvp-plan.md
+docs/agents.md
 docs/phase-0-risk-register.md
 docs/ai-tooling.md
 docs/branching-strategy.md
@@ -22,6 +23,8 @@ docs/adr/README.md
 docker-compose.yml
 observability/otel-collector.yml
 observability/prometheus.yml
+observability/loki.yml
+observability/tempo.yml
 scripts/dev/check-tools.sh
 scripts/dev/up.sh
 scripts/dev/down.sh

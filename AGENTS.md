@@ -5,9 +5,11 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 ## Scope Boundaries
 
 - Phase 0 is scaffolding, documentation, guardrails, CI placeholders, and local tooling only.
+- Phase 1 defines repository foundation, contracts, named project agents, local tooling, and the first Laravel app structure.
 - Do not implement full checkout behavior, payment integrations, real auth, or AWS deployment in Phase 0.
 - Keep local/dev mode free or near-free.
 - Keep deploy mode optional and manually approved.
+- Use `docs/agents.md` for named project-agent ownership and handoff boundaries.
 
 ## Repository Rules
 
