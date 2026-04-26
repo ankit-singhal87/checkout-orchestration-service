@@ -27,6 +27,9 @@ Parallel worker agents may create `agent/<short-scope>` branches when the lead o
 
 Rules:
 
+- Every non-read-only worker must use a short-scoped branch before editing files, generating tracked artifacts, coordinating release mechanics, committing, or pushing.
+- Parallel non-read-only workers must use separate worktrees so local state, generated files, and validation outputs do not collide.
+- Read-only advisory workers may inspect the current worktree without their own branch when they do not edit files or run commands that change tracked artifacts.
 - Keep each `agent/*` branch limited to the assigned files and acceptance criteria.
 - Do not edit files owned by another active agent branch.
 - Push only to GitLab `origin`.
@@ -51,24 +54,35 @@ Merge request rules:
 
 ## Commit Messages
 
-Use clean imperative commit messages that explain the change. Avoid generic tool-generated messages like `Added by cursor`.
+Use clean imperative commit messages that explain the change. Every commit subject must start with one of the active category prefixes:
+
+- `func:` product or user-visible behavior, API behavior, checkout behavior, or user flows.
+- `tech:` platform, runtime, infrastructure, dependencies, refactors, tests, CI, or internal implementation with no direct product behavior change.
+- `agentic:` agent operating model, orchestration, handoffs, worker definitions, or automation for agent workflows.
+
+The active standard is `func:`, `tech:`, and `agentic:`. Shorter alternatives such as `feat:`, `chore:`, and `agent:` are familiar, but this repository uses the requested requirement-oriented categories so commit history shows whether the dominant outcome is functional, technical, or agent-process related.
 
 Rules:
 
 - Use an imperative subject, ideally 50 characters or fewer.
+- Put the category prefix first, then an imperative subject.
 - Make one commit per coherent behavior, guardrail, runtime, or documentation slice.
-- Split unrelated docs, implementation, tests, and CI changes unless they are part of one atomic change.
+- Choose the prefix by outcome, not file type. Documentation can be `func:`, `tech:`, or `agentic:` depending on the decision it records.
+- For ambiguous mixed commits, split the changes when they have distinct category-level outcomes; otherwise choose the prefix that describes the dominant externally useful outcome.
+- Split commits when one change has multiple category-level outcomes, such as checkout behavior plus unrelated CI hardening.
+- Keep tests with the behavior or implementation they prove; use `tech:` when the commit is only test infrastructure or coverage with no product behavior change.
 - Add a body only for motivation, tradeoffs, validation, or follow-up risk.
 - Do not mention vendor inspiration or competitor names in commit messages.
 - When preparing a merge request, set the squash commit message separately from the branch commits.
 
 Examples:
 
-- `Add Phase 1 agent roster`
-- `Document GitLab mirror workflow`
-- `Refine local tooling guidance`
-- `Enable outbox stream publisher`
-- `Harden Markdown link checks`
+- `func: Add checkout conflict response`
+- `func: Show checkout confirmation page`
+- `tech: Harden Markdown link checks`
+- `tech: Add RoadRunner runtime guardrail`
+- `agentic: Define narrow agent template`
+- `agentic: Document GitLab mirror workflow`
 
 ## Git Flow
 

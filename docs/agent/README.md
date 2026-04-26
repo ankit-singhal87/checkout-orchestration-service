@@ -8,6 +8,7 @@ Start here:
 - [planning/phase-2-system-completion.md](planning/phase-2-system-completion.md) - Phase 2 priority order optimized for interview-demo system completeness.
 - [context-handoff.md](context-handoff.md) - compact current handoff buffer for context defragmentation between MRs and sessions.
 - [agents.md](agents.md) - project-agent roles, parallel work strategy, merge playbook, and stop conditions.
+- [agents/README.md](agents/README.md) - narrow named-agent definition requirements and template for production-adjacent work.
 - [demo-runbook.md](demo-runbook.md) - local Phase 2 demo path for checkout, outbox, Redis Streams, and correlation evidence.
 - [contracts](contracts) - tenant, checkout state, Problem Details, events, seed data, latency, and BDD/TDD contracts.
 - [api/openapi.checkout.yaml](api/openapi.checkout.yaml) - public checkout API contract.
