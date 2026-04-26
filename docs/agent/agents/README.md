@@ -6,7 +6,9 @@ This folder is the discoverable home for detailed named-agent definitions. Keep 
 
 Use `agents` as the stable neutral folder name and operating term. It is short, discoverable, already used across the repo, and does not imply gender, rank, or mythology.
 
-Use `Conductor` as the recommended neutral shorthand for the lead orchestrator role when a shorter role name helps. Keep `lead orchestrator` wording available where it makes coordination authority explicit. The Conductor coordinates, routes work, prevents collisions, polls workers, and does not implement work directly when a worker owns the lane.
+Use `Conductor` as the recommended neutral shorthand for the lead orchestrator role when a shorter role name helps. Keep `lead orchestrator` wording available where it makes coordination authority explicit. The Conductor coordinates, routes work, prevents collisions, polls workers, and does not implement work directly when a worker owns the lane. The Conductor never works a worker-owned lane directly; it assigns the lane, monitors it, unblocks it when necessary, and hands it back to the worker or Relay.
+
+The Conductor must use a keep-alive loop while work is pending: poll active workers, command sessions, merge requests, or CI jobs; act on new information; and send brief user-visible progress updates before the session appears idle. Long-running waits should produce concise status every 30 seconds of wall-clock time unless the user has asked for quiet operation.
 
 Do not rename this folder to `heroes`, `heroines`, `builders`, or `thinkers`:
 
@@ -27,7 +29,7 @@ Mode labels do not grant permissions. Autonomy level, allowed paths, branch/work
 
 ## Model Selection
 
-Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when the current tier is insufficient.
+Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when the current tier is insufficient. Cost-tier suggestions are routing hints, not permissions or hard requirements; the Conductor may override them for a specific work package based on ambiguity, blast radius, active failures, context size, or required speed.
 
 - Use a low-cost or small model for `observer` checks, simple read-only branch or MR status, narrow docs formatting, and command-output summarization.
 - Use a standard or mid-capability model for bounded `builder` work, Scribe documentation maintenance, routine Relay integration, focused validation follow-up, and ordinary branch hygiene.
@@ -62,6 +64,7 @@ Each file must define:
 - Allowed paths.
 - Out-of-scope paths.
 - Autonomy level.
+- Suggested model cost tier.
 - Branch naming.
 - Expected inputs.
 - Expected outputs.
@@ -88,6 +91,8 @@ Allowed paths:
 Out-of-scope paths:
 
 Autonomy level:
+
+Suggested model cost tier:
 
 Branch naming:
 

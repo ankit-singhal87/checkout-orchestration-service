@@ -20,7 +20,8 @@ Use one lead orchestrator and several bounded worker agents.
 - The lead orchestrator should create background worker tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
 - Background agents may explore, review, draft docs, or implement small isolated slices, but they must report findings and changed paths clearly.
 - The lead orchestrator must not wait on worker or subagent completion for more than 20 seconds at a time. Treat 20 seconds as the maximum wait; when actually waiting on a worker, use 10-20 second polling waits. Do not wait when there is independent phase analysis, user-message handling, or another workstream to start. Treat worker waits as a responsive event loop: poll, check newest user intent, reassess phase and priority, then continue waiting, start independent work, close or reassign failed workers, or route another work package as needed.
-- Workers should run in the background where possible. Long-running validation, worker waits, and phase analysis must not freeze orchestrator responsiveness.
+- Use a keep-alive loop whenever work is pending: after each poll, either act on new information, start another independent lane, or send a short status update if the user has not heard progress recently. For long-running workers, validation, CI, or branch operations, prefer brief user-visible updates about the current blocker or wait target every 30 seconds of wall-clock time.
+- Workers should run in the background where possible. Long-running validation, worker waits, and phase analysis must not freeze orchestrator responsiveness; the Conductor remains responsible for polling, status updates, and routing while work is in flight.
 - Parallel implementation agents may work on their own `agent/<short-scope>` branches when the lead orchestrator assigns an independent lane.
 - Agent branches must not edit files owned by another active branch unless the orchestrator explicitly reassigns ownership.
 - Named implementation agents should be narrow enough that multiple agents can work safely without sharing editable files. If an agent definition is too broad to provide clear collision boundaries, split it into narrower lane agents before assigning production-adjacent work.
@@ -46,16 +47,35 @@ Selection rules:
 - Split or define a narrower agent before assigning production-adjacent work when the existing roster name is too broad to prevent file collisions.
 - Assign a branch and worktree to every non-read-only worker before edits begin; keep read-only advisory workers branchless only while they remain read-only.
 - Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when evidence shows the current tier is insufficient.
+- Treat cost-tier suggestions as routing hints, not permissions or hard requirements. The Conductor may override them for a specific work package based on ambiguity, blast radius, active failures, context size, or required speed.
 - Use a low-cost or small model for Observer status checks, simple read-only status, narrow docs formatting, and command-output summarization.
 - Use a standard or mid-capability model for bounded builders, Scribe documentation work, routine Relay integration, focused validation follow-up, and ordinary branch hygiene.
 - Use a high-capability model for Conductor planning under ambiguity, architecture or security decisions, risky code changes, difficult conflict resolution, and root-cause debugging when a worker is blocked.
 - Stop and ask when the worker type is ambiguous, the task crosses ownership lanes, or two workers need the same editable file.
 
+Suggested starting tiers by agent family:
+
+| Agent family | Suggested tier | Override upward when |
+| --- | --- | --- |
+| Conductor | High for ambiguous orchestration; medium for routine routing | Branch state, worker outputs, or product direction conflicts |
+| Atlas | High | Architecture, service boundaries, ADRs, or production tradeoffs are ambiguous |
+| Loom | Medium | Checkout behavior, persistence, tenant isolation, or idempotency risk is high |
+| Forge | Medium | CI/runtime/container changes affect shared developer or pipeline workflows |
+| Beacon | Medium | Telemetry design affects cross-service contracts, cost, or production readiness |
+| Quill | Medium | Public API, Problem Details, or contract compatibility decisions are unclear |
+| Sprout | Low to medium | Seed/reset behavior touches migrations, tenant isolation, or integration fixtures |
+| Hammer | Medium | Go extraction, concurrency, async delivery, or latency behavior is non-trivial |
+| Relay | Medium | Merge conflicts, failed CI, release mechanics, or history surgery require root-cause work |
+| Observer | Low | Escalate to Conductor or Relay instead of changing mode when status is blocked |
+| Scribe | Low to medium | Handoff cleanup requires resolving contradictory durable docs |
+| Shield | High | Secrets, tenant isolation, auth, payment simulation, or IAM/network risk is involved |
+| Gauge | Medium | Test strategy spans multiple layers, load evidence, or flaky failure diagnosis |
+
 ### Lead Orchestrator - Cursor Session Agent
 
 The active Cursor session agent is the lead orchestrator unless the user explicitly assigns that role elsewhere.
 
-`Conductor` may be used as a neutral role name for this lead orchestrator. The Conductor coordinates, routes work, prevents collisions, polls workers, and stays out of direct implementation when a worker owns the lane.
+`Conductor` may be used as a neutral role name for this lead orchestrator. The Conductor coordinates, routes work, prevents collisions, polls workers, and stays out of direct implementation when a worker owns the lane. The Conductor never works a worker-owned lane directly; it assigns the lane, monitors it, unblocks it when necessary, and hands it back to the worker or Relay.
 
 Responsibilities:
 
@@ -65,11 +85,12 @@ Responsibilities:
 - Prevent parallel agents from editing the same files.
 - Name and track any parallel `agent/*` branches and decide how each branch is integrated.
 - Assign branch creation, code/docs edits, validation, commits, pushes, and merge request preparation to the relevant worker agent.
+- Keep long-running work alive by polling active workers, command sessions, MRs, and CI jobs, then reporting concise progress before the session appears idle.
 - Keep context small by assigning Scribe to flush durable 1-2 line learnings into [context-handoff.md](context-handoff.md) after MR creation or merge, then closing or abandoning context-heavy worker threads.
 - Prevent context growth by routing validated stable slices quickly to Relay for commit and, when authorized, merge request preparation. Stable validated commits should not sit locally for long while unrelated work continues.
 - Stop and ask when worker outputs conflict, when ownership is unclear, or when a requested action crosses a stop condition.
 
-The orchestrator should stay hands-off for execution. Worker agents move independently in their lanes, while the orchestrator owns routing, boundaries, and whether additional workers are needed.
+The orchestrator stays hands-off for execution. Worker agents move independently in their lanes, while the orchestrator owns routing, boundaries, and whether additional workers are needed. Conductor work is coordination work only; implementation, validation execution, release mechanics, and documentation edits belong to assigned workers unless Conductor is diagnosing a blocker before hand-back.
 
 ## Agile Working Model
 
