@@ -11,6 +11,8 @@ description="${MR_DESCRIPTION:-Summary: Agent-created merge request for $source_
 Validation: Run local validation before creating the merge request.
 
 Risk: Review the branch diff and pipeline result before relying on auto-merge.}"
+auto_merge_attempts="${AUTO_MERGE_ATTEMPTS:-10}"
+auto_merge_sleep_seconds="${AUTO_MERGE_SLEEP_SECONDS:-3}"
 
 if [ -z "$source_branch" ]; then
   echo "Could not determine source branch. Set SOURCE_BRANCH explicitly." >&2
@@ -61,12 +63,32 @@ if [ -z "$mr_iid" ]; then
   exit 1
 fi
 
-glab api -X PUT "projects/:fullpath/merge_requests/$mr_iid/merge" \
-  -F auto_merge=true \
-  -F squash=true \
-  -f squash_commit_message="$squash_message" \
-  -F should_remove_source_branch=true \
-  -f sha="$head_sha" \
-  --silent
+attempt=1
+while [ "$attempt" -le "$auto_merge_attempts" ]; do
+  glab api -X PUT "projects/:fullpath/merge_requests/$mr_iid/merge" \
+    -F auto_merge=true \
+    -F squash=true \
+    -f squash_commit_message="$squash_message" \
+    -F should_remove_source_branch=true \
+    -f sha="$head_sha" \
+    --silent || true
+
+  mr_state="$(glab api "projects/:fullpath/merge_requests/$mr_iid")"
+  merge_when_pipeline_succeeds="$(printf '%s\n' "$mr_state" | jq -r '.merge_when_pipeline_succeeds')"
+  state="$(printf '%s\n' "$mr_state" | jq -r '.state')"
+
+  if [ "$merge_when_pipeline_succeeds" = "true" ] || [ "$state" = "merged" ]; then
+    break
+  fi
+
+  if [ "$attempt" -eq "$auto_merge_attempts" ]; then
+    echo "Could not enable auto-merge for merge request !$mr_iid." >&2
+    exit 1
+  fi
+
+  echo "Auto-merge is not ready yet for !$mr_iid; retrying in ${auto_merge_sleep_seconds}s."
+  sleep "$auto_merge_sleep_seconds"
+  attempt=$((attempt + 1))
+done
 
 glab mr view "$mr_iid"
