@@ -50,7 +50,7 @@ Proposed structure:
 - `[infra/k8s](infra/k8s)` - Kubernetes manifests or Helm-style overlays for local Kubernetes and optional EKS deployment.
 - `[docker](docker)` - Dockerfiles and local development images.
 - `[.gitlab-ci.yml](.gitlab-ci.yml)` - primary GitLab CI/CD pipeline for lint, test, build, scan, images, preview/demo checks, and optional deploy.
-- `[.github/workflows](.github/workflows)` - GitHub Actions workflows for read-only mirror validation, link checks, and lightweight public demo checks.
+- `[.github/workflows](.github/workflows)` - optional mirror validation only.
 - `[docs](docs)` - architecture decision records, runbooks, diagrams, and agent handoff docs.
 
 ## Documentation Model
@@ -500,9 +500,8 @@ Recommended free path:
 - Build and demo locally with Docker Compose: Laravel RoadRunner, Go services, MySQL, Redis, OpenSearch, and Datadog-compatible local telemetry.
 - Add optional local Kubernetes with `kind`, `k3d`, or Minikube to prove Kubernetes manifests before using AWS.
 - Simulate CloudFront locally through cache headers and an optional reverse proxy; only add real CloudFront when deploying to AWS.
-- Use GitLab as the primary public repository host and source of truth for issues, merge requests, CI/CD, and releases.
-- Use GitHub as a public read-only mirror for discoverability with companies and interview/demo audiences.
-- Use GitLab CI/CD as the primary CI path. Keep GitHub Actions lightweight for mirror validation only.
+- Use GitLab for source, issues, merge requests, CI/CD, and releases.
+- Use GitHub only as a GitLab-fed public mirror.
 - Use open-source OpenTelemetry Collector locally and keep Datadog integration configurable by environment variables.
 - Use Terraform modules with `terraform plan` support, but do not require `terraform apply` until an AWS account exists.
 
@@ -531,12 +530,10 @@ Tradeoff: a monorepo is less representative of independent enterprise service ow
 
 Primary hosting and CI:
 
-- GitLab is the primary public repository host and write target.
-- GitLab CI/CD is the primary CI/CD implementation.
-- GitHub is a public read-only mirror for discoverability and easier sharing with audiences that expect GitHub.
-- GitHub Actions should be limited to mirror validation, README/link checks, and lightweight smoke checks. It should not own deployments or releases.
-- Keep shared scripts under `[scripts/ci](scripts/ci)` so GitLab CI and GitHub Actions call the same lint/test/build commands where practical.
-- Avoid CI logic that only works in one platform unless it is isolated behind platform-specific wrapper steps.
+- GitLab is the write target, review target, and CI/CD host.
+- GitHub is a GitLab-fed portfolio mirror only.
+- Merge requests and merges are manual GitLab steps.
+- Keep shared CI scripts under `[scripts/ci](scripts/ci)`.
 
 ## AI Agent Roles
 
@@ -544,7 +541,7 @@ Define agent responsibilities in `[docs/agents.md](docs/agents.md)` so work can 
 
 - Atlas, Architecture Agent: owns service boundaries, ADRs, diagrams, DDD boundaries, and non-functional requirements.
 - Loom, Laravel Checkout Agent: implements public API, Blade UI, RoadRunner config, persistence, idempotency, and validation.
-- Forge, Platform Agent: owns Docker, local Kubernetes direction, Terraform, GitLab CI/CD, GitHub mirror validation, secrets strategy, and deployment docs.
+- Forge, Platform Agent: owns Docker, local Kubernetes direction, Terraform, GitLab CI/CD, mirroring, secrets strategy, and deployment docs.
 - Beacon, Observability Agent: owns OpenTelemetry traces, logs, metrics, dashboards, SLOs, and load-test interpretation.
 - Quill, Contracts Agent: owns public API contracts, proto contracts, RFC 9457 Problem Details shapes, and contract examples.
 - Sprout, Data And Seed Agent: owns tenant fixtures, catalog/product/cart/checkout seed data, and local data reset workflows.
@@ -554,7 +551,7 @@ Define agent responsibilities in `[docs/agents.md](docs/agents.md)` so work can 
 
 ## Phase 0: Scaffolding, Risks, Guardrails, And AI Tooling
 
-Phase 0 establishes the project operating model before feature implementation. It should create the public GitLab source of truth, GitHub read-only mirror setup, branch strategy, agent guidance, local tooling, debugging environment, and risk guardrails.
+Phase 0 establishes the project operating model before feature implementation. It should create the GitLab source of truth, GitHub mirror setup, branch strategy, agent guidance, local tooling, debugging environment, and risk guardrails.
 
 GitLab token usage:
 
@@ -569,7 +566,7 @@ GitLab token usage:
 Repository and branch setup:
 
 - Create a public GitLab repository as the primary write repository.
-- Create a public GitHub repository as a read-only mirror.
+- Create a public GitHub repository as a read-only portfolio mirror fed by GitLab repository mirroring.
 - Protect `main` in GitLab.
 - Use short-lived feature branches by default: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
 - Avoid full Git Flow unless release cadence later requires `develop`, `release/*`, and `hotfix/*`.
@@ -584,11 +581,11 @@ Initial files and agent guidance:
 - Add `[docs/ai-tooling.md](docs/ai-tooling.md)`.
 - Add `[docs/architecture](docs/architecture)` C4 skeleton.
 - Add `[docs/adr](docs/adr)` with ADR index and initial ADRs.
-- Add `[scripts/ci](scripts/ci)` placeholders so GitLab CI and GitHub Actions can call shared commands.
+- Add `[scripts/ci](scripts/ci)` placeholders for shared CI commands.
 
 Local tools and debugging setup:
 
-- Confirm/install PHP, Composer, Go, Docker, Docker Compose, Node.js only if frontend assets require it, Git, GitLab CLI or `glab` if desired, GitHub CLI only for mirror checks, Terraform, `kubectl`, `kind` or `k3d`, and `protoc` tooling when gRPC starts.
+- Confirm/install PHP, Composer, Go, Docker, Docker Compose, Node.js only if frontend assets require it, Git, GitLab CLI or `glab` if desired, Terraform, `kubectl`, `kind` or `k3d`, and `protoc` tooling when gRPC starts.
 - Add `.editorconfig`, `.gitignore`, and local `.env.example` files.
 - Add `docker-compose.yml` skeleton for Laravel/RoadRunner, MySQL, Redis, OpenSearch, OpenTelemetry Collector, Prometheus, Loki, Grafana, and Jaeger or Tempo.
 - Add debugging guidance for Laravel logs, RoadRunner worker reloads, Xdebug optional use, Go debugger optional use, database inspection, Redis inspection, and trace lookup.
@@ -603,7 +600,7 @@ Main risks:
 - Checkout consistency: the order-confirmation path must be ACID and idempotent; async side effects must not decide whether the order exists.
 - Service extraction: extracting Go services too early can add network, contract, and deployment complexity before the Laravel happy path is solid.
 - Observability complexity: OpenTelemetry keeps the system portable, but adding Grafana Cloud, local Grafana, and Datadog at once can distract from the MVP.
-- CI/mirror drift: GitLab CI/CD is primary; GitHub Actions should remain lightweight so the read-only mirror does not become a second maintenance-heavy pipeline.
+- CI/mirror drift: GitHub must stay a mirror, not a second workflow.
 - API/IP risk: use SCAYLE public docs for concepts only. Do not copy their OpenAPI verbatim or mimic proprietary behavior beyond an original educational demo.
 - Cloud deployment risk: Terraform must include budgets, manual approvals, TTL tags, and destroy runbooks before any AWS deployment.
 
@@ -618,7 +615,9 @@ Scope guardrails:
 AI tooling strategy:
 
 - Cursor is the primary IDE/agent environment for implementation.
-- GitLab is the primary repository host, so Cursor work should produce normal commits, merge requests, and GitLab CI/CD workflows. GitHub receives mirrored read-only updates.
+- Cursor work should produce normal commits for GitLab. GitHub receives mirrored updates from GitLab.
+- Commit messages should describe the actual change, not the tool that made it.
+- Agents may push branches to GitLab when asked. Merge request creation and merge are manual.
 - Use the ChatGPT/Codex $200 plan as a separate assistant for second opinions, architecture review, test-case generation, and code review prompts.
 - Do not assume the ChatGPT/Codex subscription pays for Cursor model usage. Cursor supports provider API keys, but OpenAI API usage is billed separately from ChatGPT Plus/Pro/Codex subscriptions.
 - If using a separate OpenAI API key in Cursor, configure it through `Cursor Settings > Models`, add the provider key, verify, and save. Treat this as separate API billing and note that provider-key usage may not have the same privacy/billing behavior as Cursor's included plan.
@@ -628,13 +627,13 @@ AI tooling strategy:
 
 Phase 0: Scaffolding, risk, and tooling setup
 
-- Create the public GitLab repository as primary and the public GitHub repository as read-only mirror.
+- Create the public GitLab repository as primary and the public GitHub repository as a read-only mirror fed by GitLab.
 - Use `cursor-dev-agent-git` only for local Git HTTPS access to GitLab; do not reuse it for CI, registry, API automation, or deploys.
 - Protect `main` and define short-lived branch naming: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
 - Create initial docs-only commit with `README.md`, `AGENTS.md`, C4 docs skeleton, ADR skeleton, risk register, AI tooling notes, `.gitignore`, `.editorconfig`, and `.env.example`.
-- Add GitLab CI/CD skeleton as the primary pipeline and GitHub Actions mirror validation skeleton.
+- Add GitLab CI/CD skeleton and optional GitHub mirror validation.
 - Add local toolchain/debugging docs and script placeholders.
-- Confirm local-only first milestone, Laravel-first principle, GitLab primary CI, GitHub read-only mirror, Grafana Cloud preferred observability backend, and optional AWS deploy mode.
+- Confirm local-only first milestone, Laravel-first principle, GitLab primary CI, GitLab-managed GitHub mirror, Grafana Cloud preferred observability backend, and optional AWS deploy mode.
 
 Phase 1: Repository foundation and contracts
 
@@ -648,7 +647,7 @@ Phase 1: Repository foundation and contracts
 - Build the first Laravel + Blade MVVM-style UI for two tenants with seeded product listing, product detail, cart, checkout, and confirmation screens.
 - Keep checkout orchestration and business flow in Laravel/PHP for Phase 1.
 - Keep checkout usable without login. Add optional login/signup entry points and post-checkout account creation prompt only.
-- Add primary `.gitlab-ci.yml` skeleton for lint/test/build and lightweight GitHub Actions mirror validation.
+- Add primary `.gitlab-ci.yml` skeleton for lint/test/build and optional GitHub mirror validation.
 
 Phase 2: Local runnable checkout path
 
@@ -679,7 +678,7 @@ Phase 4: AWS deployment
 - Add Terraform for optional EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch, IAM, networking, budgets, and Datadog integration.
 - Add Kubernetes manifests for local Kubernetes first, then EKS overlays for all services, config, secrets references, autoscaling, probes, ingress, OpenTelemetry Collector, and optional Datadog.
 - Add GitLab CI/CD deploy workflows that default to plan/build/test and require manual approval for cloud deployment.
-- Keep GitHub Actions deploy-free because the GitHub repository is read-only mirror.
+- Do not deploy from GitHub Actions.
 
 Phase 5: Demo polish
 
@@ -708,4 +707,4 @@ Phase 5: Demo polish
 
 ## Initial Deliverable
 
-The first accepted implementation should create the repository skeleton, multi-tenant architecture documentation, seed-data design, service contracts, local Docker Compose baseline, local Kubernetes direction, primary GitLab CI scaffold, lightweight GitHub mirror validation, and cost strategy. It should not try to build the full checkout behavior or deploy to AWS in one pass.
+The first accepted implementation should create the repository skeleton, multi-tenant architecture documentation, seed-data design, service contracts, local Docker Compose baseline, local Kubernetes direction, primary GitLab CI scaffold, mirror validation, and cost strategy. It should not try to build the full checkout behavior or deploy to AWS in one pass.
