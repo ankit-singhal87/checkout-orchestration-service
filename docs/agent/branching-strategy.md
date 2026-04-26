@@ -13,7 +13,7 @@ Use trunk-based development with short-lived branches.
 
 ## Orchestrator Branches
 
-When the lead orchestrator chooses to implement foreground work directly, it should create or switch to a short-scoped branch first. Prefer `agent/<short-scope>` for agent-owned implementation or investigation work and `docs/<short-scope>` for documentation-only changes.
+When foreground work is needed, the lead orchestrator assigns it to a named worker. Relay creates or switches to a short-scoped branch for integration work, and implementation workers may use `agent/<short-scope>` for agent-owned implementation or investigation work. Use `docs/<short-scope>` for documentation-only changes.
 
 Examples:
 
@@ -23,15 +23,15 @@ Examples:
 
 ## Agent Branches
 
-Parallel specialist agents may create `agent/<short-scope>` branches when the lead orchestrator assigns independent work. These branches are for isolation and speed, not long-lived ownership.
+Parallel worker agents may create `agent/<short-scope>` branches when the lead orchestrator assigns independent work. These branches are for isolation and speed, not long-lived ownership.
 
 Rules:
 
 - Keep each `agent/*` branch limited to the assigned files and acceptance criteria.
 - Do not edit files owned by another active agent branch.
 - Push only to GitLab `origin`.
-- Report changed paths, validation, and integration notes back to the orchestrator.
-- Integrate through orchestrator review, cherry-pick, merge, or a GitLab merge request.
+- Report changed paths, validation, and integration notes back to Relay and the orchestrator.
+- Integrate through Relay review, cherry-pick, merge, or a GitLab merge request.
 - Delete stale `agent/*` branches after integration or abandonment.
 
 ## Merge Requests
