@@ -3,7 +3,7 @@
 ## Cursor
 
 Cursor is the primary implementation environment. Agents should work through normal Git branches and GitLab merge requests.
-Agent commits should use meaningful project-specific messages, not generic tool-generated text.
+Agent commits should be small, coherent, and named with clean imperative messages, not generic tool-generated text.
 
 The `cursor-dev-agent-git` GitLab token is only for local Git over HTTPS.
 
@@ -40,5 +40,8 @@ Configuration path:
 
 - GitLab is primary. GitHub is a mirror.
 - Agents may push branches to GitLab when asked.
-- Merge request creation and merge are manual.
+- Agent-created GitLab merge requests are enabled for this project when an API-capable local `glab` session is authenticated.
+- Agents may create GitLab merge requests targeting `main` when the user asks.
+- Merge requests should squash branch commits before merge and use a clean squash commit message.
+- Merge remains manual.
 - See [docs/agent/mirroring.md](mirroring.md).

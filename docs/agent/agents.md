@@ -6,12 +6,14 @@ These are named working roles for Cursor, ChatGPT/Codex review, or human handoff
 
 Use one lead orchestrator and several bounded specialist agents.
 
-- The lead orchestrator owns the current plan, task slicing, final integration, validation, commits, and push requests.
+- The lead orchestrator owns the current plan, task slicing, final integration, validation, small focused commits, push requests, and merge request preparation.
 - Specialist agents own bounded work packages with explicit allowed paths, expected outputs, validation commands, and stop conditions.
 - The lead orchestrator should create background specialist tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
 - Background agents may explore, review, draft docs, or implement small isolated slices, but they must report findings and changed paths clearly.
+- Parallel implementation agents may work on their own `agent/<short-scope>` branches when the lead orchestrator assigns an independent lane.
+- Agent branches must not edit files owned by another active branch unless the orchestrator explicitly reassigns ownership.
 - Agents must follow existing coding standards. When a work package introduces a new implementation technology, the agent should add or update a coding standards document before writing substantial code in that technology.
-- Manual GitLab merge request creation and merge remain human steps.
+- GitLab merge request creation is agent-allowed only when the user asks and an approved tool/token is available. Merge remains a human step.
 
 ### Lead Orchestrator - Cursor Session Agent
 
@@ -22,10 +24,14 @@ Responsibilities:
 - Keep the product goal, phase plan, and current branch state in view.
 - Convert broad user intent into small agile work packages.
 - Decide which specialist agents should run in parallel.
+- Create or switch to a short-scoped branch before implementing foreground work directly.
 - Prevent parallel agents from editing the same files.
+- Name and track any parallel `agent/*` branches and decide how each branch is integrated.
 - Integrate specialist results into the working tree.
 - Run validation and summarize residual risk.
-- Commit and push only when the user asks.
+- Commit completed validated slices automatically only after the user has authorized a commit/push loop for the branch; otherwise ask before committing or pushing.
+- Keep commits small, sharp, and scoped to one coherent outcome.
+- Prepare or create GitLab merge requests targeting `main` when the user asks.
 
 The orchestrator should stay hands-on for integration. Specialist agents can move independently in their lanes, but the orchestrator owns consistency across docs, code, tests, and CI.
 
@@ -47,7 +53,7 @@ Default cadence:
 - Build: implement behind tests, using clean boundaries.
 - Verify: run local scripts and capture gaps.
 - Review: use specialist agents for focused review.
-- Integrate: orchestrator applies final edits and asks before commit/push.
+- Integrate: orchestrator applies final edits, validates, and commits authorized small slices with clean messages.
 
 ## Autonomy Levels
 
@@ -94,14 +100,14 @@ Agent may implement a larger vertical slice on a feature branch, run validation,
 
 Allowed only when:
 
-- The branch name is explicit.
+- The branch name is explicit. For specialist parallel work, prefer `agent/<short-scope>`.
 - The slice has clear acceptance criteria.
 - CI/local validation commands are known.
 - Rollback risk is low or changes are easy to inspect.
 
-Still human-gated:
+Still user-gated:
 
-- Merge request creation.
+- Merge request creation unless the user explicitly enables it for the current branch.
 - Merge.
 - Production/deploy actions.
 
@@ -123,6 +129,15 @@ Run agents in parallel when workstreams are independent:
 - Beacon: OpenTelemetry, logs, metrics, traces, SLO evidence.
 
 Avoid parallel edits to the same files. If two agents need the same file, one should review while the lead orchestrator applies the final edit.
+
+Parallel branch rules:
+
+- Use `agent/<short-scope>` for independent specialist branches.
+- The lead orchestrator should also use a short-scoped branch for direct foreground implementation work instead of accumulating unrelated work on a long-running branch.
+- Keep each agent branch scoped to its assigned files and acceptance criteria.
+- Rebase or merge from GitLab `main` only under orchestrator direction.
+- The orchestrator integrates agent branches deliberately and validates the combined tree before user-facing push or MR creation.
+- Delete stale `agent/*` branches after their work is integrated or abandoned.
 
 ## Main Merge Conflict Playbook
 

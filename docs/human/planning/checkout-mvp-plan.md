@@ -610,8 +610,9 @@ AI tooling strategy:
 
 - Cursor is the primary IDE/agent environment for implementation.
 - Cursor work should produce normal commits for GitLab. GitHub receives mirrored updates from GitLab.
-- Commit messages should describe the actual change, not the tool that made it.
-- Agents may push branches to GitLab when asked. Merge request creation and merge are manual.
+- Commit messages should be small, coherent, imperative, and describe the actual change, not the tool that made it.
+- Agents may push branches to GitLab when asked. Agents may create GitLab merge requests targeting `main` when the user asks and approved tooling is available; merge remains manual.
+- Merge requests should use squash-on-merge and a clean squash commit message.
 - Treat the active Cursor session agent as the lead orchestrator for task slicing, integration, validation, commits, and push requests unless the user assigns that role elsewhere.
 - Use bounded specialist agents for parallel review or implementation work packages with explicit allowed paths, acceptance criteria, validation commands, and stop conditions.
 - Increase agent autonomy only when CI validation, path boundaries, and manual GitLab review gates are clear.
