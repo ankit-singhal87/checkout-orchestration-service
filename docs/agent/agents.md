@@ -1,29 +1,55 @@
 # Project Agents
 
-These are named working roles for Cursor, ChatGPT/Codex review, or human handoff. They are not separate services. Each agent should stay inside its ownership area unless the user asks for a coordinated change.
+These are named working roles for Cursor, ChatGPT/Codex review, or human handoff. They are not separate services. This file is the roster and operating overview; detailed production-adjacent definitions belong under [agents/](agents/) using the template in [agents/README.md](agents/README.md).
+
+Each agent should stay inside its ownership area unless the user asks for a coordinated change. Broad roster entries remain usable for planning and advisory work, but any named agent that edits production-adjacent code or coordinates production-adjacent workflows must have a narrow definition before use.
 
 ## Operating Model
 
 Use one lead orchestrator and several bounded worker agents.
 
 - The lead orchestrator owns only coordination: current intent, task slicing, worker assignment, conflict prevention, stop-condition escalation, and context defragmentation.
+- `Conductor` is the recommended neutral shorthand for the lead orchestrator role when a shorter label helps. Keep `lead orchestrator` available when explicit coordination authority is clearer.
 - Worker agents own bounded work packages with explicit allowed paths, expected outputs, validation commands, and stop conditions.
+- Durable agent definitions live under [agents/](agents/). Use `agents` as the stable neutral term and folder name; use mode labels such as `thinker`, `builder`, `integrator`, `steward`, and `specialist` inside definitions and work packages when they clarify the kind of work.
 - The orchestrator must not perform implementation, validation, release, or documentation work directly when a named worker owns that lane. It delegates the work and integrates by assigning a worker, not by carrying the execution context itself.
 - Agents should read [context-handoff.md](context-handoff.md) after [README.md](README.md) and use it as the compact cross-session memory buffer.
 - Agents should use [Makefile](../../Makefile) targets such as `make validate`, `make test-checkout`, `make pre-push`, and `make pre-push-full` for common local workflows. The underlying scripts remain available as fallbacks when `make` is unavailable.
 - Agents may suggest `make install-host-tools` for local workstation bootstrap, but must ask before running it because it installs host packages.
 - The lead orchestrator should create background worker tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
 - Background agents may explore, review, draft docs, or implement small isolated slices, but they must report findings and changed paths clearly.
-- The lead orchestrator must not wait on worker or subagent completion for more than 20 seconds at a time. Treat 20 seconds as the maximum wait, not the default; use shorter 5-10 second polls when not truly blocked, and do not wait when there is independent phase analysis, user-message handling, or another workstream to start. Treat worker waits as a responsive event loop: poll, check newest user intent, reassess phase and priority, then continue waiting, start independent work, close or reassign failed workers, or route another work package as needed.
+- The lead orchestrator must not wait on worker or subagent completion for more than 20 seconds at a time. Treat 20 seconds as the maximum wait; when actually waiting on a worker, use 10-20 second polling waits. Do not wait when there is independent phase analysis, user-message handling, or another workstream to start. Treat worker waits as a responsive event loop: poll, check newest user intent, reassess phase and priority, then continue waiting, start independent work, close or reassign failed workers, or route another work package as needed.
 - Workers should run in the background where possible. Long-running validation, worker waits, and phase analysis must not freeze orchestrator responsiveness.
 - Parallel implementation agents may work on their own `agent/<short-scope>` branches when the lead orchestrator assigns an independent lane.
 - Agent branches must not edit files owned by another active branch unless the orchestrator explicitly reassigns ownership.
+- Named implementation agents should be narrow enough that multiple agents can work safely without sharing editable files. If an agent definition is too broad to provide clear collision boundaries, split it into narrower lane agents before assigning production-adjacent work.
+- Before production-adjacent use, every named agent definition must include name or stable id, mission, ownership lane, allowed paths, out-of-scope paths, autonomy level, branch naming, expected inputs and outputs, validation commands, stop conditions, escalation rules, and collision boundaries.
+- Non-read-only workers should create or use their own short-scoped branch before editing and, when running in parallel, their own worktree. Read-only advisory workers may stay in the current worktree. The lead orchestrator and Relay integrate editing branches deliberately.
 - Agents must follow existing coding standards. When a work package introduces a new implementation technology, the agent should add or update a coding standards document before writing substantial code in that technology.
 - GitLab merge request creation is agent-allowed only when the user asks and an approved tool/token is available. Merge remains a human step.
+
+### Worker Selection
+
+The lead orchestrator chooses the worker by matching the requested outcome to the narrowest safe ownership lane, then choosing the mode needed for the task:
+
+- Use `thinker` for read-only architecture, security, unfamiliar-code, contract, or risk review.
+- Use `builder` for bounded implementation, docs, tests, fixtures, scripts, and local tooling edits.
+- Use `integrator` for branch integration, validation coordination, commits, pushes, and authorized merge request preparation.
+- Use `steward` for context defragmentation, handoff maintenance, docs routing, backlog hygiene, and guardrail upkeep.
+- Use `specialist` when a narrow domain needs focused expertise or a second review before production-adjacent use.
+
+Selection rules:
+
+- Prefer an existing narrow named agent whose allowed paths and validation commands already match the work package.
+- Split or define a narrower agent before assigning production-adjacent work when the existing roster name is too broad to prevent file collisions.
+- Assign a branch and worktree to every non-read-only worker before edits begin; keep read-only advisory workers branchless only while they remain read-only.
+- Stop and ask when the worker type is ambiguous, the task crosses ownership lanes, or two workers need the same editable file.
 
 ### Lead Orchestrator - Cursor Session Agent
 
 The active Cursor session agent is the lead orchestrator unless the user explicitly assigns that role elsewhere.
+
+`Conductor` may be used as a neutral role name for this lead orchestrator. The Conductor coordinates, routes work, prevents collisions, polls workers, and stays out of direct implementation when a worker owns the lane.
 
 Responsibilities:
 
@@ -205,6 +231,8 @@ Agents should stop and report rather than improvise when they encounter:
 - Conflicts between phase docs and implementation reality.
 
 ## Agent Roster
+
+This roster is an index of current agent lanes. Keep entries brief here. Add or update detailed agent files under [agents/](agents/) when a lane needs durable, narrow operating rules for production-adjacent work.
 
 ### Atlas - Architecture Agent
 
