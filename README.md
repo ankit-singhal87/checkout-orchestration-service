@@ -17,23 +17,23 @@ This repository is entering Phase 2: local runnable checkout breadth on top of t
 ## Local Quickstart
 
 ```bash
-sh scripts/dev/check-tools.sh
+make check-tools
 cp .env.example .env
-sh scripts/dev/up.sh
+make up
 ```
 
 By default, Docker Compose starts supporting infrastructure. Start the Laravel checkout container with:
 
 ```bash
-COMPOSE_PROFILES=app sh scripts/dev/up.sh
+make up-app
 ```
 
 By default, local infrastructure is limited to MySQL and Redis. Optional search, observability, and identity services stay behind Compose profiles.
 
 ```bash
-COMPOSE_PROFILES=search sh scripts/dev/up.sh
-COMPOSE_PROFILES=observability sh scripts/dev/up.sh
-COMPOSE_PROFILES=identity sh scripts/dev/up.sh
+make up-search
+make up-observability
+make up-identity
 ```
 
 The checkout app listens on `http://localhost:8080` by default and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`. Go workers are added in later phases.
@@ -41,7 +41,7 @@ The checkout app listens on `http://localhost:8080` by default and resolves tena
 Bootstrap is idempotent and exits when [apps/checkout/artisan](apps/checkout/artisan) already exists:
 
 ```bash
-sh scripts/dev/bootstrap-checkout-app.sh
+make bootstrap-checkout
 ```
 
 ## Useful Docs
@@ -68,6 +68,10 @@ sh scripts/dev/bootstrap-checkout-app.sh
 ## CI
 
 GitLab CI is primary and runs [scripts/ci/validate-scaffold.sh](scripts/ci/validate-scaffold.sh) and [scripts/ci/validate-phase1.sh](scripts/ci/validate-phase1.sh). GitHub Actions is mirror validation only and must not deploy.
+
+Use `make help` for the local command index. Make targets are thin wrappers over scripts so CI and agent workflows stay aligned.
+
+For a new local workstation, run `make install-host-tools` to install missing essential tools where supported. Authenticate external CLIs separately, for example with `glab auth login`.
 
 ## Repository Workflow
 

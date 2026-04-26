@@ -36,7 +36,7 @@ Rules:
 
 ## Merge Requests
 
-Agents may create GitLab merge requests targeting `main` when the user asks and an approved tool/token is available. Merges are manual GitLab steps.
+Agents may create GitLab merge requests targeting `main` when the user asks and an approved tool/token is available. Prefer `make create-auto-merge-mr` so squash, source-branch deletion, and auto-merge are set consistently. Final merge remains governed by GitLab checks and branch rules.
 
 Merge request rules:
 
@@ -45,7 +45,9 @@ Merge request rules:
 - Include a description with summary, validation, risk, and manual follow-up.
 - Enable squash-on-merge where possible.
 - Provide a clean squash commit message for the final merge commit.
-- Ask the user to review and merge.
+- Enable source branch deletion on merge.
+- Enable auto-merge once checks pass when the user has authorized agent MR creation.
+- Ask the user to review the MR and pipeline result.
 
 ## Commit Messages
 

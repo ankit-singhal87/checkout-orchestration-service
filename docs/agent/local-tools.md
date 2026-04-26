@@ -15,10 +15,35 @@ Docker must be reachable by the current user, not merely installed. [scripts/dev
 - PHP 8.5 CLI matching the app version, optional for editor integration and one-off local checks.
 - Composer, optional because Laravel bootstrapping and tests can run through Docker.
 - Node.js and npm, only if frontend asset compilation is needed outside containers.
-- `make` or plain shell scripts for common local commands.
+- `make` for common local commands; plain shell scripts remain the source of truth and fallback.
 - `curl`, `jq`, and `openssl` for API/debug workflows.
 - `mysql` client and `redis-cli`, optional because container exec can also be used.
 - GitLab CLI `glab`, optional.
+
+## Common Commands
+
+Prefer Makefile targets for repeated local and agent workflows. Targets are thin wrappers over scripts, so use the underlying script only when `make` is unavailable or when a script-specific environment override is clearer.
+
+```bash
+make help
+make check-tools
+make install-host-tools
+make up
+make up-app
+make down
+make bootstrap-checkout
+make test-checkout
+make validate
+make pre-push
+make pre-push-full
+make create-auto-merge-mr
+```
+
+Use `make pre-push-full` before pushing changes that affect checkout runtime or behavior. It runs the same pre-push checks with checkout app tests enabled.
+
+Use `make create-auto-merge-mr` only after the user has authorized MR creation for the branch. It creates or reuses a GitLab MR, enables squash, requests source-branch deletion, and enables auto-merge once checks pass. Set `MR_TITLE`, `MR_DESCRIPTION`, `SQUASH_MESSAGE`, `SOURCE_BRANCH`, or `TARGET_BRANCH` to override defaults.
+
+Use `make install-host-tools` only for local workstation bootstrap or repair. It installs missing essential tools such as `git`, `make`, `curl`, `jq`, `openssl`, Node.js/npm, `glab`, Docker, Docker Compose, and Codex where supported. It does not authenticate external CLIs or manage secrets; run `glab auth login` separately.
 
 ## Debugging Tools
 
@@ -57,5 +82,11 @@ Container-managed services keep the host clean and make reset behavior explicit.
 Run:
 
 ```bash
-sh scripts/dev/check-tools.sh
+make check-tools
+```
+
+To install missing essential host tools on a supported workstation:
+
+```bash
+make install-host-tools
 ```

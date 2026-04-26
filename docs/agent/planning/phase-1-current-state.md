@@ -9,7 +9,7 @@ This document records what is implemented in the repository after the Phase 1 fo
 - **Laravel app** at [apps/checkout](../../../apps/checkout) is the first application boundary: host-resolved multi-tenancy, expanded deterministic catalog fixtures, cart, **guest web checkout** through confirmation, public checkout API config/state/address/basket item/shipping/payment/order confirmation, **idempotent order confirmation**, and a **durable outbox event** on successful confirmation.
 - **Local runtime:** Docker Compose starts MySQL/Redis by default, the checkout app behind `COMPOSE_PROFILES=app`, and optional search/observability/identity profiles. The checkout container runs pending migrations and idempotent seeders on local startup.
 - **Observability baseline:** Laravel adds request/trace correlation headers, propagates trace IDs into Problem Details, and emits structured HTTP completion logs to JSON stderr in local containers. Full OTLP metrics/traces and exporter selection remain later work.
-- **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts.
+- **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts. Common local commands are aggregated in [Makefile](../../../Makefile).
 - **Standards:** PHP 8.5-oriented standards in [docs/agent/coding-standards/php-8.5.md](../coding-standards/php-8.5.md); clean boundaries in [docs/human/adr/0006-laravel-clean-boundaries.md](../../human/adr/0006-laravel-clean-boundaries.md).
 - **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, Redis Streams outbox publishing, RoadRunner runtime wiring, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
 
@@ -47,7 +47,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 ## CI and validation
 
 - **GitLab:** `checkout:tests` runs Composer + [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh) with MySQL/Redis service containers.
-- **Local:** `sh scripts/test/checkout-app.sh`, `sh scripts/test/markdown-links.sh`, `sh scripts/ci/validate-phase1.sh`, and `sh scripts/git/pre-push.sh`.
+- **Local:** `make test-checkout`, `make test-markdown-links`, `make validate-phase1`, `make pre-push`, and `make pre-push-full`.
 
 ## Documentation and contracts (living docs)
 
@@ -67,9 +67,9 @@ See [phase-2-system-completion.md](phase-2-system-completion.md) for the active 
 ## How to re-verify locally
 
 ```bash
-sh scripts/test/checkout-app.sh
-sh scripts/ci/validate-phase1.sh
-MIGRATION_IMMUTABILITY_BASE_REF=origin/cursor/phase-1-foundation sh scripts/git/pre-push.sh
+make test-checkout
+make validate-phase1
+MIGRATION_IMMUTABILITY_BASE_REF=origin/cursor/phase-1-foundation make pre-push
 ```
 
 When changing persistence or routes, run the same commands before pushing.
