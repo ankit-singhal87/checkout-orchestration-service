@@ -1,17 +1,17 @@
-# Foundation and Phase 2 current state
+# Foundation and Closed Phase 2 Current State
 
-This document records what is implemented in the repository after the Phase 1 foundation and during Phase 2 local checkout breadth. Update it when major slices land or the active phase scope changes.
+This document records what is implemented in the repository after the Phase 1 foundation and closed Phase 2 local checkout/system-completion work. Update it when major slices land or the active phase scope changes.
 
-**Last updated:** 2026-04-26
+**Last updated:** 2026-04-27
 
 ## Summary
 
 - **Laravel app** at [apps/checkout](../../../apps/checkout) is the first application boundary: host-resolved multi-tenancy, expanded deterministic catalog fixtures, cart, **guest web checkout** through confirmation, public checkout API config/state/address/basket item/shipping/payment/order confirmation, **idempotent order confirmation**, and a **durable outbox event** on successful confirmation.
-- **Local runtime:** Docker Compose starts MySQL/Redis by default, the checkout app behind `COMPOSE_PROFILES=app`, and optional search/observability/identity profiles. The checkout container runs pending migrations and idempotent seeders, then starts PHP-FPM behind Nginx over HTTP/1.1 for the default local path. `make up-roadrunner` starts the optional RoadRunner/Octane performance profile, and `make up-parity` adds a Caddy HTTPS/2 reverse proxy path.
+- **Local runtime:** Docker Compose starts MySQL/Redis by default, the checkout app behind `COMPOSE_PROFILES=app`, and optional search/observability/identity profiles. The checkout container runs pending migrations and idempotent seeders, then starts PHP-FPM behind Nginx over HTTP/1.1 for the default local path. `make up-roadrunner` starts the optional RoadRunner/Octane performance profile, and `make up-parity` adds a Caddy HTTPS/H1/H2/H3 edge path.
 - **Observability baseline:** Laravel adds request/trace correlation headers, propagates trace IDs into Problem Details, and emits structured HTTP completion logs to JSON stderr in local containers. Full OTLP metrics/traces and exporter selection remain later work.
 - **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts. Common local commands are aggregated in [Makefile](../../../Makefile).
 - **Standards:** PHP 8.5-oriented standards in [docs/agent/coding-standards/php-8.5.md](../coding-standards/php-8.5.md); clean boundaries in [docs/human/adr/0006-laravel-clean-boundaries.md](../../human/adr/0006-laravel-clean-boundaries.md).
-- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
+- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, first dedicated worker runtime, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets. These are Phase 3 or Phase 4+ concerns depending on the active plan.
 
 ## Laravel surface
 
@@ -61,7 +61,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 - RoadRunner/Octane long-running worker safety and production-style runtime hardening beyond the optional local performance profile.
 - OpenTelemetry metrics/traces and exporter profile selection.
 
-See [phase-2-system-completion.md](phase-2-system-completion.md) for the active Phase 2 priority order. More checkout API breadth is intentionally lower ROI than system-completion work for the interview demo.
+See [phase-3-peripheral-services.md](phase-3-peripheral-services.md) for the active Phase 3 priority order. [phase-2-system-completion.md](phase-2-system-completion.md) is now the closed Phase 2 baseline.
 
 ## How to re-verify locally
 

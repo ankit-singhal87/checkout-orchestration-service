@@ -7,7 +7,7 @@
 - HTTP responses include `X-Request-Id` and `X-Trace-Id`; pass either header when reproducing a request that needs correlation.
 - `make up-app` starts the default Nginx/PHP-FPM stack over local HTTP/1.1 for fast feedback and familiar debugging.
 - `make up-roadrunner` starts the optional RoadRunner/Octane performance profile. If the local `rr` server binary is missing, the startup script downloads it through `vendor/bin/rr`.
-- `make up-parity` adds a Caddy reverse proxy for local-production parity: HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits. Use `curl -k` for parity command-line checks unless the Caddy local CA is trusted by the host.
+- `make up-parity` adds a Caddy edge proxy for local-production parity: HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits. Use `curl -k` for parity command-line checks unless the Caddy local CA is trusted by the host.
 - Do not force HTTPS or the reverse proxy into every TDD loop. If a future endpoint is gRPC, use HTTP/2 even in the fast path.
 - Use `docker compose exec checkout php artisan optimize:clear` to clear normal Laravel runtime caches. Use RoadRunner reload commands only in the optional performance profile.
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.

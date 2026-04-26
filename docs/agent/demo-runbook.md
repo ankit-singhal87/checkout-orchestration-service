@@ -21,10 +21,16 @@ For the local-production parity path:
 make up-parity
 ```
 
-The parity proxy listens on `https://localhost:8443` with Caddy local certificates and HTTP/2:
+The Caddy edge listens on `https://localhost:8443` with Caddy local certificates and HTTP/1.1, HTTP/2, and HTTP/3 over QUIC/UDP 443:
 
 - `https://fashion-demo.localhost:8443/shop`
 - `https://sports-demo.localhost:8443/shop`
+
+The equivalent direct Compose form is:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.caddy.yml up
+```
 
 For the optional RoadRunner/Octane performance profile:
 

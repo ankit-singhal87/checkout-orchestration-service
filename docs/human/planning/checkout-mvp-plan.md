@@ -652,7 +652,7 @@ Phase 1: Repository foundation and contracts
 - Keep checkout usable without login. Add optional login/signup entry points and post-checkout account creation prompt only.
 - Add primary [.gitlab-ci.yml](../../../.gitlab-ci.yml) skeleton for lint/test/build and optional GitHub mirror validation.
 
-Phase 2: Local runnable checkout path
+Phase 2: Local runnable checkout path - closed baseline
 
 - Implement Laravel checkout API with RoadRunner.
 - Implement initial domain/application services inside Laravel before extracting services.
@@ -664,7 +664,17 @@ Phase 2: Local runnable checkout path
 - Add Pest integration tests for the full happy path against real MySQL.
 - Add concurrent execution tests for idempotency, inventory reservation, checkout state transitions, and outbox publishing.
 
-Phase 3: Observability and performance
+Phase 3: Peripheral services and workers
+
+- Harden the Laravel checkout core enough to produce trustworthy worker inputs: tenant-safe checkout state, idempotent order creation, inventory/payment simulator interfaces, Problem Details coverage, and double-submit tests.
+- Harden the async backbone: MySQL outbox to Redis Streams delivery, message envelope fields, consumer groups, retry policy, poison message handling, idempotent processors, and trace/request propagation.
+- Add local worker runtime support in Docker Compose with health checks, restart policy, Make targets, and CI smoke coverage for event publish and consume.
+- Implement first peripheral workers as small processors: inventory reservation, payment authorization/capture simulation, order confirmation side effects, notification stubs, and audit/event journal projection.
+- Add search/catalog/order projection workers only after the event envelope and retry behavior are stable.
+- Consider Go only for processors with clear concurrency, async throughput, or latency value. Keep modules in Laravel until the boundary earns a separate runtime.
+- Run implementation in parallel lanes where paths do not overlap: core checkout, async backbone, worker runtime, inventory/payment simulators, observability contracts, contracts/docs, and security review.
+
+Phase 4: Observability, performance, and read models
 
 - Add OpenTelemetry instrumentation across Laravel and Go services.
 - Add JSON logs, metrics, request IDs, trace IDs, tenant tags, gRPC timing, checkout latency histograms, and dashboard docs.
@@ -676,14 +686,14 @@ Phase 3: Observability and performance
 - Add OpenSearch indexing worker for product/order read models.
 - Add load test scenarios for state initialization, get state, basket updates, address changes, shipping/payment selection, and order confirmation against the one-second SLO.
 
-Phase 4: AWS deployment
+Phase 5: AWS deployment
 
 - Add Terraform for optional EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch, IAM, networking, budgets, and the selected observability exporter.
 - Add Kubernetes manifests for local Kubernetes first, then EKS overlays for all services, config, secrets references, autoscaling, probes, ingress, and the selected OpenTelemetry-compatible collector or agent profile.
 - Add GitLab CI/CD deploy workflows that default to plan/build/test and require manual approval for cloud deployment.
 - Do not deploy from GitHub Actions.
 
-Phase 5: Demo polish
+Phase 6: Demo polish
 
 - Add seed data, demo scripts, API collection, architecture docs, ADRs, cost notes, and a final walkthrough.
 - Include tradeoff docs for monorepo vs polyrepo, RoadRunner vs PHP-FPM, REST vs gRPC, OpenSearch vs Elastic Cloud, and sync vs async checkout operations.

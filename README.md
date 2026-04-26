@@ -4,7 +4,7 @@ Multi-tenant SaaS checkout demo inspired by public headless checkout concepts. T
 
 ## Current Phase
 
-This repository is entering Phase 2: local runnable checkout breadth on top of the completed Phase 1 foundation. Implementation stays Laravel-first and local-first; the default local stack is Nginx/PHP-FPM over HTTP, while RoadRunner/Octane, OpenSearch projections, Go workers, and cloud deploy assets remain explicit parity, performance, or later slices.
+This repository is entering Phase 3: peripheral services and workers on top of the completed Phase 1 foundation and closed Phase 2 local checkout/system-completion baseline. Implementation stays Laravel-first and local-first; the default local stack is Nginx/PHP-FPM over HTTP, Caddy owns the local HTTPS/H1/H2/H3 edge parity path, and Phase 3 adds async workers around the checkout core before any service extraction. Cloud deploy assets and broad observability/provider work remain Phase 4+.
 
 ## Target Shape
 
@@ -34,13 +34,19 @@ Use RoadRunner only when testing the optional performance/runtime profile:
 make up-roadrunner
 ```
 
-For local-production parity, start the reverse-proxy path:
+For local-production parity, start the Caddy edge path:
 
 ```bash
 make up-parity
 ```
 
-The parity path uses Caddy in front of the default Nginx/PHP-FPM stack with local HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits. Caddy uses its local internal CA, so use `curl -k` for command-line checks unless you trust the local CA.
+The parity path uses Caddy in front of the default Nginx/PHP-FPM stack with local HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits. Caddy uses its local internal CA, so use `curl -k` for command-line checks unless you trust the local CA.
+
+The direct Compose form is also supported:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.caddy.yml up
+```
 
 Do not use the parity proxy for every TDD loop; keep the default path fast. Future gRPC endpoints must use HTTP/2 even in the fast path.
 
@@ -54,7 +60,7 @@ make up-identity
 
 The default checkout app listens on `http://localhost:8080` and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`.
 
-The parity proxy listens on `https://localhost:8443`. Use `https://fashion-demo.localhost:8443/shop` or `https://sports-demo.localhost:8443/shop`.
+The Caddy edge listens on `https://localhost:8443`. Use `https://fashion-demo.localhost:8443/shop` or `https://sports-demo.localhost:8443/shop`.
 
 Outbox publication is available as a manual local async boundary:
 
@@ -63,7 +69,7 @@ make demo-outbox-publish
 make demo-redis-events
 ```
 
-See [docs/agent/demo-runbook.md](docs/agent/demo-runbook.md) for the full Phase 2 demo flow. Go workers are added in later phases.
+See [docs/agent/demo-runbook.md](docs/agent/demo-runbook.md) for the closed Phase 2 demo flow. Phase 3 adds peripheral workers and services around that baseline.
 
 Bootstrap is idempotent and exits when [apps/checkout/artisan](apps/checkout/artisan) already exists:
 

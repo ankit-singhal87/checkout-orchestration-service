@@ -7,7 +7,7 @@ help:
 	@printf '%s\n' '  make up                       Start default local services'
 	@printf '%s\n' '  make up-app                   Start Nginx/PHP-FPM checkout app over HTTP'
 	@printf '%s\n' '  make up-roadrunner            Start optional RoadRunner performance profile'
-	@printf '%s\n' '  make up-parity                Start local-production HTTPS/2 proxy path'
+	@printf '%s\n' '  make up-parity                Start Caddy HTTPS/H1/H2/H3 edge path'
 	@printf '%s\n' '  make up-search                Start search profile services'
 	@printf '%s\n' '  make up-observability         Start observability profile services'
 	@printf '%s\n' '  make up-identity              Start identity profile services'
@@ -16,7 +16,7 @@ help:
 	@printf '%s\n' '  make install-host-tools       Install missing essential host tools'
 	@printf '%s\n' '  make test-checkout            Run checkout app tests'
 	@printf '%s\n' '  make test-checkout-runtime    Smoke test RoadRunner HTTP runtime'
-	@printf '%s\n' '  make test-checkout-parity     Smoke test Caddy HTTPS/2 parity path'
+	@printf '%s\n' '  make test-checkout-parity     Smoke test Caddy HTTPS/H1/H2/H3 edge path'
 	@printf '%s\n' '  make validate                 Run scaffold and Phase 1 validation'
 	@printf '%s\n' '  make pre-push                 Run the repository pre-push checks'
 	@printf '%s\n' '  make pre-push-full            Run pre-push checks including checkout tests'
@@ -45,7 +45,7 @@ up-roadrunner:
 
 .PHONY: up-parity
 up-parity:
-	COMPOSE_PROFILES=app,parity docker compose -f docker-compose.yml -f docker-compose.parity.yml up -d
+	docker compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
 
 .PHONY: up-search
 up-search:

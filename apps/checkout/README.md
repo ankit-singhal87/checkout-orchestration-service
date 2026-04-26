@@ -23,7 +23,7 @@ Blade is included with Laravel. Blade templates live under `resources/views`, an
 
 The default local runtime is Nginx plus PHP-FPM over HTTP. `make up-app` starts this stack with MySQL and Redis for normal local development and browser checks.
 
-`make up-roadrunner` starts the optional RoadRunner/Octane performance profile. `make up-parity` adds the local-production reverse proxy path with Caddy, HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits.
+`make up-roadrunner` starts the optional RoadRunner/Octane performance profile. `make up-parity` adds the local-production Caddy edge path with HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits.
 
 ## Bootstrap
 

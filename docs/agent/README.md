@@ -4,8 +4,9 @@ Concise docs for machine reading and lower-token agent context.
 
 Start here:
 
-- [planning/phase-1-current-state.md](planning/phase-1-current-state.md) - current foundation/Phase 2 implementation snapshot and verification commands.
-- [planning/phase-2-system-completion.md](planning/phase-2-system-completion.md) - Phase 2 priority order optimized for interview-demo system completeness.
+- [planning/phase-1-current-state.md](planning/phase-1-current-state.md) - current foundation/closed Phase 2 implementation snapshot and verification commands.
+- [planning/phase-3-peripheral-services.md](planning/phase-3-peripheral-services.md) - active Phase 3 plan for peripheral services, workers, async processing, and parallel lanes.
+- [planning/phase-2-system-completion.md](planning/phase-2-system-completion.md) - closed Phase 2 system-completion baseline.
 - [context-handoff.md](context-handoff.md) - compact current handoff buffer for context defragmentation between MRs and sessions.
 - [agents.md](agents.md) - project-agent roles, parallel work strategy, merge playbook, and stop conditions.
 - [agents/README.md](agents/README.md) - narrow named-agent definition requirements and template for production-adjacent work.

@@ -11,6 +11,8 @@ Dockerfiles and image build context helpers live here.
 
 Docker Compose remains the default local runtime entry point.
 
+Use `docker compose -f docker-compose.yml -f docker-compose.caddy.yml up` or `make up-parity` to run the local Caddy edge profile. That profile puts Caddy in front of Nginx/PHP-FPM for HTTPS, HTTP/1.1, HTTP/2, and HTTP/3 over QUIC/UDP 443 without requiring host HTTP/3 tooling.
+
 ## Checkout Image
 
 [docker/checkout.Dockerfile](checkout.Dockerfile) provides PHP-FPM, PHP CLI, Composer, and required PHP extensions for running and testing the Laravel checkout app without installing PHP or Composer on the host.

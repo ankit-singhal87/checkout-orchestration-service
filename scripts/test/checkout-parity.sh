@@ -5,14 +5,14 @@ app_dir="apps/checkout"
 port="${CHECKOUT_PARITY_PORT:-18443}"
 project_name="${CHECKOUT_PARITY_PROJECT:-checkout-parity-smoke}"
 curl_image="${CHECKOUT_HTTP3_CURL_IMAGE:-alpine/curl-http3:latest}"
+edge_compose_file="${CHECKOUT_EDGE_COMPOSE_FILE:-docker-compose.caddy.yml}"
 override_file="${TMPDIR:-/tmp}/checkout-parity-smoke.$$.yml"
 scratch_dir="${TMPDIR:-/tmp}/checkout-parity-smoke.$$"
 
 cleanup() {
-  COMPOSE_PROFILES=app,parity \
   COMPOSE_PROJECT_NAME="$project_name" \
-  PARITY_HTTPS_PORT="$port" \
-    docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" down -v --remove-orphans >/dev/null 2>&1 || true
+  CADDY_HTTPS_PORT="$port" \
+    docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" down -v --remove-orphans >/dev/null 2>&1 || true
   rm -f "$override_file"
   rm -rf "$scratch_dir"
 }
@@ -40,27 +40,23 @@ services:
 YAML
 
 if [ ! -f "$app_dir/vendor/autoload.php" ]; then
-  COMPOSE_PROFILES=app,parity \
   COMPOSE_PROJECT_NAME="$project_name" \
-  PARITY_HTTPS_PORT="$port" \
-    docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" build checkout
+  CADDY_HTTPS_PORT="$port" \
+    docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" build checkout
 
-  COMPOSE_PROFILES=app,parity \
   COMPOSE_PROJECT_NAME="$project_name" \
-  PARITY_HTTPS_PORT="$port" \
-    docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" run --rm --no-deps --entrypoint composer checkout install --no-interaction --prefer-dist
+  CADDY_HTTPS_PORT="$port" \
+    docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" run --rm --no-deps --entrypoint composer checkout install --no-interaction --prefer-dist
 fi
 
-COMPOSE_PROFILES=app,parity \
 COMPOSE_PROJECT_NAME="$project_name" \
-PARITY_HTTPS_PORT="$port" \
-  docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" up -d --build checkout-proxy
+CADDY_HTTPS_PORT="$port" \
+  docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" up -d --build checkout-proxy
 
 proxy_container_id="$(
-  COMPOSE_PROFILES=app,parity \
   COMPOSE_PROJECT_NAME="$project_name" \
-  PARITY_HTTPS_PORT="$port" \
-    docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" ps -q checkout-proxy
+  CADDY_HTTPS_PORT="$port" \
+    docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" ps -q checkout-proxy
 )"
 proxy_ip="$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$proxy_container_id")"
 
@@ -74,10 +70,9 @@ if ! grep -Eq "protocols[[:space:]]+h1[[:space:]]+h2[[:space:]]+h3" infra/local/
   exit 1
 fi
 
-if ! COMPOSE_PROFILES=app,parity \
-  COMPOSE_PROJECT_NAME="$project_name" \
-  PARITY_HTTPS_PORT="$port" \
-  docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" config |
+if ! COMPOSE_PROJECT_NAME="$project_name" \
+  CADDY_HTTPS_PORT="$port" \
+  docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" config |
   grep -A4 "target: 443" | grep -q "protocol: udp"; then
   echo "Parity Compose config must publish UDP 443 for HTTP/3." >&2
   exit 1
@@ -97,10 +92,9 @@ until curl_parity -kfsS "https://fashion-demo.localhost/shop" >/dev/null 2>&1; d
   retries=$((retries - 1))
   if [ "$retries" -le 0 ]; then
     echo "Checkout parity proxy did not become ready. Last container logs:" >&2
-    COMPOSE_PROFILES=app,parity \
     COMPOSE_PROJECT_NAME="$project_name" \
-    PARITY_HTTPS_PORT="$port" \
-      docker compose -f docker-compose.yml -f docker-compose.parity.yml -f "$override_file" logs --no-color --tail=160 checkout-proxy nginx checkout >&2 || true
+    CADDY_HTTPS_PORT="$port" \
+      docker compose -f docker-compose.yml -f "$edge_compose_file" -f "$override_file" logs --no-color --tail=160 checkout-proxy nginx checkout >&2 || true
     exit 1
   fi
   sleep 1
