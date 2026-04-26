@@ -4,6 +4,7 @@ set -eu
 required_files="
 README.md
 AGENTS.md
+Makefile
 .editorconfig
 .gitignore
 .env.example
@@ -26,8 +27,10 @@ observability/prometheus.yml
 observability/loki.yml
 observability/tempo.yml
 scripts/dev/check-tools.sh
+scripts/dev/install-host-tools.sh
 scripts/dev/up.sh
 scripts/dev/down.sh
+scripts/git/create-auto-merge-mr.sh
 "
 
 missing=0

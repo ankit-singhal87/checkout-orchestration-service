@@ -8,6 +8,8 @@ Use one lead orchestrator and several bounded specialist agents.
 
 - The lead orchestrator owns the current plan, task slicing, final integration, validation, small focused commits, push requests, and merge request preparation.
 - Specialist agents own bounded work packages with explicit allowed paths, expected outputs, validation commands, and stop conditions.
+- Agents should use [Makefile](../../Makefile) targets such as `make validate`, `make test-checkout`, `make pre-push`, and `make pre-push-full` for common local workflows. The underlying scripts remain available as fallbacks when `make` is unavailable.
+- Agents may suggest `make install-host-tools` for local workstation bootstrap, but must ask before running it because it installs host packages.
 - The lead orchestrator should create background specialist tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
 - Background agents may explore, review, draft docs, or implement small isolated slices, but they must report findings and changed paths clearly.
 - Parallel implementation agents may work on their own `agent/<short-scope>` branches when the lead orchestrator assigns an independent lane.
@@ -28,7 +30,7 @@ Responsibilities:
 - Prevent parallel agents from editing the same files.
 - Name and track any parallel `agent/*` branches and decide how each branch is integrated.
 - Integrate specialist results into the working tree.
-- Run validation and summarize residual risk.
+- Run validation through common Makefile targets where available and summarize residual risk.
 - Commit completed validated slices automatically only after the user has authorized a commit/push loop for the branch; otherwise ask before committing or pushing.
 - Keep commits small, sharp, and scoped to one coherent outcome.
 - Prepare or create GitLab merge requests targeting `main` when the user asks.

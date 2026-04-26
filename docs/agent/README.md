@@ -10,6 +10,6 @@ Start here:
 - [contracts](contracts) - tenant, checkout state, Problem Details, events, seed data, latency, and BDD/TDD contracts.
 - [api/openapi.checkout.yaml](api/openapi.checkout.yaml) - public checkout API contract.
 - [coding-standards/php-8.5.md](coding-standards/php-8.5.md) - PHP implementation standards.
-- [local-tools.md](local-tools.md), [debugging.md](debugging.md), and [mirroring.md](mirroring.md) - local execution, debugging, and repository workflow.
+- [local-tools.md](local-tools.md), [debugging.md](debugging.md), and [mirroring.md](mirroring.md) - local execution, debugging, and repository workflow. Prefer `make help`, `make validate`, and `make pre-push-full` for common commands.
 
 Use [../human](../human) for long-form architecture, ADRs, and phase planning context.

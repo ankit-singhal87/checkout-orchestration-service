@@ -5,10 +5,11 @@ GitLab is the primary repository. GitHub is a public portfolio mirror updated by
 - Create branches from the GitLab repository.
 - Push only to GitLab `origin`.
 - Create merge requests in GitLab when the user asks and the local `glab` session is API-authenticated; otherwise ask the user to create them manually.
-- Merge manually in GitLab.
+- Prefer `make create-auto-merge-mr` for agent-created MRs. It pushes the current branch, creates or reuses a GitLab MR targeting `main`, enables squash, requests source-branch deletion, and enables auto-merge once checks pass.
+- Final merge still depends on GitLab branch rules and successful checks. Do not manually force-merge failed pipelines.
 - Do not push to the `github` remote unless repairing the mirror.
 
-Merge requests should target `main`, use squash-on-merge, and carry a clean squash commit message. GitHub remains a mirror and should not receive pull requests for normal project work.
+Merge requests should target `main`, use squash-on-merge, carry a clean squash commit message, remove the source branch on merge, and use auto-merge when the user has authorized agent MR creation. GitHub remains a mirror and should not receive pull requests for normal project work.
 
 ## GitHub Mirror
 
