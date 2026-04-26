@@ -1,0 +1,26 @@
+[
+  {
+    "tenantId": "fashion-store",
+    "shopId": "fashion-main",
+    "host": "fashion-demo.localhost",
+    "displayName": "Fashion Store",
+    "currency": "EUR",
+    "locale": "en-GB",
+    "brand": {
+      "primaryColor": "#7c3aed",
+      "trustBadges": ["easy returns", "size guidance", "secure checkout"]
+    }
+  },
+  {
+    "tenantId": "sports-outlet",
+    "shopId": "sports-main",
+    "host": "sports-demo.localhost",
+    "displayName": "Sports Outlet",
+    "currency": "EUR",
+    "locale": "en-GB",
+    "brand": {
+      "primaryColor": "#0f766e",
+      "trustBadges": ["stock confidence", "bundle offers", "secure checkout"]
+    }
+  }
+]

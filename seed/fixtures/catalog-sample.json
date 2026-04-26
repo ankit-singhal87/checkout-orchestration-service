@@ -1,0 +1,50 @@
+[
+  {
+    "tenantId": "fashion-store",
+    "categoryId": "fashion-category-outerwear",
+    "productId": "fashion-product-001",
+    "slug": "rain-ready-shell-jacket",
+    "name": "Rain Ready Shell Jacket",
+    "description": "Lightweight jacket for changing weather.",
+    "image": {
+      "alt": "Purple shell jacket product placeholder",
+      "placeholder": "fashion-jacket-001"
+    },
+    "badges": ["easy returns", "water resistant"],
+    "variants": [
+      {
+        "variantId": "fashion-variant-001-purple-s",
+        "options": { "color": "purple", "size": "S" },
+        "price": { "amount": 8995, "currency": "EUR" },
+        "stock": { "available": 8, "state": "in_stock" }
+      },
+      {
+        "variantId": "fashion-variant-001-purple-m",
+        "options": { "color": "purple", "size": "M" },
+        "price": { "amount": 8995, "currency": "EUR" },
+        "stock": { "available": 0, "state": "out_of_stock" }
+      }
+    ]
+  },
+  {
+    "tenantId": "sports-outlet",
+    "categoryId": "sports-category-training",
+    "productId": "sports-product-001",
+    "slug": "trail-runner-pack",
+    "name": "Trail Runner Pack",
+    "description": "Compact running pack with reflective details.",
+    "image": {
+      "alt": "Teal trail running pack placeholder",
+      "placeholder": "sports-pack-001"
+    },
+    "badges": ["stock confidence", "bundle eligible"],
+    "variants": [
+      {
+        "variantId": "sports-variant-001-teal-one-size",
+        "options": { "color": "teal", "size": "one-size" },
+        "price": { "amount": 5495, "currency": "EUR" },
+        "stock": { "available": 3, "state": "low_stock" }
+      }
+    ]
+  }
+]

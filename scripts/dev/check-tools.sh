@@ -22,6 +22,16 @@ else
   missing=1
 fi
 
+if command -v docker >/dev/null 2>&1; then
+  if docker info >/dev/null 2>&1; then
+    echo "Docker daemon is reachable"
+  else
+    echo "Docker CLI is installed, but the daemon is not reachable by this user." >&2
+    echo "Check whether the Docker service is running and whether your user can access /var/run/docker.sock." >&2
+    missing=1
+  fi
+fi
+
 recommended="php composer node npm make curl jq openssl"
 
 for tool in $recommended; do
@@ -47,4 +57,4 @@ if [ "$missing" -ne 0 ]; then
 fi
 
 echo "Required Phase 1 host tools are available."
-echo "Service dependencies are expected to run through Docker Compose."
+echo "Service dependencies, PHP, and Composer are expected to run through Docker containers by default."

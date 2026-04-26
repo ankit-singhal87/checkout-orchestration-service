@@ -1,0 +1,194 @@
+openapi: 3.1.0
+info:
+  title: Checkout Orchestration API
+  version: 0.1.0
+  summary: Original MVP checkout API inspired by headless checkout concepts.
+  description: >
+    Phase 1 contract skeleton for a tenant-aware checkout demo. This is not a
+    copy of any vendor OpenAPI document.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+paths:
+  /api/checkout/config:
+    get:
+      summary: Get public checkout configuration
+      operationId: getCheckoutConfig
+      responses:
+        "200":
+          description: Checkout configuration for the resolved tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutConfig"
+  /api/checkout/state:
+    put:
+      summary: Create or resume checkout state
+      operationId: putCheckoutState
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Current checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+    get:
+      summary: Get current checkout state
+      operationId: getCheckoutState
+      responses:
+        "200":
+          description: Current checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+  /api/checkout/state/address:
+    put:
+      summary: Update checkout address
+      operationId: putCheckoutAddress
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Updated checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+  /api/checkout/state/shipping-option:
+    put:
+      summary: Select shipping option
+      operationId: putShippingOption
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Updated checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+  /api/checkout/state/payment-method:
+    put:
+      summary: Select payment method
+      operationId: putPaymentMethod
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Updated checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+  /api/checkout/state/order-confirmation:
+    post:
+      summary: Confirm order
+      operationId: postOrderConfirmation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Confirmed order state or payment action
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+        "409":
+          description: Checkout conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+      description: Required for checkout state mutations and order confirmation.
+  securitySchemes:
+    checkoutToken:
+      type: http
+      scheme: bearer
+      bearerFormat: signed-checkout-token
+    checkoutSession:
+      type: apiKey
+      in: cookie
+      name: checkout_session
+  schemas:
+    CheckoutConfig:
+      type: object
+      required: [tenantId, supportedCountries, paymentMethods]
+      properties:
+        tenantId:
+          type: string
+        supportedCountries:
+          type: array
+          items:
+            type: string
+        paymentMethods:
+          type: array
+          items:
+            type: string
+    CheckoutState:
+      type: object
+      required: [stateId, tenantId, status, basket, totals, nextActions]
+      properties:
+        stateId:
+          type: string
+        tenantId:
+          type: string
+        status:
+          type: string
+          enum: [created, addressed, shipping_selected, payment_selected, confirming, payment_action_required, confirmed, failed]
+        basket:
+          type: object
+        totals:
+          type: object
+        nextActions:
+          type: array
+          items:
+            type: string
+        validationErrors:
+          type: array
+          items:
+            type: object
+    ProblemDetails:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        traceId:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemError"
+    ProblemError:
+      type: object
+      required: [field, code, message]
+      properties:
+        field:
+          type: string
+          examples: [shippingAddress.postalCode]
+        code:
+          type: string
+          examples: [required]
+        message:
+          type: string

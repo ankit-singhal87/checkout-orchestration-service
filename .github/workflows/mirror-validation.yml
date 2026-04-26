@@ -22,4 +22,49 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate Phase 0 scaffold
-        run: sh scripts/ci/validate-scaffold.sh
+        run: |
+          sh scripts/ci/validate-scaffold.sh
+          sh scripts/ci/validate-phase1.sh
+
+  checkout-tests:
+    name: Checkout tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: checkout_testing
+          MYSQL_USER: checkout
+          MYSQL_PASSWORD: checkout
+          MYSQL_ROOT_PASSWORD: checkout_root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pcheckout_root --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7.4
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout mirror
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: mbstring, intl, pdo_mysql, zip
+          coverage: none
+
+      - name: Install checkout dependencies
+        run: composer install --working-dir=apps/checkout --no-interaction --prefer-dist
+
+      - name: Run checkout tests
+        env:
+          CHECKOUT_TEST_RUNTIME: host
+          DB_HOST: 127.0.0.1
+          REDIS_HOST: 127.0.0.1
+        run: sh scripts/test/checkout-app.sh

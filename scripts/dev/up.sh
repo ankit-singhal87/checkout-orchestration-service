@@ -15,5 +15,6 @@ else
   exit 1
 fi
 
-echo "Local Phase 0 infrastructure is starting."
-echo "Use COMPOSE_PROFILES=observability sh scripts/dev/up.sh after app telemetry exists."
+echo "Local development services are starting."
+echo "Use COMPOSE_PROFILES=app sh scripts/dev/up.sh to include the checkout container."
+echo "Use COMPOSE_PROFILES=observability,identity sh scripts/dev/up.sh for optional support services."

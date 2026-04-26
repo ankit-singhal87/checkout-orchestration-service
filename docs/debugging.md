@@ -7,7 +7,8 @@
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.
 - The host only needs an IDE listener such as the Cursor or VS Code PHP Debug extension.
 - Use path mappings from the container app path, for example `/app`, to the host workspace path.
-- Enable Xdebug through an explicit Compose profile or environment override when stepping through code.
+- Enable Xdebug with `XDEBUG_MODE=debug COMPOSE_PROFILES=app sh scripts/dev/up.sh` when stepping through code.
+- Set your IDE listener to port `9003`; the container uses `host.docker.internal` to connect back to the host.
 
 ## Go Workers
 

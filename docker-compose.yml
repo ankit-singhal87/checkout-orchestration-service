@@ -1,6 +1,39 @@
 name: checkout-orchestration
 
 services:
+  checkout:
+    build:
+      context: .
+      dockerfile: docker/checkout.Dockerfile
+    working_dir: /app
+    command: ["sh", "-lc", "if [ -f artisan ]; then php artisan serve --host=0.0.0.0 --port=8000; else tail -f /dev/null; fi"]
+    volumes:
+      - ./apps/checkout:/app
+      - ./seed:/seed:ro
+    ports:
+      - "${APP_PORT:-8080}:8000"
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-checkout}
+      DB_USERNAME: ${MYSQL_USER:-checkout}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-checkout}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - app
+
   mysql:
     image: mysql:8.4
     environment:
