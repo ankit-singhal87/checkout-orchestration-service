@@ -70,6 +70,7 @@ scripts/git/pre-push.sh
 scripts/git/install-hooks.sh
 scripts/dev/bootstrap-checkout-app.sh
 scripts/dev/start-checkout.sh
+scripts/dev/start-checkout-roadrunner.sh
 "
 
 missing=0

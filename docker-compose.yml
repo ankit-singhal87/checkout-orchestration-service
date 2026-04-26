@@ -27,6 +27,9 @@ services:
       LOG_STDERR_FORMATTER: Monolog\Formatter\JsonFormatter
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      CHECKOUT_RUNTIME: ${CHECKOUT_RUNTIME:-artisan}
+      OCTANE_WORKERS: ${OCTANE_WORKERS:-2}
+      OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
     extra_hosts:
       - "host.docker.internal:host-gateway"

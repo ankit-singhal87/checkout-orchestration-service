@@ -20,6 +20,10 @@ Blade is included with Laravel. Blade templates live under `resources/views`, an
 - Extracting pricing, inventory, payment, or order into separate services.
 - Production-style RoadRunner runtime wiring.
 
+## Phase 2 Runtime
+
+The local default remains `php artisan serve`. `make up-roadrunner` selects the opt-in RoadRunner path and fails with a clear message until Laravel Octane and RoadRunner Composer dependencies are approved and installed.
+
 ## Bootstrap
 
 The host does not need PHP or Composer. Bootstrap is handled through Docker and exits when `artisan` already exists:
