@@ -41,7 +41,8 @@ checkout:tests:
     MYSQL_ROOT_PASSWORD: checkout_root
   before_script: []
   script:
-    - docker-php-ext-install pdo_mysql
+    - apk add --no-cache linux-headers
+    - docker-php-ext-install pdo_mysql sockets
     - composer install --working-dir=apps/checkout --no-interaction --prefer-dist
     - sh scripts/test/checkout-app.sh
   rules:

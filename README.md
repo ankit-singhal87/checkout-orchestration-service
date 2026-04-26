@@ -28,7 +28,7 @@ By default, Docker Compose starts supporting infrastructure. Start the Laravel c
 make up-app
 ```
 
-RoadRunner is available as an explicit opt-in runtime path once Laravel Octane dependencies are approved and installed:
+RoadRunner is available as an explicit opt-in runtime path:
 
 ```bash
 make up-roadrunner

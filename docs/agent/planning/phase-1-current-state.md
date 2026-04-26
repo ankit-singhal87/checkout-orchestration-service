@@ -11,7 +11,7 @@ This document records what is implemented in the repository after the Phase 1 fo
 - **Observability baseline:** Laravel adds request/trace correlation headers, propagates trace IDs into Problem Details, and emits structured HTTP completion logs to JSON stderr in local containers. Full OTLP metrics/traces and exporter selection remain later work.
 - **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts. Common local commands are aggregated in [Makefile](../../../Makefile).
 - **Standards:** PHP 8.5-oriented standards in [docs/agent/coding-standards/php-8.5.md](../coding-standards/php-8.5.md); clean boundaries in [docs/human/adr/0006-laravel-clean-boundaries.md](../../human/adr/0006-laravel-clean-boundaries.md).
-- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, approved RoadRunner/Octane dependency installation, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
+- **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, Go workers, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets.
 
 ## Laravel surface
 
@@ -59,7 +59,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 
 - **RoadRunner runtime** dependency approval and Laravel Octane installation for the existing opt-in startup path.
 - OpenSearch indexing/read-model projection.
-- RoadRunner production-style runtime wiring.
+- RoadRunner production-style runtime hardening beyond the opt-in local Octane/RoadRunner path.
 - OpenTelemetry metrics/traces and exporter profile selection.
 
 See [phase-2-system-completion.md](phase-2-system-completion.md) for the active Phase 2 priority order. More checkout API breadth is intentionally lower ROI than system-completion work for the interview demo.
