@@ -11,8 +11,9 @@ Use one lead orchestrator and several bounded worker agents.
 - The lead orchestrator owns only coordination: current intent, task slicing, worker assignment, conflict prevention, stop-condition escalation, and context defragmentation.
 - `Conductor` is the recommended neutral shorthand for the lead orchestrator role when a shorter label helps. Keep `lead orchestrator` available when explicit coordination authority is clearer.
 - Worker agents own bounded work packages with explicit allowed paths, expected outputs, validation commands, and stop conditions.
-- Durable agent definitions live under [agents/](agents/). Use `agents` as the stable neutral term and folder name; use mode labels such as `thinker`, `builder`, `integrator`, `steward`, and `specialist` inside definitions and work packages when they clarify the kind of work.
+- Durable agent definitions live under [agents/](agents/). Use `agents` as the stable neutral term and folder name; use mode labels such as `thinker`, `builder`, `integrator`, `steward`, `specialist`, and `observer` inside definitions and work packages when they clarify the kind of work.
 - The orchestrator must not perform implementation, validation, release, or documentation work directly when a named worker owns that lane. It delegates the work and integrates by assigning a worker, not by carrying the execution context itself.
+- The Conductor may step into a struggling worker lane only to identify and fix the root cause of the blocker. After the blocker is understood or corrected, the Conductor hands control back to the original worker or to Relay for integration rather than continuing the lane personally.
 - Agents should read [context-handoff.md](context-handoff.md) after [README.md](README.md) and use it as the compact cross-session memory buffer.
 - Agents should use [Makefile](../../Makefile) targets such as `make validate`, `make test-checkout`, `make pre-push`, and `make pre-push-full` for common local workflows. The underlying scripts remain available as fallbacks when `make` is unavailable.
 - Agents may suggest `make install-host-tools` for local workstation bootstrap, but must ask before running it because it installs host packages.
@@ -37,12 +38,17 @@ The lead orchestrator chooses the worker by matching the requested outcome to th
 - Use `integrator` for branch integration, validation coordination, commits, pushes, and authorized merge request preparation.
 - Use `steward` for context defragmentation, handoff maintenance, docs routing, backlog hygiene, and guardrail upkeep.
 - Use `specialist` when a narrow domain needs focused expertise or a second review before production-adjacent use.
+- Use `observer` for low-cost, read-only branch, merge request, CI, pipeline, and command-output status checks. Observer reports status and blockers only; it does not do Relay work, change files, resolve conflicts, commit, push, or prepare merge requests.
 
 Selection rules:
 
 - Prefer an existing narrow named agent whose allowed paths and validation commands already match the work package.
 - Split or define a narrower agent before assigning production-adjacent work when the existing roster name is too broad to prevent file collisions.
 - Assign a branch and worktree to every non-read-only worker before edits begin; keep read-only advisory workers branchless only while they remain read-only.
+- Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when evidence shows the current tier is insufficient.
+- Use a low-cost or small model for Observer status checks, simple read-only status, narrow docs formatting, and command-output summarization.
+- Use a standard or mid-capability model for bounded builders, Scribe documentation work, routine Relay integration, focused validation follow-up, and ordinary branch hygiene.
+- Use a high-capability model for Conductor planning under ambiguity, architecture or security decisions, risky code changes, difficult conflict resolution, and root-cause debugging when a worker is blocked.
 - Stop and ask when the worker type is ambiguous, the task crosses ownership lanes, or two workers need the same editable file.
 
 ### Lead Orchestrator - Cursor Session Agent
@@ -60,6 +66,7 @@ Responsibilities:
 - Name and track any parallel `agent/*` branches and decide how each branch is integrated.
 - Assign branch creation, code/docs edits, validation, commits, pushes, and merge request preparation to the relevant worker agent.
 - Keep context small by assigning Scribe to flush durable 1-2 line learnings into [context-handoff.md](context-handoff.md) after MR creation or merge, then closing or abandoning context-heavy worker threads.
+- Prevent context growth by routing validated stable slices quickly to Relay for commit and, when authorized, merge request preparation. Stable validated commits should not sit locally for long while unrelated work continues.
 - Stop and ask when worker outputs conflict, when ownership is unclear, or when a requested action crosses a stop condition.
 
 The orchestrator should stay hands-off for execution. Worker agents move independently in their lanes, while the orchestrator owns routing, boundaries, and whether additional workers are needed.
@@ -95,6 +102,7 @@ There is no project-supported operation for deleting selected history from a liv
 - Move lasting decisions into the relevant durable document, such as ADRs, contracts, runbooks, coding standards, or phase planning docs.
 - Keep each handoff bullet actionable and no longer than two lines.
 - Use `make show-context` to review persisted context and `make defragment-context` with `HANDOFF_LINES` or `HANDOFF_FILE` to replace redundant active context with selected handoff bullets.
+- Prefer quick Relay commits and authorized MRs for validated stable slices instead of preserving those details in live context. The handoff should point to the branch or MR state, not restate the whole slice.
 - After `make defragment-context`, the current context-heavy agent must stop taking new implementation work. The orchestrator closes that worker if possible, or lets the session end, then starts a fresh worker from [README.md](README.md) and [context-handoff.md](context-handoff.md).
 - Do not preserve raw command output unless it is the acceptance evidence for a runbook; summarize the result and link the durable source instead.
 - Prefer starting a new agent session after a meaningful MR is created or merged, especially after parallel agents, long command output, or broad doc reads.
@@ -173,6 +181,7 @@ Run agents in parallel when workstreams are independent:
 - Shield: tenant isolation, secrets, auth, payment simulation safety.
 - Beacon: OpenTelemetry, logs, metrics, traces, SLO evidence.
 - Relay: branch integration, validation coordination, commits, pushes, and merge request preparation.
+- Observer: read-only branch, MR, merge, CI, and pipeline status checks, including concise blocker reports back to Conductor.
 - Scribe: compact handoffs, context defragmentation, durable doc routing, and stale-context cleanup.
 
 Avoid parallel edits to the same files. If two agents need the same file, one should review while the owning worker applies the final edit.
@@ -180,10 +189,12 @@ Avoid parallel edits to the same files. If two agents need the same file, one sh
 Parallel branch rules:
 
 - Use `agent/<short-scope>` for independent specialist branches.
+- For mutually exclusive independent tasks, the Conductor may start multiple Relay lanes in parallel, each with its own branch and worktree, and may pair each lane with a separate Observer. These lanes must have distinct writable files and independent validation or MR status checks.
 - Direct foreground implementation should be assigned to a worker on a short-scoped branch instead of accumulating unrelated work in the orchestrator thread.
 - Keep each agent branch scoped to its assigned files and acceptance criteria.
 - Rebase or merge from GitLab `main` only under orchestrator direction and Relay execution.
 - Relay integrates agent branches deliberately and validates the combined tree before user-facing push or MR creation.
+- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the Conductor may start Relay to investigate and integrate. Observer should remain read-only and should not convert itself into Relay.
 - Delete stale `agent/*` branches after their work is integrated or abandoned.
 
 ## Main Merge Conflict Playbook
@@ -317,6 +328,17 @@ Phase 1 responsibilities:
 - Keep commits small, coherent, and named with clean imperative subjects.
 - Create GitLab MRs only when the user has authorized MR creation and the token/tooling is available.
 - Enable squash, source-branch deletion, and auto-merge through `make create-auto-merge-mr` when authorized.
+
+### Observer - Status Agent
+
+Owns low-cost, read-only branch, merge request, merge, CI, and pipeline status checks.
+
+Phase 1 responsibilities:
+
+- Check branch/MR/CI status and summarize whether a lane is green, pending, blocked, failed, merged, or stale.
+- Report concise blocker evidence to the Conductor without editing files, resolving conflicts, committing, pushing, or preparing merge requests.
+- Stay separate from Relay. If status reveals a blocker that needs integration work, the Conductor decides whether to start or assign Relay.
+- Use the lowest-cost capable model for routine status checks and command-output summaries.
 
 ### Scribe - Context And Documentation Steward
 
