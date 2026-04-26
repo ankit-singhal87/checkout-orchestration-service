@@ -5,7 +5,7 @@ Phase 2 should optimize for interview-demo system completeness, not checkout fea
 ## Priority Order
 
 1. **Async boundary:** publish existing `outbox_events` to Redis Streams with an at-least-once Laravel command before considering a Go worker. **Current status:** implemented as `checkout:outbox:publish`; demo helpers are `make demo-outbox-publish` and `make demo-redis-events`.
-2. **Runtime story:** add an opt-in RoadRunner path only after dependency compatibility is verified; keep `php artisan serve` as the default local fallback. **Current status:** opt-in startup path exists; Laravel Octane/RoadRunner dependency installation still requires explicit approval.
+2. **Runtime story:** keep `php artisan serve` as the default local fallback and use RoadRunner only through the explicit opt-in path. **Current status:** Laravel Octane/RoadRunner dependencies are installed and `make up-roadrunner` selects the RoadRunner startup wrapper.
 3. **Observability path:** make request logs, trace/request IDs, and local collector docs easy to demo before adding provider-specific exporters.
 4. **Demo runbook:** document a short path that starts local services, walks two tenants through checkout, shows an outbox event, and verifies tests. **Current status:** [demo-runbook.md](../demo-runbook.md).
 5. **Cloud/deploy shape:** keep Docker Compose as the fastest/default app demo runtime and use `kind` as the default local Kubernetes validation target for EKS-parity manifest work. Amazon EKS is the intended production Kubernetes target, but AWS/EKS/Terraform deployment remains unapproved until budget guardrails, ownership/TTL tags, rollback checkpoints, and destroy workflows are explicit.
@@ -31,12 +31,6 @@ The outbox publisher is implemented as a Laravel console command:
 
 This slice demonstrates transactional consistency, async boundaries, local infrastructure, and retry-friendly event design with less effort than adding more customer-facing checkout features.
 
-## Next Slice Recommendation
+## Completed Runtime Slice
 
-Complete the RoadRunner runtime only after approving the required Composer dependency change:
-
-- `laravel/octane`
-- `spiral/roadrunner-cli`
-- `spiral/roadrunner-http`
-
-Keep `php artisan serve` as the default local runtime.
+The opt-in RoadRunner runtime path now has the required Composer packages and PHP sockets extension. Keep `php artisan serve` as the default local runtime.

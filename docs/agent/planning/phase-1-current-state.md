@@ -57,7 +57,6 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 
 ## Later-Phase Follow-ups
 
-- **RoadRunner runtime** dependency approval and Laravel Octane installation for the existing opt-in startup path.
 - OpenSearch indexing/read-model projection.
 - RoadRunner production-style runtime hardening beyond the opt-in local Octane/RoadRunner path.
 - OpenTelemetry metrics/traces and exporter profile selection.
