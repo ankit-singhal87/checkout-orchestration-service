@@ -8,12 +8,31 @@ Use this runbook to show the current local system-completion story: tenant-aware
 make up-app
 ```
 
-The checkout app listens on `http://localhost:8080` by default.
+The default local path uses Nginx/PHP-FPM and listens on `http://localhost:8080`.
 
 Open both demo tenants:
 
 - `http://fashion-demo.localhost:8080/shop`
 - `http://sports-demo.localhost:8080/shop`
+
+For the local-production parity path:
+
+```bash
+make up-parity
+```
+
+The parity proxy listens on `https://localhost:8443` with Caddy local certificates and HTTP/2:
+
+- `https://fashion-demo.localhost:8443/shop`
+- `https://sports-demo.localhost:8443/shop`
+
+For the optional RoadRunner/Octane performance profile:
+
+```bash
+make up-roadrunner
+```
+
+RoadRunner listens on `http://localhost:8082` by default.
 
 ## Walk A Checkout
 
@@ -86,5 +105,7 @@ curl -fsS http://localhost:3200/ready
 ```bash
 make validate
 make test-checkout
+make test-checkout-runtime
+make test-checkout-parity
 make pre-push-full
 ```

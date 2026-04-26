@@ -1,0 +1,25 @@
+name: checkout-orchestration
+
+services:
+  nginx:
+    ports: !reset []
+    expose:
+      - "80"
+
+  checkout-proxy:
+    image: caddy:2.8-alpine
+    depends_on:
+      - nginx
+    ports:
+      - "${PARITY_HTTPS_PORT:-8443}:443"
+      - "${PARITY_HTTPS_PORT:-8443}:443/udp"
+    volumes:
+      - ./infra/local/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    profiles:
+      - parity
+
+volumes:
+  caddy-data:
+  caddy-config:

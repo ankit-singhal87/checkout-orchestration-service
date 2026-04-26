@@ -5,7 +5,7 @@ Phase 2 should optimize for interview-demo system completeness, not checkout fea
 ## Priority Order
 
 1. **Async boundary:** publish existing `outbox_events` to Redis Streams with an at-least-once Laravel command before considering a Go worker. **Current status:** implemented as `checkout:outbox:publish`; demo helpers are `make demo-outbox-publish` and `make demo-redis-events`.
-2. **Runtime story:** keep `php artisan serve` as the default local fallback and use RoadRunner only through the explicit opt-in path. **Current status:** Laravel Octane/RoadRunner dependencies are installed and `make up-roadrunner` selects the RoadRunner startup wrapper.
+2. **Runtime story:** keep the default local path fast and familiar with Nginx/PHP-FPM over HTTP, and keep production-boundary behavior in explicit parity/performance profiles. **Current status:** `make up-app` starts Nginx/PHP-FPM over HTTP/1.1; `make up-roadrunner` starts the optional RoadRunner/Octane performance profile; `make up-parity` adds Caddy for HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits.
 3. **Observability path:** make request logs, trace/request IDs, and local collector docs easy to demo before adding provider-specific exporters.
 4. **Demo runbook:** document a short path that starts local services, walks two tenants through checkout, shows an outbox event, and verifies tests. **Current status:** [demo-runbook.md](../demo-runbook.md).
 5. **Cloud/deploy shape:** keep Docker Compose as the fastest/default app demo runtime and use `kind` as the default local Kubernetes validation target for EKS-parity manifest work. Amazon EKS is the intended production Kubernetes target, but AWS/EKS/Terraform deployment remains unapproved until budget guardrails, ownership/TTL tags, rollback checkpoints, and destroy workflows are explicit.
@@ -33,4 +33,4 @@ This slice demonstrates transactional consistency, async boundaries, local infra
 
 ## Completed Runtime Slice
 
-The opt-in RoadRunner runtime path now has the required Composer packages and PHP sockets extension. Keep `php artisan serve` as the default local runtime.
+The default local runtime is Nginx/PHP-FPM over HTTP/1.1 for fast feedback and familiar debugging. RoadRunner/Octane is an optional performance profile because it changes runtime semantics through long-running workers. Local-production parity uses a Docker Compose override with Caddy for HTTPS/2 and edge-like headers. Do not force HTTPS or a reverse proxy into every TDD loop; gRPC endpoints are the exception and must use HTTP/2 even in the fast path.

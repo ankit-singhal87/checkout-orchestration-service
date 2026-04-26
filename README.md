@@ -4,7 +4,7 @@ Multi-tenant SaaS checkout demo inspired by public headless checkout concepts. T
 
 ## Current Phase
 
-This repository is entering Phase 2: local runnable checkout breadth on top of the completed Phase 1 foundation. Implementation stays Laravel-first and local-first; Go workers, RoadRunner, Redis Streams, OpenSearch projections, and cloud deploy assets remain opt-in slices.
+This repository is entering Phase 2: local runnable checkout breadth on top of the completed Phase 1 foundation. Implementation stays Laravel-first and local-first; the default local stack is Nginx/PHP-FPM over HTTP, while RoadRunner/Octane, OpenSearch projections, Go workers, and cloud deploy assets remain explicit parity, performance, or later slices.
 
 ## Target Shape
 
@@ -22,19 +22,27 @@ cp .env.example .env
 make up
 ```
 
-By default, Docker Compose starts supporting infrastructure. Start the Laravel checkout container with:
+By default, Docker Compose starts supporting infrastructure. Start the Laravel checkout stack with Nginx and PHP-FPM over plain HTTP/1.1 for fast local feedback:
 
 ```bash
 make up-app
 ```
 
-RoadRunner is available as an explicit opt-in runtime path:
+Use RoadRunner only when testing the optional performance/runtime profile:
 
 ```bash
 make up-roadrunner
 ```
 
-The default checkout runtime remains `php artisan serve`.
+For local-production parity, start the reverse-proxy path:
+
+```bash
+make up-parity
+```
+
+The parity path uses Caddy in front of the default Nginx/PHP-FPM stack with local HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits. Caddy uses its local internal CA, so use `curl -k` for command-line checks unless you trust the local CA.
+
+Do not use the parity proxy for every TDD loop; keep the default path fast. Future gRPC endpoints must use HTTP/2 even in the fast path.
 
 By default, local infrastructure is limited to MySQL and Redis. Optional search, observability, and identity services stay behind Compose profiles.
 
@@ -44,7 +52,9 @@ make up-observability
 make up-identity
 ```
 
-The checkout app listens on `http://localhost:8080` by default and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`.
+The default checkout app listens on `http://localhost:8080` and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`.
+
+The parity proxy listens on `https://localhost:8443`. Use `https://fashion-demo.localhost:8443/shop` or `https://sports-demo.localhost:8443/shop`.
 
 Outbox publication is available as a manual local async boundary:
 

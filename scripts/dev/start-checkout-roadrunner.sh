@@ -6,6 +6,18 @@ if [ ! -f artisan ]; then
   tail -f /dev/null
 fi
 
+if [ ! -f .env ] && [ -f .env.example ]; then
+  cp .env.example .env
+fi
+if ! php -r '$env = file_exists(".env") ? file_get_contents(".env") : ""; exit(preg_match("/^APP_KEY=base64:.+/m", $env) ? 0 : 1);'; then
+  php artisan key:generate --force
+fi
+mkdir -p bootstrap/cache storage/app/public storage/framework/cache storage/framework/sessions storage/framework/testing storage/framework/views storage/logs
+chmod -R a+rwX bootstrap/cache storage
+php artisan migrate --force
+php artisan db:seed --force
+php artisan optimize:clear
+
 if ! php artisan list --raw | grep -Eq "^octane:start([[:space:]]|$)"; then
   echo "RoadRunner runtime requires Laravel Octane." >&2
   echo "Run composer install inside apps/checkout and verify laravel/octane, spiral/roadrunner-cli, and spiral/roadrunner-http are installed." >&2
@@ -30,9 +42,10 @@ if [ ! -x rr ]; then
   chmod +x rr
 fi
 
-exec php artisan octane:start \
-  --server=roadrunner \
-  --host=0.0.0.0 \
-  --port=8000 \
-  --workers="${OCTANE_WORKERS:-2}" \
-  --max-requests="${OCTANE_MAX_REQUESTS:-500}"
+APP_BASE_PATH="$(pwd)" \
+LARAVEL_OCTANE=1 \
+exec ./rr \
+  -c .rr.yaml \
+  -o "http.pool.num_workers=${OCTANE_WORKERS:-2}" \
+  -o "http.pool.max_jobs=${OCTANE_MAX_REQUESTS:-500}" \
+  serve

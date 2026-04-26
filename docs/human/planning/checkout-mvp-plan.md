@@ -40,7 +40,7 @@ Create a single monorepo with clear service boundaries, free local execution, an
 
 Proposed structure:
 
-- [apps/checkout](../../../apps/checkout) - Laravel PHP app served by RoadRunner, containing the Blade checkout UI, public checkout API, application services, Eloquent models, and checkout domain orchestration.
+- [apps/checkout](../../../apps/checkout) - Laravel PHP app served by Nginx/PHP-FPM in the default local path and optionally by RoadRunner/Octane in the performance profile, containing the Blade checkout UI, public checkout API, application services, Eloquent models, and checkout domain orchestration.
 - [services/inventory-service](../../../services/inventory-service) - optional Go gRPC service for stock reservation/release once the Laravel happy path is stable.
 - [workers/order-processor](../../../workers/order-processor) - selected Go worker for async order side effects, payment settlement simulation, search indexing, analytics, and notification events.
 - [workers/outbox-publisher](../../../workers/outbox-publisher) - Go or Laravel worker that publishes committed outbox events to Redis Streams locally or SQS/SNS in deploy mode.
@@ -60,7 +60,7 @@ Use the C4 model as the primary architecture documentation structure.
 C4 deliverables:
 
 - System Context: shoppers, optional authenticated customers, tenant admins, platform operators, payment simulation, carrier/collection point simulation, swappable observability backend, and AWS dependencies.
-- Container Diagram: Laravel/RoadRunner checkout app, MySQL schemas, Redis, OpenSearch, workers, optional Go services, OTel Collector, messaging, CloudFront/WAF, and EKS deployment components.
+- Container Diagram: Laravel checkout app through Nginx/PHP-FPM by default, optional RoadRunner/Octane performance path, MySQL schemas, Redis, OpenSearch, workers, optional Go services, OTel Collector, messaging, CloudFront/WAF, and EKS deployment components.
 - Component Diagrams: checkout orchestration components, tenant resolution, cart/checkout/order contexts, outbox publisher, observability adapters, Problem Details adapter, cache/rate-limit/idempotency adapters.
 - Code Diagrams: only for high-value areas such as checkout state machine, order confirmation transaction, inventory reservation, and outbox publishing.
 
@@ -72,7 +72,7 @@ Split the project into two explicit modes so the MVP can be built for free while
 
 Local/dev mode:
 
-- Runs with Docker Compose first: Laravel/RoadRunner, MySQL, Redis, local OpenSearch, optional Keycloak later, and local workers.
+- Runs with Docker Compose first: Laravel through Nginx/PHP-FPM by default, MySQL, Redis, local OpenSearch, optional Keycloak later, local workers, and optional RoadRunner/Octane performance profile.
 - Starts with a simple Laravel + Blade UI using MVVM-style view models.
 - Seeds two tenants with random but deterministic catalog, product variation, cart, and checkout data.
 - Does not require login for shopping or checkout.
@@ -290,7 +290,7 @@ HTTP/3 is forward-looking and should be enabled at the edge. Low latency still p
 
 ## Service Design
 
-Use Laravel for the public checkout orchestration layer because it gives fast MVP velocity, strong API ergonomics, and familiar PHP patterns. Run it with RoadRunner to demonstrate production-oriented PHP performance and lower request overhead than classic PHP-FPM.
+Use Laravel for the public checkout orchestration layer because it gives fast MVP velocity, strong API ergonomics, and familiar PHP patterns. Use Nginx/PHP-FPM as the default local baseline for familiar debugging and request isolation. Use RoadRunner/Octane only as an explicit performance/parity profile to demonstrate production-oriented PHP performance and lower request overhead while also checking long-running worker safety.
 
 Use Laravel + Blade for the initial UI and checkout application layer. Blade templates receive view models and should not contain database queries or domain decisions.
 
@@ -493,7 +493,7 @@ Because there is currently no AWS subscription, the minimum-cost path should not
 
 Recommended free path:
 
-- Build and demo locally with Docker Compose: Laravel RoadRunner, selected workers, MySQL, Redis, optional OpenSearch, and OpenTelemetry-compatible local telemetry.
+- Build and demo locally with Docker Compose: Laravel through Nginx/PHP-FPM by default, selected workers, MySQL, Redis, optional OpenSearch, OpenTelemetry-compatible local telemetry, and optional RoadRunner/Octane performance profile.
 - Add optional local Kubernetes with `kind`, `k3d`, or Minikube to prove Kubernetes manifests before using AWS.
 - Simulate CloudFront locally through cache headers and an optional reverse proxy; only add real CloudFront when deploying to AWS.
 - Use GitLab for source, issues, merge requests, CI/CD, and releases.
@@ -583,7 +583,7 @@ Local tools and debugging setup:
 
 - Confirm/install PHP 8.5, Composer, Go, Docker, Docker Compose, Node.js only if frontend assets require it, Git, GitLab CLI or `glab` if desired, Terraform, `kubectl`, `kind` or `k3d`, and `protoc` tooling when gRPC starts.
 - Add `.editorconfig`, `.gitignore`, and local `.env.example` files.
-- Add `docker-compose.yml` skeleton for Laravel/RoadRunner, MySQL, Redis, OpenSearch, and optional observability profile services.
+- Add `docker-compose.yml` skeleton for Laravel through Nginx/PHP-FPM, optional RoadRunner/Octane performance profile, MySQL, Redis, OpenSearch, and optional observability profile services.
 - Add debugging guidance for Laravel logs, RoadRunner worker reloads, Xdebug optional use, Go debugger optional use, database inspection, Redis inspection, and trace lookup.
 - Add preflight script placeholders such as [scripts/dev/check-tools.sh](../../../scripts/dev/check-tools.sh), [scripts/dev/up.sh](../../../scripts/dev/up.sh), and [scripts/dev/down.sh](../../../scripts/dev/down.sh).
 
@@ -615,7 +615,7 @@ AI tooling strategy:
 - Commit messages should be small, coherent, imperative, and describe the actual change, not the tool that made it.
 - Agents may push branches to GitLab when asked. Agents may create GitLab merge requests targeting `main` when the user asks and approved tooling is available; merge remains manual.
 - Merge requests should use squash-on-merge and a clean squash commit message.
-- Treat the active Cursor session agent as the lead orchestrator for task slicing, integration, validation, commits, and push requests unless the user assigns that role elsewhere.
+- Treat the active Cursor/Codex session agent as the single `lead-orchestrator` for task slicing, worker routing, integration ownership, validation coordination, commits, and push requests unless the user assigns that role to another active session.
 - Use bounded specialist agents for parallel review or implementation work packages with explicit allowed paths, acceptance criteria, validation commands, and stop conditions.
 - Increase agent autonomy only when CI validation, path boundaries, and manual GitLab review gates are clear.
 - Require agents to follow existing coding standards, and add a standards document before introducing substantial code in a new implementation technology.

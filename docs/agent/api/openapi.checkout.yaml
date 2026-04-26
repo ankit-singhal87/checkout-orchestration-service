@@ -8,7 +8,9 @@ info:
     copy of any vendor OpenAPI document.
 servers:
   - url: http://localhost:8080
-    description: Local development
+    description: Default local/TDD Nginx and PHP-FPM path.
+  - url: https://localhost:8443
+    description: Local-production parity proxy path.
 paths:
   /api/checkout/config:
     get:

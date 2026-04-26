@@ -4,13 +4,13 @@ This file is the compact handoff buffer for orchestrator-owned agent context def
 
 ## Current Snapshot
 
-- Phase 2 has local checkout orchestration, Redis Streams outbox publishing, demo runbook commands, and an opt-in RoadRunner wrapper backed by Laravel Octane/RoadRunner dependencies.
+- Phase 2 has local checkout orchestration, Redis Streams outbox publishing, demo runbook commands, default Nginx/PHP-FPM local runtime, optional RoadRunner/Octane performance profile, and a separate Caddy HTTPS/2 parity path.
 - Agent MR creation should use `make create-auto-merge-mr`, which creates or reuses a GitLab MR with squash, source-branch deletion, and auto-merge verification.
 
 ## Active Threads
 
 - Local Kubernetes direction is docs-only/local-only: Docker Compose remains the fastest app demo runtime, `kind` is the default local EKS-parity manifest validation path, and Amazon EKS is the intended production Kubernetes target but remains unapproved for real deployment until approval, budget/cost alerts, TTL/resource ownership tags, destroy runbooks, and rollback checkpoints exist.
-- RoadRunner remains opt-in for local development; production-style runtime hardening is separate from the installed Composer dependency slice.
+- Default local/TDD runtime is Nginx/PHP-FPM over HTTP/1.1 for speed and familiar debugging. `make up-parity` adds Caddy for HTTPS/2, forwarded headers, security headers, and request-size limits; `make up-roadrunner` is optional performance/runtime testing.
 
 ## Defragmentation Rules
 

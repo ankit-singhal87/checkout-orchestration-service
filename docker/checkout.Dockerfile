@@ -2,7 +2,7 @@ ARG COMPOSER_VERSION=2
 
 FROM composer:${COMPOSER_VERSION} AS composer_binary
 
-FROM php:8.5-cli-bookworm
+FROM php:8.5-fpm-bookworm
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \

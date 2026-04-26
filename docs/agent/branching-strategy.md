@@ -13,7 +13,7 @@ Use trunk-based development with short-lived branches.
 
 ## Orchestrator Branches
 
-When foreground work is needed, the lead orchestrator assigns it to a named worker. Relay creates or switches to a short-scoped branch for integration work, and implementation workers may use `agent/<short-scope>` for agent-owned implementation or investigation work. Use `docs/<short-scope>` for documentation-only changes.
+When foreground work is needed, the `lead-orchestrator` assigns it to a named worker. Relay creates or switches to a short-scoped branch for integration work, and implementation workers may use `agent/<short-scope>` for agent-owned implementation or investigation work. Use `docs/<short-scope>` for documentation-only changes.
 
 Examples:
 
@@ -23,7 +23,7 @@ Examples:
 
 ## Agent Branches
 
-Parallel worker agents may create `agent/<short-scope>` branches when the lead orchestrator assigns independent work. These branches are for isolation and speed, not long-lived ownership.
+Parallel worker agents may create `agent/<short-scope>` branches when the `lead-orchestrator` assigns independent work. These branches are for isolation and speed, not long-lived ownership.
 
 Rules:
 
@@ -36,9 +36,9 @@ Rules:
 - Report changed paths, validation, and integration notes back to Relay and the orchestrator.
 - Integrate through Relay review, cherry-pick, merge, or a GitLab merge request.
 - Once a stable slice is validated, move it quickly to Relay for commit and, when authorized, merge request preparation. Do not let validated local work sit while unrelated context accumulates.
-- Mutually exclusive independent tasks may use multiple Relay lanes in parallel when the Conductor assigns distinct branches, worktrees, writable file sets, and validation scopes.
+- Mutually exclusive independent tasks may use multiple Relay lanes in parallel when the `lead-orchestrator` assigns distinct branches, worktrees, writable file sets, and validation scopes.
 - Read-only Observer lanes may run alongside each Relay lane to report branch, MR, merge, CI, and pipeline status. Observer must not resolve conflicts, commit, push, prepare MRs, or do other Relay work.
-- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the Conductor decides whether to start or assign Relay for integration work.
+- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the `lead-orchestrator` decides whether to start or assign Relay for integration work.
 - Delete stale `agent/*` branches after integration or abandonment.
 
 ## Merge Requests
