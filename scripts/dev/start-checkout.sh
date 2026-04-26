@@ -7,6 +7,12 @@ if [ ! -f artisan ]; then
 fi
 
 php artisan optimize:clear
+if [ ! -f .env ] && [ -f .env.example ]; then
+  cp .env.example .env
+fi
+if ! php -r '$env = file_exists(".env") ? file_get_contents(".env") : ""; exit(preg_match("/^APP_KEY=base64:.+/m", $env) ? 0 : 1);'; then
+  php artisan key:generate --force
+fi
 php artisan migrate --force
 php artisan db:seed --force
 

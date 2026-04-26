@@ -16,7 +16,9 @@ RUN apt-get update \
   && docker-php-ext-install \
     intl \
     mbstring \
+    pcntl \
     pdo_mysql \
+    sockets \
     zip \
   && pecl install redis xdebug \
   && docker-php-ext-enable redis xdebug \
