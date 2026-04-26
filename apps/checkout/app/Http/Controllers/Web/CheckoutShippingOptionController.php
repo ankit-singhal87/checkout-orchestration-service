@@ -8,6 +8,8 @@ use App\Application\Checkout\CheckoutManager;
 use App\Domain\Checkout\ShippingOption;
 use App\Domain\Tenant\TenantContext;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\WebProblemDetailsResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -19,12 +21,15 @@ final class CheckoutShippingOptionController extends Controller
     /**
      * Create the shipping option controller.
      */
-    public function __construct(private readonly CheckoutManager $checkout) {}
+    public function __construct(
+        private readonly CheckoutManager $checkout,
+        private readonly WebProblemDetailsResponse $problems,
+    ) {}
 
     /**
      * Store the selected shipping option.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): JsonResponse|RedirectResponse
     {
         /** @var TenantContext $tenant */
         $tenant = $request->attributes->get(TenantContext::class);
@@ -34,7 +39,26 @@ final class CheckoutShippingOptionController extends Controller
         ]);
 
         $option = ShippingOption::tryFrom((string) $validated['shipping_option']);
-        abort_if($option === null, 422);
+
+        if ($option === null) {
+            if ($request->expectsJson()) {
+                return $this->problems->make(
+                    request: $request,
+                    tenant: $tenant,
+                    type: 'validation-failed',
+                    title: 'Validation failed',
+                    status: 422,
+                    detail: 'Request fields failed validation.',
+                    errors: [[
+                        'field' => 'shipping_option',
+                        'code' => 'invalid',
+                        'message' => 'Select a supported shipping option.',
+                    ]],
+                );
+            }
+
+            abort(422);
+        }
 
         $this->checkout->selectShippingOption($tenant, $checkoutId, $option);
 

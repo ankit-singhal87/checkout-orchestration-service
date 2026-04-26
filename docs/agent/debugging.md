@@ -5,7 +5,7 @@
 - Application logs should be structured JSON and include `trace_id`, `request_id`, `tenant_id`, and route.
 - Current local containers write JSON application logs to stderr by default through `LOG_STACK=stderr`.
 - HTTP responses include `X-Request-Id` and `X-Trace-Id`; pass either header when reproducing a request that needs correlation.
-- RoadRunner worker reload commands will be added when the Laravel app is created.
+- RoadRunner worker reload commands will be added when production-style runtime wiring becomes active.
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.
 - The host only needs an IDE listener such as the Cursor or VS Code PHP Debug extension.
 - Use path mappings from the container app path, for example `/app`, to the host workspace path.

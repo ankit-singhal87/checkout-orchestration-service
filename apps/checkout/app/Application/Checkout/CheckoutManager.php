@@ -13,6 +13,7 @@ use App\Infrastructure\Persistence\Eloquent\CartRecord;
 use App\Infrastructure\Persistence\Eloquent\CheckoutStateRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderRecord;
 use App\Infrastructure\Persistence\Eloquent\OutboxEventRecord;
+use App\Infrastructure\Persistence\Eloquent\ProductVariantRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -105,6 +106,51 @@ final readonly class CheckoutManager
         $checkout->save();
 
         return $this->reloadCheckout($checkout);
+    }
+
+    /**
+     * Update a basket item inside an active checkout state.
+     */
+    public function updateBasketItemQuantity(TenantContext $tenant, string $checkoutId, string $variantId, int $quantity): ?CheckoutStateRecord
+    {
+        return DB::transaction(function () use ($tenant, $checkoutId, $variantId, $quantity): ?CheckoutStateRecord {
+            /** @var CheckoutStateRecord|null $checkout */
+            $checkout = CheckoutStateRecord::query()
+                ->where('tenant_record_id', $tenant->recordId)
+                ->where('checkout_id', $checkoutId)
+                ->with('cart.items.variant.product')
+                ->lockForUpdate()
+                ->first();
+
+            if (! $checkout instanceof CheckoutStateRecord || $checkout->status === CheckoutStatus::Confirmed) {
+                return null;
+            }
+
+            $item = $checkout->cart->items->first(function ($item) use ($variantId): bool {
+                return $item->variant instanceof ProductVariantRecord
+                    && $item->variant->variant_id === $variantId;
+            });
+
+            if ($item === null) {
+                return null;
+            }
+
+            if ($quantity === 0) {
+                $item->delete();
+            } else {
+                $item->quantity = $quantity;
+                $item->save();
+            }
+
+            $checkout->cart->load('items.variant.product');
+            $checkout->shipping_option = null;
+            $checkout->payment_method = null;
+            $checkout->status = is_array($checkout->shipping_address) ? CheckoutStatus::Addressed : CheckoutStatus::Created;
+            $checkout->totals = $this->totals->forCart($checkout->cart, null);
+            $checkout->save();
+
+            return $this->reloadCheckout($checkout);
+        });
     }
 
     /**

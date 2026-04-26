@@ -4,7 +4,7 @@ Multi-tenant SaaS checkout demo inspired by public headless checkout concepts. T
 
 ## Current Phase
 
-This repository is in Phase 1: repository foundation, contracts, named project agents, and local tooling. The first checkout implementation should stay Laravel-first and local-first.
+This repository is entering Phase 2: local runnable checkout breadth on top of the completed Phase 1 foundation. Implementation stays Laravel-first and local-first; Go workers, RoadRunner, Redis Streams, OpenSearch projections, and cloud deploy assets remain opt-in slices.
 
 ## Target Shape
 
@@ -50,7 +50,7 @@ sh scripts/dev/bootstrap-checkout-app.sh
 - [docs/agent/README.md](docs/agent/README.md) - compact agent-readable operating context
 - [docs/human/README.md](docs/human/README.md) - human-readable architecture and planning index
 - [docs/human/planning/checkout-mvp-plan.md](docs/human/planning/checkout-mvp-plan.md) - full MVP plan and implementation phases
-- [docs/human/phase-1-foundation.md](docs/human/phase-1-foundation.md) - Phase 1 work streams and acceptance criteria
+- [docs/human/phase-1-foundation.md](docs/human/phase-1-foundation.md) - completed Phase 1 work streams and acceptance criteria
 - [docs/agent/agents.md](docs/agent/agents.md) - named project-agent roles and ownership boundaries
 - [docs/agent/contracts](docs/agent/contracts) - tenant, checkout state, error, event, and seed data contracts
 - [docs/agent/api/openapi.checkout.yaml](docs/agent/api/openapi.checkout.yaml) - initial checkout API contract

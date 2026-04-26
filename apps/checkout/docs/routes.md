@@ -26,6 +26,7 @@ These route surfaces guide the first Laravel skeleton. They are intentionally sm
 | PUT | `/api/checkout/state` | `api.checkout.state.put` | Create or resume checkout state. |
 | GET | `/api/checkout/state` | `api.checkout.state.show` | Read current checkout state. |
 | PUT | `/api/checkout/state/address` | `api.checkout.address.put` | Update checkout address. |
+| PUT | `/api/checkout/state/basket/items/{variantId}` | `api.checkout.basket-item.put` | Update or remove a checkout basket item. |
 | PUT | `/api/checkout/state/shipping-option` | `api.checkout.shipping-option.put` | Select shipping option. |
 | PUT | `/api/checkout/state/payment-method` | `api.checkout.payment-method.put` | Select payment method. |
 | POST | `/api/checkout/state/order-confirmation` | `api.checkout.order-confirmation.store` | Confirm order. |

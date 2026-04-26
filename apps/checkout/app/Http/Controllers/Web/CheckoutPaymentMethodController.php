@@ -8,6 +8,8 @@ use App\Application\Checkout\CheckoutManager;
 use App\Domain\Checkout\PaymentMethod;
 use App\Domain\Tenant\TenantContext;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\WebProblemDetailsResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -19,12 +21,15 @@ final class CheckoutPaymentMethodController extends Controller
     /**
      * Create the payment method controller.
      */
-    public function __construct(private readonly CheckoutManager $checkout) {}
+    public function __construct(
+        private readonly CheckoutManager $checkout,
+        private readonly WebProblemDetailsResponse $problems,
+    ) {}
 
     /**
      * Store the selected simulated payment method.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): JsonResponse|RedirectResponse
     {
         /** @var TenantContext $tenant */
         $tenant = $request->attributes->get(TenantContext::class);
@@ -34,7 +39,26 @@ final class CheckoutPaymentMethodController extends Controller
         ]);
 
         $method = PaymentMethod::tryFrom((string) $validated['payment_method']);
-        abort_if($method === null, 422);
+
+        if ($method === null) {
+            if ($request->expectsJson()) {
+                return $this->problems->make(
+                    request: $request,
+                    tenant: $tenant,
+                    type: 'validation-failed',
+                    title: 'Validation failed',
+                    status: 422,
+                    detail: 'Request fields failed validation.',
+                    errors: [[
+                        'field' => 'payment_method',
+                        'code' => 'invalid',
+                        'message' => 'Select a supported payment method.',
+                    ]],
+                );
+            }
+
+            abort(422);
+        }
 
         $this->checkout->selectPaymentMethod($tenant, $checkoutId, $method);
 
