@@ -11,13 +11,22 @@ use App\Http\ViewModels\CartViewModelFactory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Renders the current tenant-scoped cart page.
+ */
 final class CartController extends Controller
 {
+    /**
+     * Create the cart page controller.
+     */
     public function __construct(
         private readonly CartReader $carts,
         private readonly CartViewModelFactory $viewModels,
     ) {}
 
+    /**
+     * Show the cart associated with the current shopper session.
+     */
     public function show(Request $request): View
     {
         /** @var TenantContext $tenant */

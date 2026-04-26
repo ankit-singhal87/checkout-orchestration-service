@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: docker/checkout.Dockerfile
     working_dir: /app
-    command: ["sh", "-lc", "if [ -f artisan ]; then php artisan serve --host=0.0.0.0 --port=8000; else tail -f /dev/null; fi"]
+    command: ["sh", "/scripts/dev/start-checkout.sh"]
     volumes:
       - ./apps/checkout:/app
+      - ./scripts:/scripts:ro
       - ./seed:/seed:ro
     ports:
       - "${APP_PORT:-8080}:8000"
@@ -21,6 +22,9 @@ services:
       DB_DATABASE: ${MYSQL_DATABASE:-checkout}
       DB_USERNAME: ${MYSQL_USER:-checkout}
       DB_PASSWORD: ${MYSQL_PASSWORD:-checkout}
+      LOG_CHANNEL: stack
+      LOG_STACK: stderr
+      LOG_STDERR_FORMATTER: Monolog\Formatter\JsonFormatter
       REDIS_HOST: redis
       REDIS_PORT: 6379
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
@@ -80,6 +84,8 @@ services:
       interval: 20s
       timeout: 10s
       retries: 15
+    profiles:
+      - search
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.112.0

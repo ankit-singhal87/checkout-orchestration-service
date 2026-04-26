@@ -22,7 +22,16 @@ if [ -f "$app_dir/artisan" ]; then
     export DB_USERNAME="${DB_USERNAME:-root}"
     export DB_PASSWORD="${DB_PASSWORD:-${MYSQL_ROOT_PASSWORD:-checkout_root}}"
     docker compose up -d mysql
-    docker compose exec -T mysql mysql -uroot -p"${MYSQL_ROOT_PASSWORD:-checkout_root}" \
+    retries=30
+    until docker compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uroot -p"${MYSQL_ROOT_PASSWORD:-checkout_root}" --silent; do
+      retries=$((retries - 1))
+      if [ "$retries" -le 0 ]; then
+        echo "MySQL did not become ready for checkout app tests." >&2
+        exit 1
+      fi
+      sleep 2
+    done
+    docker compose exec -T mysql mysql -h 127.0.0.1 -uroot -p"${MYSQL_ROOT_PASSWORD:-checkout_root}" \
       -e "CREATE DATABASE IF NOT EXISTS checkout_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
     docker compose run --rm \
       -e DB_DATABASE="$DB_DATABASE" \

@@ -8,9 +8,14 @@ default:
 
 validate:scaffold:
   stage: validate
+  variables:
+    GIT_DEPTH: "0"
   script:
     - sh scripts/ci/validate-scaffold.sh
     - sh scripts/ci/validate-phase1.sh
+    - target_branch="${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-main}"
+    - git fetch --no-tags origin "$target_branch:refs/remotes/origin/$target_branch"
+    - sh scripts/git/check-migration-immutability.sh "origin/$target_branch"
   rules:
     - when: always
 

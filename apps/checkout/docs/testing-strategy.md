@@ -78,4 +78,4 @@ Required concurrent execution coverage:
 
 ## CI Rule
 
-Use shared scripts under `scripts/ci` so GitLab CI stays the source of truth. Until the Laravel app exists, CI validates behavior specs and skips executable app tests. After the app exists, CI should run Pest in parallel against a real MySQL service or the checkout Docker Compose profile.
+Use shared scripts under [scripts/ci](../../../scripts/ci) so GitLab CI stays the source of truth. Until the Laravel app exists, CI validates behavior specs and skips executable app tests. After the app exists, CI should run Pest in parallel against a real MySQL service or the checkout Docker Compose profile.

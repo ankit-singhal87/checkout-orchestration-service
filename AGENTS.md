@@ -1,6 +1,6 @@
 # Agent Guidance
 
-Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes direction.
+Start with [docs/agent/README.md](docs/agent/README.md) for compact agent context. Use [docs/human/planning/checkout-mvp-plan.md](docs/human/planning/checkout-mvp-plan.md) for long-form planning background unless the user explicitly changes direction.
 
 ## Scope Boundaries
 
@@ -9,13 +9,14 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 - Do not implement full checkout behavior, payment integrations, real auth, or AWS deployment in Phase 0.
 - Keep local/dev mode free or near-free.
 - Keep deploy mode optional and manually approved.
-- Use `docs/agents.md` for named project-agent ownership and handoff boundaries.
+- Use [docs/agent/agents.md](docs/agent/agents.md) for named project-agent ownership and handoff boundaries.
 
 ## Agent Execution Strategy
 
 - Treat the active Cursor session agent as the lead orchestrator unless the user assigns that role elsewhere.
 - Use the lead orchestrator for task slicing, integration, validation, commits, and push requests.
 - Use specialist agents for bounded work packages with explicit allowed paths, out-of-scope paths, acceptance criteria, and validation commands.
+- Create background specialist tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and unblock problems faster.
 - Prefer read-only advisory agents for architecture, security, contract, and unfamiliar-code reviews.
 - Allow implementation agents to edit only inside their assigned path list.
 - Do not let parallel agents edit the same files at the same time.
@@ -31,7 +32,7 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 - Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
 - Push only to GitLab `origin`.
 - Do not create merge requests or merge automatically.
-- See `docs/mirroring.md` for the full workflow.
+- See [docs/agent/mirroring.md](docs/agent/mirroring.md) for the full workflow.
 
 ## Commit Messages
 
@@ -47,8 +48,8 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 
 ## Architecture Principles
 
-- Target PHP 8.5 for Laravel application code and follow `docs/coding-standards/php-8.5.md`.
-- Keep the checkout app as a Laravel modular monolith with clean boundaries; see `docs/adr/0006-laravel-clean-boundaries.md`.
+- Target PHP 8.5 for Laravel application code and follow [docs/agent/coding-standards/php-8.5.md](docs/agent/coding-standards/php-8.5.md).
+- Keep the checkout app as a Laravel modular monolith with clean boundaries; see [docs/human/adr/0006-laravel-clean-boundaries.md](docs/human/adr/0006-laravel-clean-boundaries.md).
 - Laravel/PHP owns checkout orchestration, Blade UI, public REST APIs, validation, persistence, and the first complete happy path.
 - Go is introduced only for selected processors or services with clear concurrency, async, or latency value.
 - Do not split pricing, catalog, payment, order, and inventory into separate services before the Laravel happy path is stable.
@@ -75,4 +76,4 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 - Use BDD for user-facing behavior and TDD for implementation.
 - Add focused tests with each implementation phase.
 - Tenant isolation and checkout idempotency require integration coverage before the checkout path is considered complete.
-- CI scripts should stay shared under `scripts/ci`.
+- CI scripts should stay shared under [scripts/ci](scripts/ci).

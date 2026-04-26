@@ -9,8 +9,14 @@ use App\Infrastructure\Persistence\Eloquent\ProductVariantRecord;
 use App\Infrastructure\Persistence\Eloquent\TenantRecord;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeds deterministic demo tenants, products, and variants from JSON fixtures.
+ */
 final class DemoCatalogSeeder extends Seeder
 {
+    /**
+     * Insert or update demo catalog records idempotently.
+     */
     public function run(): void
     {
         $fixtureRoot = is_dir('/seed/fixtures')

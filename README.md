@@ -28,9 +28,17 @@ By default, Docker Compose starts supporting infrastructure. Start the Laravel c
 COMPOSE_PROFILES=app sh scripts/dev/up.sh
 ```
 
-The checkout app skeleton exists and listens on `http://localhost:8080` by default. Go workers are added in later phases.
+By default, local infrastructure is limited to MySQL and Redis. Optional search, observability, and identity services stay behind Compose profiles.
 
-Bootstrap is idempotent and exits when `apps/checkout/artisan` already exists:
+```bash
+COMPOSE_PROFILES=search sh scripts/dev/up.sh
+COMPOSE_PROFILES=observability sh scripts/dev/up.sh
+COMPOSE_PROFILES=identity sh scripts/dev/up.sh
+```
+
+The checkout app listens on `http://localhost:8080` by default and resolves tenants by host. Use `http://fashion-demo.localhost:8080/shop` or `http://sports-demo.localhost:8080/shop`. Go workers are added in later phases.
+
+Bootstrap is idempotent and exits when [apps/checkout/artisan](apps/checkout/artisan) already exists:
 
 ```bash
 sh scripts/dev/bootstrap-checkout-app.sh
@@ -38,26 +46,29 @@ sh scripts/dev/bootstrap-checkout-app.sh
 
 ## Useful Docs
 
-- `docs/planning/checkout-mvp-plan.md` - full MVP plan and implementation phases
-- `docs/phase-1-foundation.md` - Phase 1 work streams and acceptance criteria
-- `docs/agents.md` - named project-agent roles and ownership boundaries
-- `docs/contracts` - tenant, checkout state, error, event, and seed data contracts
-- `docs/api/openapi.checkout.yaml` - initial checkout API contract
-- `apps/checkout/docs` - Laravel app conventions and route surface
-- `docs/contracts/bdd-tdd.md` - BDD/TDD workflow for implementation
-- `docs/coding-standards/php-8.5.md` - PHP 8.5 coding standards
-- `docs/phase-0-risk-register.md` - risks and mitigations
-- `docs/architecture/README.md` - C4 architecture documentation index
-- `docs/adr/README.md` - architecture decision records
-- `docs/branching-strategy.md` - branch and merge request conventions
-- `docs/mirroring.md` - GitLab to GitHub mirror expectations
-- `docs/local-tools.md` - local toolchain notes
-- `docs/debugging.md` - debugging guide
+- [docs/README.md](docs/README.md) - documentation map by audience
+- [docs/agent/README.md](docs/agent/README.md) - compact agent-readable operating context
+- [docs/human/README.md](docs/human/README.md) - human-readable architecture and planning index
+- [docs/human/planning/checkout-mvp-plan.md](docs/human/planning/checkout-mvp-plan.md) - full MVP plan and implementation phases
+- [docs/human/phase-1-foundation.md](docs/human/phase-1-foundation.md) - Phase 1 work streams and acceptance criteria
+- [docs/agent/agents.md](docs/agent/agents.md) - named project-agent roles and ownership boundaries
+- [docs/agent/contracts](docs/agent/contracts) - tenant, checkout state, error, event, and seed data contracts
+- [docs/agent/api/openapi.checkout.yaml](docs/agent/api/openapi.checkout.yaml) - initial checkout API contract
+- [apps/checkout/docs](apps/checkout/docs) - Laravel app conventions and route surface
+- [docs/agent/contracts/bdd-tdd.md](docs/agent/contracts/bdd-tdd.md) - BDD/TDD workflow for implementation
+- [docs/agent/coding-standards/php-8.5.md](docs/agent/coding-standards/php-8.5.md) - PHP 8.5 coding standards
+- [docs/human/phase-0-risk-register.md](docs/human/phase-0-risk-register.md) - risks and mitigations
+- [docs/human/architecture/README.md](docs/human/architecture/README.md) - C4 architecture documentation index
+- [docs/human/adr/README.md](docs/human/adr/README.md) - architecture decision records
+- [docs/agent/branching-strategy.md](docs/agent/branching-strategy.md) - branch and merge request conventions
+- [docs/agent/mirroring.md](docs/agent/mirroring.md) - GitLab to GitHub mirror expectations
+- [docs/agent/local-tools.md](docs/agent/local-tools.md) - local toolchain notes
+- [docs/agent/debugging.md](docs/agent/debugging.md) - debugging guide
 
 ## CI
 
-GitLab CI is primary and runs `scripts/ci/validate-scaffold.sh` and `scripts/ci/validate-phase1.sh`. GitHub Actions is mirror validation only and must not deploy.
+GitLab CI is primary and runs [scripts/ci/validate-scaffold.sh](scripts/ci/validate-scaffold.sh) and [scripts/ci/validate-phase1.sh](scripts/ci/validate-phase1.sh). GitHub Actions is mirror validation only and must not deploy.
 
 ## Repository Workflow
 
-Push to GitLab `origin` only. Create and merge MRs manually in GitLab. See `docs/mirroring.md`.
+Push to GitLab `origin` only. Create and merge MRs manually in GitLab. See [docs/agent/mirroring.md](docs/agent/mirroring.md).

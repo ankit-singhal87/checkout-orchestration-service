@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Infrastructure\Persistence\Eloquent\CartItemRecord;
 use App\Infrastructure\Persistence\Eloquent\ProductVariantRecord;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 

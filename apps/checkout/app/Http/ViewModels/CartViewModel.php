@@ -6,10 +6,15 @@ namespace App\Http\ViewModels;
 
 use App\Domain\Tenant\TenantContext;
 
+/**
+ * Presentation model for the cart page.
+ */
 final readonly class CartViewModel
 {
     /**
-     * @param list<array{productName: string, variantLabel: string, quantity: int, priceLabel: string}> $items
+     * Create a cart view model.
+     *
+     * @param  list<array{productName: string, variantLabel: string, quantity: int, priceLabel: string}>  $items
      */
     public function __construct(
         public TenantContext $tenant,

@@ -10,12 +10,20 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Resolves and attaches tenant context before tenant-scoped routes run.
+ */
 final readonly class ResolveTenant
 {
+    /**
+     * Create the tenant resolution middleware.
+     */
     public function __construct(private TenantResolver $tenants) {}
 
     /**
-     * @param Closure(Request): Response $next
+     * Attach the resolved tenant to request attributes or fail closed.
+     *
+     * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

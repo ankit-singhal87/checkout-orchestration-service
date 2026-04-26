@@ -12,10 +12,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+/**
+ * Handles cart item mutations for the tenant-scoped web checkout.
+ */
 final class CartItemController extends Controller
 {
+    /**
+     * Create the cart item controller.
+     */
     public function __construct(private readonly AddCartItem $cartItems) {}
 
+    /**
+     * Add a submitted variant to the current shopper cart.
+     */
     public function store(Request $request): JsonResponse|RedirectResponse
     {
         /** @var TenantContext $tenant */
@@ -27,21 +36,23 @@ final class CartItemController extends Controller
 
         $result = $this->cartItems->add($tenant, $cartId, $variantId);
 
-        if (! $result->added) {
+        if (! $result->isAdded()) {
+            $problemStatus = $result->problemStatus() ?? 400;
+
             $payload = [
-                'type' => 'https://checkout.example.test'.$result->problemType,
-                'title' => $result->problemTitle,
-                'status' => $result->problemStatus,
-                'detail' => $result->problemDetail,
-                'instance' => $request->path(),
-                'traceId' => $request->headers->get('X-Request-Id', ''),
+                'type' => 'https://checkout.example.test'.$result->problemType(),
+                'title' => $result->problemTitle(),
+                'status' => $problemStatus,
+                'detail' => $result->problemDetail(),
+                'instance' => '/'.$request->path(),
+                'traceId' => $request->headers->get('X-Trace-Id', $request->headers->get('X-Request-Id', '')),
                 'tenant' => $tenant->tenantId,
                 'shop' => $tenant->shopId,
                 'errors' => [],
             ];
 
             return response()
-                ->json($payload, $result->problemStatus ?? 400)
+                ->json($payload, $problemStatus)
                 ->header('Content-Type', 'application/problem+json');
         }
 
