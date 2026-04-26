@@ -4,9 +4,11 @@ GitLab is the primary repository. GitHub is a public portfolio mirror updated by
 
 - Create branches from the GitLab repository.
 - Push only to GitLab `origin`.
-- Create merge requests manually in GitLab.
+- Create merge requests in GitLab when the user asks and the local `glab` session is API-authenticated; otherwise ask the user to create them manually.
 - Merge manually in GitLab.
 - Do not push to the `github` remote unless repairing the mirror.
+
+Merge requests should target `main`, use squash-on-merge, and carry a clean squash commit message. GitHub remains a mirror and should not receive pull requests for normal project work.
 
 ## GitHub Mirror
 

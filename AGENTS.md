@@ -14,7 +14,7 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 ## Agent Execution Strategy
 
 - Treat the active Cursor session agent as the lead orchestrator unless the user assigns that role elsewhere.
-- Use the lead orchestrator for task slicing, integration, validation, commits, and push requests.
+- Use the lead orchestrator for task slicing, integration, validation, small focused commits, push requests, and merge request preparation.
 - Use specialist agents for bounded work packages with explicit allowed paths, out-of-scope paths, acceptance criteria, and validation commands.
 - Create background specialist tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and unblock problems faster.
 - Prefer read-only advisory agents for architecture, security, contract, and unfamiliar-code reviews.
@@ -24,21 +24,37 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 - Follow agile slices: BDD scenario, failing Pest test where applicable, smallest implementation, validation, then integration.
 - If specialist agents are idle, use them for read-only review, backlog refinement, fixture design, security/observability review, or CI hardening in their own lane.
 - Stop and ask before dependency changes, destructive Git operations, paid cloud actions, secret handling, or changes outside the assigned scope.
-- Commits and pushes happen only when the user asks. Merge request creation and merge remain manual.
+- Prefer small, sharp commits that each capture one coherent behavior, guardrail, runtime, or documentation change. When the user has authorized a commit/push workflow, commit completed validated slices automatically instead of batching unrelated work.
+- Commits and pushes happen only when the user asks or when the user has explicitly authorized an automatic commit loop for the current branch. Merge request creation happens only when the user asks or has enabled agent MR creation. Final merge remains manual.
 
 ## Repository Rules
 
 - GitLab is primary. GitHub is a mirror.
-- Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
+- Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, `experiment/*`, and `agent/*`.
+- When the lead orchestrator decides to implement work directly, create or switch to a short-scoped branch first, for example `agent/outbox-publisher` or `docs/git-workflow`.
+- Parallel specialist agents may create their own `agent/<short-scope>` branches, for example `agent/outbox-publisher`, when their work is independent and would otherwise collide with the orchestrator branch.
+- Agent branches must stay narrow, push only to GitLab `origin`, and be integrated by the lead orchestrator through review, cherry-pick, merge, or a GitLab merge request.
 - Push only to GitLab `origin`.
-- Do not create merge requests or merge automatically.
+- Agents may create GitLab merge requests targeting `main` when the user asks and an approved tool/token is available. Do not merge automatically.
 - See [docs/agent/mirroring.md](docs/agent/mirroring.md) for the full workflow.
 
 ## Commit Messages
 
-- Use concise messages that describe the change, for example `Document GitLab mirror workflow`.
-- Prefer verbs like `Add`, `Update`, `Fix`, `Document`, `Refine`, or `Remove`.
+- Use industry-standard imperative subject lines, ideally 50 characters or fewer and never padded with tool names.
+- Make the subject describe the exact outcome, for example `Add Markdown link validation` or `Fix checkout state conflict response`.
+- Use a body only when it explains motivation, tradeoffs, validation, or follow-up risk.
+- Prefer verbs like `Add`, `Update`, `Fix`, `Document`, `Refine`, `Remove`, `Align`, `Enable`, or `Harden`.
 - Do not use generic tool-generated messages such as `Added by cursor`.
+- Do not mention vendor inspiration or competitor names in commit messages.
+- Keep commits small and coherent; split unrelated docs, runtime, test, and implementation changes unless a single atomic slice requires them together.
+
+## Merge Requests
+
+- Target GitLab `main` unless the user names another target branch.
+- Use concise MR titles that can also serve as the squash commit subject.
+- Fill the MR description with summary, validation, risk, and any manual follow-up.
+- Enable squash-on-merge where possible and provide a clean squash commit message.
+- Ask the user to review and merge; do not merge automatically.
 
 ## Secrets
 
