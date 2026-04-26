@@ -47,6 +47,14 @@ make create-auto-merge-mr
 
 Use `make pre-push-full` before pushing changes that affect checkout runtime or behavior. It runs the same pre-push checks with checkout app tests enabled.
 
+`make up-parity` is a wrapper for the local Caddy edge overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.caddy.yml up
+```
+
+The Caddy edge profile covers HTTPS, HTTP/1.1, HTTP/2, and HTTP/3 over QUIC/UDP 443. `make test-checkout-parity` uses a Dockerized HTTP/3 curl image, so the host does not need curl built with HTTP/3.
+
 Use `make create-auto-merge-mr` only after the user has authorized MR creation for the branch. It creates or reuses a GitLab MR, enables squash, requests source-branch deletion, and enables auto-merge once checks pass. Set `MR_TITLE`, `MR_DESCRIPTION`, `SQUASH_MESSAGE`, `SOURCE_BRANCH`, or `TARGET_BRANCH` to override defaults.
 
 Use `make defragment-context` when an agent needs to persist only selected context before the orchestrator starts fresh. Provide newline-separated bullets through `HANDOFF_LINES` or a file path through `HANDOFF_FILE`; the command replaces the volatile `Active Threads` section in `docs/agent/context-handoff.md`. The orchestrator then closes or abandons the context-heavy worker/session and starts a new one from `docs/agent/README.md` plus the compact handoff. Use `make show-context` to inspect the compact handoff.

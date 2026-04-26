@@ -1,13 +1,13 @@
 # C4 Level 2: Containers
 
-## Local/Dev Mode - Current Phase 2
+## Local/Dev Mode - Closed Phase 2 Baseline
 
 ```mermaid
 flowchart LR
   Browser[Browser] --> Nginx[Nginx HTTP/1.1]
   ApiClient[API client] --> Nginx
   Nginx --> Fpm[PHP-FPM Laravel app]
-  BrowserParity[Browser parity path] --> Proxy[Caddy HTTPS/2 proxy]
+  BrowserParity[Browser parity path] --> Proxy[Caddy HTTPS/H1/H2/H3 edge]
   Proxy --> Nginx
   BrowserPerf[Performance path] --> RoadRunner[RoadRunner/Octane]
   Fpm --> MySQL[(MySQL 8.4\nsource of truth)]
@@ -30,7 +30,7 @@ Current local default is intentionally small:
 - `nginx`: default local web entrypoint on HTTP/1.1, published as `http://localhost:8080`.
 - Startup runs pending migrations and idempotent seeders before serving the app.
 - `checkout-roadrunner`: optional RoadRunner/Octane performance profile, started with `make up-roadrunner`.
-- `make up-parity` layers Caddy in front of the default web stack for local-production parity: HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits.
+- `make up-parity` layers Caddy in front of the default web stack for local-production edge parity: HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits.
 - Keep HTTPS and the reverse proxy out of the default TDD loop. Future gRPC endpoints are the exception and must use HTTP/2 even on the fast path.
 - The outbox publisher is a Laravel command, `checkout:outbox:publish`, exposed for demos through `make demo-outbox-publish`.
 
@@ -57,7 +57,7 @@ flowchart LR
   Otlp -. selected later .-> Backend[Grafana Cloud / Datadog / Dash0 / self-hosted]
 ```
 
-Deploy mode remains optional and manually approved. RoadRunner is the preferred production-style PHP runtime, but Kubernetes, OpenSearch projections, external message brokers, workers, and cloud telemetry exporters stay behind explicit later slices.
+Deploy mode remains optional and manually approved. RoadRunner is the preferred production-style PHP runtime, but Kubernetes, OpenSearch production projections, external cloud message brokers, and cloud telemetry exporters stay behind Phase 4+ slices. Phase 3 focuses on local peripheral workers and services around the existing checkout core.
 
 Amazon EKS is the production target for application workloads. Production MySQL runs on Amazon RDS for MySQL, not as a self-managed StatefulSet or other in-cluster database on EKS. Local Docker Compose MySQL, and any future `kind` MySQL binding, exist only for development, testing, and local manifest validation.
 
