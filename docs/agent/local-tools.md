@@ -24,7 +24,7 @@ Docker must be reachable by the current user, not merely installed. [scripts/dev
 
 - Cursor or VS Code PHP Debug extension for listening to Xdebug connections.
 - Xdebug installed in the PHP 8.5 Laravel container, disabled by default and enabled with `XDEBUG_MODE=debug`.
-- RoadRunner CLI inside the Laravel container, not required on the host.
+- RoadRunner CLI later inside the Laravel container when production-style runtime wiring becomes active; not required on the host.
 - Delve for Go debugging later, preferably in the Go worker container or a dedicated debug image.
 
 ## Container-Managed Services

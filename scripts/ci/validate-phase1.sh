@@ -62,6 +62,7 @@ docs/agent/coding-standards/php-8.5.md
 docs/human/adr/0006-laravel-clean-boundaries.md
 scripts/test/behavior-specs.sh
 scripts/test/checkout-app.sh
+scripts/test/markdown-links.sh
 scripts/test/route-stubs.sh
 scripts/test/seed-fixtures.sh
 scripts/git/check-migration-immutability.sh
@@ -85,6 +86,7 @@ if [ "$missing" -ne 0 ]; then
 fi
 
 sh scripts/test/behavior-specs.sh
+sh scripts/test/markdown-links.sh
 sh scripts/test/route-stubs.sh
 sh scripts/test/seed-fixtures.sh
 

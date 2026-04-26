@@ -9,7 +9,7 @@ Domain events record committed business facts and feed local Redis Streams or de
 - `checkout.shipping_option.selected`
 - `checkout.payment_method.selected`
 - `checkout.order.confirmation_requested`
-- `order.created`
+- `order.confirmed`
 
 ## Later Events
 
@@ -23,7 +23,7 @@ Domain events record committed business facts and feed local Redis Streams or de
 {
   "eventId": "01HV...",
   "schemaVersion": 1,
-  "eventType": "order.created",
+  "eventType": "order.confirmed",
   "occurredAt": "2026-04-26T00:00:00Z",
   "tenantId": "fashion-store",
   "aggregateType": "order",
@@ -48,9 +48,8 @@ Domain events record committed business facts and feed local Redis Streams or de
 - `event_type`
 - `aggregate_type`
 - `aggregate_id`
-- `tenant_id`
+- `tenant_record_id`
 - `payload`
-- `occurred_at`
 - `published_at`
-- `attempt_count`
-- `last_error`
+
+`created_at` is the current occurrence timestamp. Add retry/error metadata in the same migration that introduces a retrying publisher.

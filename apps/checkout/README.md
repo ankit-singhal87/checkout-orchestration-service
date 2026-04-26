@@ -8,17 +8,17 @@ Blade is included with Laravel. Blade templates live under `resources/views`, an
 
 ## Phase 1 Scope
 
-- Keep the generated Laravel project skeleton aligned with the checkout folder conventions.
+- Keep the Laravel project aligned with the checkout folder conventions.
 - Keep checkout usable without login.
-- Define controller, application service, repository, view model, and domain folder conventions before adding behavior.
+- Keep controller, application service, repository, view model, and domain folder conventions explicit as behavior grows.
 - Keep Blade templates free of database queries and domain decisions.
-- Use RoadRunner for the production-style runtime once the Laravel app exists.
 
 ## Not In Phase 1
 
 - Real payment provider integration.
 - Full auth requirement for shopping or checkout.
 - Extracting pricing, inventory, payment, or order into separate services.
+- Production-style RoadRunner runtime wiring.
 
 ## Bootstrap
 

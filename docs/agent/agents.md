@@ -182,7 +182,7 @@ Phase 1 responsibilities:
 
 ### Loom - Laravel Checkout Agent
 
-Owns the Laravel checkout application, Blade UI, REST API, RoadRunner setup, validation, persistence, idempotency, and checkout orchestration.
+Owns the Laravel checkout application, Blade UI, REST API, validation, persistence, idempotency, and checkout orchestration. RoadRunner runtime wiring is a later platform/runtime slice.
 
 Phase 1 responsibilities:
 

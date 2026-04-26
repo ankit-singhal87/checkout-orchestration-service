@@ -7,7 +7,9 @@ namespace App\Http\Controllers\Web;
 use App\Application\Checkout\CheckoutManager;
 use App\Domain\Tenant\TenantContext;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\WebProblemDetailsResponse;
 use App\Http\ViewModels\CheckoutViewModelFactory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -23,12 +25,13 @@ final class CheckoutConfirmationController extends Controller
     public function __construct(
         private readonly CheckoutManager $checkout,
         private readonly CheckoutViewModelFactory $viewModels,
+        private readonly WebProblemDetailsResponse $problems,
     ) {}
 
     /**
      * Confirm the current checkout state and create an order.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
         /** @var TenantContext $tenant */
         $tenant = $request->attributes->get(TenantContext::class);
@@ -41,6 +44,18 @@ final class CheckoutConfirmationController extends Controller
         $order = $this->checkout->confirm($tenant, $checkoutId, $idempotencyKey);
 
         if ($order === null) {
+            if ($request->expectsJson()) {
+                return $this->problems->make(
+                    request: $request,
+                    tenant: $tenant,
+                    type: 'checkout-state-conflict',
+                    title: 'Checkout state conflict',
+                    status: 409,
+                    detail: 'Complete address, shipping, and payment before confirming.',
+                    errors: [],
+                );
+            }
+
             return redirect()->route('checkout.show')->withErrors([
                 'confirmation' => 'Complete address, shipping, and payment before confirming.',
             ]);

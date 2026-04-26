@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CheckoutAddressController;
+use App\Http\Controllers\Api\CheckoutBasketItemController;
 use App\Http\Controllers\Api\CheckoutConfigController;
 use App\Http\Controllers\Api\CheckoutOrderConfirmationController;
 use App\Http\Controllers\Api\CheckoutPaymentMethodController;
@@ -15,6 +16,7 @@ Route::middleware('tenant')->group(function (): void {
     Route::get('/checkout/state', [CheckoutStateController::class, 'show'])->name('api.checkout.state.show');
 
     Route::put('/checkout/state/address', [CheckoutAddressController::class, 'put'])->name('api.checkout.address.put');
+    Route::put('/checkout/state/basket/items/{variantId}', [CheckoutBasketItemController::class, 'put'])->name('api.checkout.basket-item.put');
     Route::put('/checkout/state/shipping-option', [CheckoutShippingOptionController::class, 'put'])->name('api.checkout.shipping-option.put');
     Route::put('/checkout/state/payment-method', [CheckoutPaymentMethodController::class, 'put'])->name('api.checkout.payment-method.put');
     Route::post('/checkout/state/order-confirmation', [CheckoutOrderConfirmationController::class, 'store'])->name('api.checkout.order-confirmation.store');

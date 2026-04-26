@@ -4,7 +4,7 @@ info:
   version: 0.1.0
   summary: Original MVP checkout API inspired by headless checkout concepts.
   description: >
-    Phase 1 contract skeleton for a tenant-aware checkout demo. This is not a
+    Phase 2 contract slice for a tenant-aware checkout demo. This is not a
     copy of any vendor OpenAPI document.
 servers:
   - url: http://localhost:8080
@@ -57,6 +57,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CheckoutState"
+  /api/checkout/state/basket/items/{variantId}:
+    put:
+      summary: Update checkout basket item quantity
+      operationId: putCheckoutBasketItem
+      parameters:
+        - name: variantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [checkoutId, quantity]
+              properties:
+                checkoutId:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 0
+                  maximum: 99
+              additionalProperties: false
+      responses:
+        "200":
+          description: Updated checkout state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutState"
+        "404":
+          description: Checkout state or basket item was not visible to the resolved tenant
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /api/checkout/state/shipping-option:
     put:
       summary: Select shipping option
@@ -91,11 +130,11 @@ paths:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "200":
-          description: Confirmed order state or payment action
+          description: Confirmed order summary
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CheckoutState"
+                $ref: "#/components/schemas/OrderConfirmation"
         "409":
           description: Checkout conflict
           content:
@@ -138,17 +177,19 @@ components:
             type: string
     CheckoutState:
       type: object
-      required: [stateId, tenantId, status, basket, totals, nextActions]
+      required: [checkoutId, tenant, shop, status, basket, totals, nextActions]
       properties:
-        stateId:
+        checkoutId:
           type: string
-        tenantId:
+        tenant:
+          type: string
+        shop:
           type: string
         status:
           type: string
           enum: [created, addressed, shipping_selected, payment_selected, confirming, payment_action_required, confirmed, failed]
         basket:
-          type: object
+          $ref: "#/components/schemas/Basket"
         totals:
           type: object
         nextActions:
@@ -159,6 +200,56 @@ components:
           type: array
           items:
             type: object
+    Basket:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BasketItem"
+    BasketItem:
+      type: object
+      required: [productName, variantId, quantity, unitPrice]
+      properties:
+        productName:
+          type: string
+        variantId:
+          type: string
+        options:
+          type: object
+        quantity:
+          type: integer
+          minimum: 0
+        unitPrice:
+          type: object
+          required: [amount, currency]
+          properties:
+            amount:
+              type: integer
+            currency:
+              type: string
+    OrderConfirmation:
+      type: object
+      required: [tenant, shop, orderRef, status, total]
+      properties:
+        tenant:
+          type: string
+        shop:
+          type: string
+        orderRef:
+          type: string
+        status:
+          type: string
+          enum: [confirmed]
+        total:
+          type: object
+          required: [amount, currency]
+          properties:
+            amount:
+              type: integer
+            currency:
+              type: string
     ProblemDetails:
       type: object
       required: [type, title, status]

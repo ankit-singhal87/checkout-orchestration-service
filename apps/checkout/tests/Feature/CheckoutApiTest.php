@@ -99,6 +99,74 @@ it('confirms an API checkout idempotently', function () {
         ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(1);
 });
 
+it('updates basket item quantity and invalidates dependent selections', function () {
+    $cart = apiCheckoutCart('fashion-store', 'fashion-variant-001-purple-s');
+    $checkoutId = $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state', ['cartId' => $cart->cart_id])
+        ->json('checkoutId');
+
+    $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state/address', [
+            'checkoutId' => $checkoutId,
+            'shippingAddress' => [
+                'name' => 'API Shopper',
+                'line1' => 'API Street 1',
+                'postalCode' => '10115',
+                'city' => 'Berlin',
+                'country' => 'DE',
+            ],
+        ])
+        ->assertOk();
+
+    $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state/shipping-option', [
+            'checkoutId' => $checkoutId,
+            'shippingOption' => 'standard',
+        ])
+        ->assertOk();
+
+    $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state/payment-method', [
+            'checkoutId' => $checkoutId,
+            'paymentMethod' => 'invoice',
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'payment_selected');
+
+    $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state/basket/items/fashion-variant-001-purple-s', [
+            'checkoutId' => $checkoutId,
+            'quantity' => 2,
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'addressed')
+        ->assertJsonPath('basket.items.0.variantId', 'fashion-variant-001-purple-s')
+        ->assertJsonPath('basket.items.0.quantity', 2)
+        ->assertJsonPath('shippingOptions.0.selected', false)
+        ->assertJsonPath('paymentMethods.0.selected', false)
+        ->assertJsonPath('totals.subtotal', 17990)
+        ->assertJsonPath('totals.shipping', 0)
+        ->assertJsonPath('totals.total', 17990);
+});
+
+it('removes basket items with zero quantity', function () {
+    $cart = apiCheckoutCart('fashion-store', 'fashion-variant-001-purple-s');
+    $checkoutId = $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state', ['cartId' => $cart->cart_id])
+        ->json('checkoutId');
+
+    $this
+        ->putJson('http://fashion-demo.localhost/api/checkout/state/basket/items/fashion-variant-001-purple-s', [
+            'checkoutId' => $checkoutId,
+            'quantity' => 0,
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'created')
+        ->assertJsonPath('basket.items', [])
+        ->assertJsonPath('totals.subtotal', 0)
+        ->assertJsonPath('totals.total', 0);
+});
+
 it('returns Problem Details for another tenant checkout state', function () {
     $cart = apiCheckoutCart('sports-outlet', 'sports-variant-001-teal-one-size');
     $checkoutId = $this

@@ -6,6 +6,7 @@ api.checkout.config.show
 api.checkout.state.put
 api.checkout.state.show
 api.checkout.address.put
+api.checkout.basket-item.put
 api.checkout.shipping-option.put
 api.checkout.payment-method.put
 api.checkout.order-confirmation.store
