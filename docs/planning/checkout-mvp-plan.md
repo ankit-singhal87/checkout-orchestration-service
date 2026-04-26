@@ -4,18 +4,18 @@ overview: Build a multi-tenant SaaS checkout demo inspired by SCAYLE's checkout 
 todos:
   - id: phase-0-risk-tooling
     content: Define Phase 0 scaffolding, risks, scope guardrails, GitLab token usage, branches, agent guidance, local tools, debugging env, and Cursor/OpenAI/Codex usage boundaries.
-    status: pending
+    status: completed
   - id: repo-foundation
     content: Create monorepo structure with service, infra, docs, proto, Docker, and GitLab CI folders.
     status: pending
   - id: architecture-docs
-    content: Write C4 architecture overview, local/deploy modes, DDD boundaries, multi-tenant checkout flow, ADRs, cost strategy, and AI agent role definitions.
+    content: Write C4 architecture overview, local/deploy modes, DDD boundaries, multi-tenant checkout flow, ADRs, cost strategy, and named project-agent definitions.
     status: pending
   - id: contracts
     content: Define SCAYLE-inspired checkout contract, Blade view models, latency SLOs, domain events, and internal service contracts.
     status: pending
   - id: local-runtime
-    content: Add free local Docker Compose or local Kubernetes baseline for Laravel RoadRunner API, Go services, MySQL, Redis, and search.
+    content: Add free local Docker Compose or local Kubernetes baseline for Laravel RoadRunner API, Go services, MySQL, Redis, search, identity, and observability services.
     status: pending
   - id: first-services
     content: Implement the first tenant-aware happy-path checkout UI/API and simulated async processing.
@@ -542,13 +542,15 @@ Primary hosting and CI:
 
 Define agent responsibilities in `[docs/agents.md](docs/agents.md)` so work can be delegated safely:
 
-- Architecture Agent: owns service boundaries, ADRs, diagrams, and non-functional requirements.
-- Laravel Checkout Agent: implements public API, RoadRunner config, persistence, idempotency, and validation.
-- Go Services Agent: implements gRPC pricing, inventory, payment, and order service contracts.
-- Platform Agent: owns Docker, EKS manifests, Terraform, GitLab CI/CD, GitHub mirror validation, secrets strategy, and deployment docs.
-- Observability Agent: owns Datadog traces, logs, metrics, dashboards, SLOs, and load-test interpretation.
-- QA/Load Agent: owns integration tests, contract tests, smoke tests, and high-throughput/low-latency scenarios.
-- Security Agent: reviews IAM, network boundaries, secrets, payment simulation boundaries, and container scanning.
+- Atlas, Architecture Agent: owns service boundaries, ADRs, diagrams, DDD boundaries, and non-functional requirements.
+- Loom, Laravel Checkout Agent: implements public API, Blade UI, RoadRunner config, persistence, idempotency, and validation.
+- Forge, Platform Agent: owns Docker, local Kubernetes direction, Terraform, GitLab CI/CD, GitHub mirror validation, secrets strategy, and deployment docs.
+- Beacon, Observability Agent: owns OpenTelemetry traces, logs, metrics, dashboards, SLOs, and load-test interpretation.
+- Quill, Contracts Agent: owns public API contracts, proto contracts, RFC 9457 Problem Details shapes, and contract examples.
+- Sprout, Data And Seed Agent: owns tenant fixtures, catalog/product/cart/checkout seed data, and local data reset workflows.
+- Hammer, Go Services Agent: owns future Go workers/services only after the Laravel happy path has a clear extraction reason.
+- Shield, Security Agent: reviews IAM, network boundaries, secrets, tenant isolation, payment simulation boundaries, and container scanning.
+- Gauge, QA And Load Agent: owns integration tests, contract tests, smoke tests, and high-throughput/low-latency scenarios.
 
 ## Phase 0: Scaffolding, Risks, Guardrails, And AI Tooling
 
@@ -638,6 +640,9 @@ Phase 1: Repository foundation and contracts
 
 - Create monorepo layout, shared documentation, Docker Compose, proto contracts, and service READMEs.
 - Add C4 documentation skeleton under `[docs/architecture](docs/architecture)`.
+- Define named project agents in `[docs/agents.md](docs/agents.md)` with ownership boundaries and collaboration rules.
+- Define host tool requirements in `[docs/local-tools.md](docs/local-tools.md)`: Git, Docker, and Docker Compose are required; PHP, Composer, Node.js, and debugging helpers are recommended for editor productivity.
+- Keep MySQL, Redis, OpenSearch, Keycloak, OpenTelemetry Collector, Prometheus, Loki, Tempo or Jaeger, and Grafana container-managed with named volumes for persistent local data.
 - Define tenant model, checkout state machine, latency SLOs, catalog/cart seed model, and SCAYLE-inspired API contract.
 - Define DDD bounded contexts, MySQL schema ownership, local/deploy mode split, and consistency model.
 - Build the first Laravel + Blade MVVM-style UI for two tenants with seeded product listing, product detail, cart, checkout, and confirmation screens.

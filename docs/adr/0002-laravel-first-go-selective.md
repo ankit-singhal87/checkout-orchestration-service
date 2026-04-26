@@ -14,3 +14,4 @@ Use Laravel/PHP for checkout orchestration, Blade UI, validation, tenant-aware a
 - Domain-heavy logic stays close to Laravel and Eloquent.
 - Go service extraction waits until boundaries are measurable and useful.
 - The demo remains close to public SCAYLE hiring/stack signals without overfitting to raw runtime performance.
+

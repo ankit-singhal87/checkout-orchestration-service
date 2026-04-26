@@ -27,6 +27,7 @@ The Phase 0 Docker Compose file starts supporting infrastructure only. The Larav
 ## Useful Docs
 
 - `docs/planning/checkout-mvp-plan.md` - full MVP plan and implementation phases
+- `docs/agents.md` - named project-agent roles and ownership boundaries
 - `docs/phase-0-risk-register.md` - risks and mitigations
 - `docs/architecture/README.md` - C4 architecture documentation index
 - `docs/adr/README.md` - architecture decision records
