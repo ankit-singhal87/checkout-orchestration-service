@@ -1,25 +1,15 @@
-# GitLab To GitHub Mirroring
+# Repository Workflow
 
-GitLab is the primary public repository. GitHub is a public read-only mirror.
+GitLab is the primary repository. GitHub is a public portfolio mirror updated by GitLab repository mirroring.
 
-## Recommended Setup
+- Create branches from the GitLab repository.
+- Push only to GitLab `origin`.
+- Create merge requests manually in GitLab.
+- Merge manually in GitLab.
+- Do not push to the `github` remote unless repairing the mirror.
 
-Configure repository mirroring from GitLab to GitHub using GitLab's repository mirror settings.
+## GitHub Mirror
 
-GitHub should not own:
+GitHub should not own issues, merge requests, releases, deployments, or protected branch policy.
 
-- issues
-- merge requests
-- releases
-- deployments
-- protected branch policy
-
-## GitHub Actions
-
-GitHub Actions should remain lightweight:
-
-- validate scaffold
-- check links later
-- run public smoke checks later
-
-Do not deploy from GitHub Actions.
+GitHub Actions, if enabled, should stay lightweight: scaffold validation, link checks, and public smoke checks only. Do not deploy from GitHub Actions.

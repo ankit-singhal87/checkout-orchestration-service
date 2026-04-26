@@ -16,8 +16,7 @@ These are the only hard host requirements for the default local workflow. Applic
 - `make` or plain shell scripts for common local commands.
 - `curl`, `jq`, and `openssl` for API/debug workflows.
 - `mysql` client and `redis-cli`, optional because container exec can also be used.
-- GitLab CLI `glab`, optional convenience for GitLab.
-- GitHub CLI `gh`, optional mirror checks only.
+- GitLab CLI `glab`, optional.
 
 ## Debugging Tools
 

@@ -12,9 +12,17 @@ Use trunk-based development with short-lived branches.
 
 ## Merge Requests
 
-Merge requests are created manually in GitLab for now.
+Merge requests and merges are manual GitLab steps. Agents may push branches to GitLab when asked.
 
-Agents may push branches if Git credentials are available, but should not create merge requests automatically until a separate GitLab API token exists.
+## Commit Messages
+
+Use short, descriptive commit messages that explain the change. Avoid generic tool-generated messages like `Added by cursor`.
+
+Examples:
+
+- `Add Phase 1 agent roster`
+- `Document GitLab mirror workflow`
+- `Refine local tooling guidance`
 
 ## Git Flow
 

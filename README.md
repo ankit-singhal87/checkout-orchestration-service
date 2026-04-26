@@ -4,7 +4,7 @@ Multi-tenant SaaS checkout demo inspired by public headless checkout concepts. T
 
 ## Current Phase
 
-This repository is in Phase 0: scaffolding, risk guardrails, local tooling, and CI placeholders. Do not build the full checkout implementation in this phase.
+This repository is in Phase 1: repository foundation, contracts, named project agents, and local tooling. The first checkout implementation should stay Laravel-first and local-first.
 
 ## Target Shape
 
@@ -12,7 +12,7 @@ This repository is in Phase 0: scaffolding, risk guardrails, local tooling, and 
 - Go is reserved for selected internal processors or services after the Laravel path is working.
 - Local/dev mode runs free or near-free with Docker Compose.
 - Deploy mode is optional and targets AWS through Terraform and Kubernetes assets later.
-- GitLab is the primary source of truth. GitHub is a read-only mirror.
+- GitLab is primary. GitHub is a mirror.
 
 ## Local Quickstart
 
@@ -39,3 +39,7 @@ The Phase 0 Docker Compose file starts supporting infrastructure only. The Larav
 ## CI
 
 GitLab CI is primary and runs `scripts/ci/validate-scaffold.sh`. GitHub Actions is mirror validation only and must not deploy.
+
+## Repository Workflow
+
+Push to GitLab `origin` only. Create and merge MRs manually in GitLab. See `docs/mirroring.md`.

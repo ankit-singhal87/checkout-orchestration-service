@@ -26,13 +26,14 @@ Phase 1 responsibilities:
 
 ### Forge - Platform Agent
 
-Owns Docker, Docker Compose, local Kubernetes direction, GitLab CI, GitHub mirror validation, scripts, container images, secrets boundaries, and deployment docs.
+Owns Docker, Docker Compose, local Kubernetes direction, GitLab CI, mirroring, scripts, container images, secrets boundaries, and deployment docs.
 
 Phase 1 responsibilities:
 
 - Keep host dependencies minimal: Git, Docker, and Docker Compose are the default required tools.
 - Containerize data stores and platform services with named volumes for persistent local data.
-- Keep GitLab CI primary and GitHub Actions mirror-only.
+- Keep GitLab CI primary.
+- Keep GitHub as a GitLab-managed mirror.
 
 ### Beacon - Observability Agent
 

@@ -42,9 +42,9 @@ Mitigation: use OpenTelemetry/OTLP as the contract. Local stack first, Grafana C
 
 ### CI And Mirror Drift
 
-Risk: GitLab CI and GitHub Actions become two separate pipelines to maintain.
+Risk: GitHub becomes a second workflow instead of a mirror.
 
-Mitigation: GitLab CI/CD is primary. GitHub Actions only validates the read-only mirror. Shared scripts live in `scripts/ci`.
+Mitigation: GitLab is primary. GitHub is updated by GitLab mirroring and may run lightweight validation only.
 
 ### SCAYLE API/IP Risk
 

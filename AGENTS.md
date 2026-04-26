@@ -13,11 +13,17 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 
 ## Repository Rules
 
-- GitLab is the primary repository and CI/CD host.
-- GitHub is a public read-only mirror for validation and discoverability.
-- Do not make GitHub Actions responsible for deployments or releases.
+- GitLab is primary. GitHub is a mirror.
 - Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
-- Do not create merge requests automatically until a separate GitLab API token exists.
+- Push only to GitLab `origin`.
+- Do not create merge requests or merge automatically.
+- See `docs/mirroring.md` for the full workflow.
+
+## Commit Messages
+
+- Use concise messages that describe the change, for example `Document GitLab mirror workflow`.
+- Prefer verbs like `Add`, `Update`, `Fix`, `Document`, `Refine`, or `Remove`.
+- Do not use generic tool-generated messages such as `Added by cursor`.
 
 ## Secrets
 
@@ -52,4 +58,4 @@ Follow `docs/planning/checkout-mvp-plan.md` unless the user explicitly changes d
 
 - Add focused tests with each implementation phase.
 - Tenant isolation and checkout idempotency require integration coverage before the checkout path is considered complete.
-- CI scripts should stay shared under `scripts/ci` so GitLab and GitHub call the same checks where practical.
+- CI scripts should stay shared under `scripts/ci`.

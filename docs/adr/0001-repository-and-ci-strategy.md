@@ -6,11 +6,11 @@ Accepted
 
 ## Decision
 
-Use a public GitLab repository as the primary source of truth and GitLab CI/CD as the primary pipeline. Use a public GitHub repository as a read-only mirror with lightweight validation only.
+Use GitLab as the source of truth, write target, review target, and CI/CD host. Use GitHub only as a public portfolio mirror maintained by GitLab repository mirroring.
 
 ## Consequences
 
 - GitLab owns merge requests, issues, releases, and deploy workflows.
-- GitHub improves discoverability for demo audiences.
-- Shared scripts under `scripts/ci` reduce pipeline drift.
-- GitHub Actions must not own deployments or releases.
+- Agents and local development push only to GitLab.
+- GitHub improves discoverability without becoming a second collaboration workflow.
+- Pull requests and merges are manual.
