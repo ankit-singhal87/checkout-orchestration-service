@@ -14,7 +14,10 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 ## Agent Execution Strategy
 
 - Treat the active Cursor session agent as the lead orchestrator unless the user assigns that role elsewhere.
-- Use the lead orchestrator for task slicing, integration, validation, small focused commits, push requests, and merge request preparation.
+- Use the lead orchestrator only for coordination: task slicing, worker assignment, ownership boundaries, stop-condition escalation, and context defragmentation.
+- Use named worker agents for implementation, docs, validation, integration, commits, pushes, and merge request preparation.
+- Use Relay for branch integration, validation coordination, commits, pushes, and GitLab merge request preparation.
+- Use Scribe for compact context handoff, stale-context cleanup, and `make defragment-context`.
 - Use specialist agents for bounded work packages with explicit allowed paths, out-of-scope paths, acceptance criteria, and validation commands.
 - Create background specialist tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and unblock problems faster.
 - Prefer read-only advisory agents for architecture, security, contract, and unfamiliar-code reviews.
@@ -24,16 +27,16 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 - Follow agile slices: BDD scenario, failing Pest test where applicable, smallest implementation, validation, then integration.
 - If specialist agents are idle, use them for read-only review, backlog refinement, fixture design, security/observability review, or CI hardening in their own lane.
 - Stop and ask before dependency changes, destructive Git operations, paid cloud actions, secret handling, or changes outside the assigned scope.
-- Prefer small, sharp commits that each capture one coherent behavior, guardrail, runtime, or documentation change. When the user has authorized a commit/push workflow, commit completed validated slices automatically instead of batching unrelated work.
+- Prefer small, sharp commits that each capture one coherent behavior, guardrail, runtime, or documentation change. When the user has authorized a commit/push workflow, Relay commits completed validated slices automatically instead of batching unrelated work.
 - Commits and pushes happen only when the user asks or when the user has explicitly authorized an automatic commit loop for the current branch. Merge request creation happens only when the user asks or has enabled agent MR creation. Final merge remains manual.
 
 ## Repository Rules
 
 - GitLab is primary. GitHub is a mirror.
 - Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, `experiment/*`, and `agent/*`.
-- When the lead orchestrator decides to implement work directly, create or switch to a short-scoped branch first, for example `agent/outbox-publisher` or `docs/git-workflow`.
+- The lead orchestrator should not implement work directly. Assign direct implementation to a named worker on a short-scoped branch, for example `agent/outbox-publisher` or `docs/git-workflow`.
 - Parallel specialist agents may create their own `agent/<short-scope>` branches, for example `agent/outbox-publisher`, when their work is independent and would otherwise collide with the orchestrator branch.
-- Agent branches must stay narrow, push only to GitLab `origin`, and be integrated by the lead orchestrator through review, cherry-pick, merge, or a GitLab merge request.
+- Agent branches must stay narrow, push only to GitLab `origin`, and be integrated by Relay through review, cherry-pick, merge, or a GitLab merge request under orchestrator direction.
 - Push only to GitLab `origin`.
 - Agents may create GitLab merge requests targeting `main` when the user asks and an approved tool/token is available. Do not merge automatically.
 - See [docs/agent/mirroring.md](docs/agent/mirroring.md) for the full workflow.

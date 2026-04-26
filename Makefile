@@ -19,6 +19,8 @@ help:
 	@printf '%s\n' '  make pre-push-full            Run pre-push checks including checkout tests'
 	@printf '%s\n' '  make demo-outbox-publish      Publish demo outbox rows to Redis Streams'
 	@printf '%s\n' '  make demo-redis-events        Show recent Redis Stream checkout events'
+	@printf '%s\n' '  make show-context             Show compact agent context handoff'
+	@printf '%s\n' '  make defragment-context       Persist selected handoff lines and drop redundant context'
 	@printf '%s\n' '  make create-auto-merge-mr     Create GitLab MR with squash and auto-merge'
 	@printf '%s\n' '  make install-hooks            Install local Git hooks'
 
@@ -112,6 +114,14 @@ demo-outbox-publish:
 .PHONY: demo-redis-events
 demo-redis-events:
 	docker compose exec -T redis redis-cli XRANGE "$${REDIS_STREAM:-checkout:events}" - + COUNT "$${COUNT:-5}"
+
+.PHONY: show-context
+show-context:
+	SHOW_CONTEXT=1 sh scripts/agent/defragment-context.sh
+
+.PHONY: defragment-context
+defragment-context:
+	sh scripts/agent/defragment-context.sh
 
 .PHONY: create-auto-merge-mr
 create-auto-merge-mr:

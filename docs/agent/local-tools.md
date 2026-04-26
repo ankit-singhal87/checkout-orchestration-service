@@ -36,12 +36,16 @@ make test-checkout
 make validate
 make pre-push
 make pre-push-full
+make show-context
+make defragment-context
 make create-auto-merge-mr
 ```
 
 Use `make pre-push-full` before pushing changes that affect checkout runtime or behavior. It runs the same pre-push checks with checkout app tests enabled.
 
 Use `make create-auto-merge-mr` only after the user has authorized MR creation for the branch. It creates or reuses a GitLab MR, enables squash, requests source-branch deletion, and enables auto-merge once checks pass. Set `MR_TITLE`, `MR_DESCRIPTION`, `SQUASH_MESSAGE`, `SOURCE_BRANCH`, or `TARGET_BRANCH` to override defaults.
+
+Use `make defragment-context` when an agent needs to persist only selected context before the orchestrator starts fresh. Provide newline-separated bullets through `HANDOFF_LINES` or a file path through `HANDOFF_FILE`; the command replaces the volatile `Active Threads` section in `docs/agent/context-handoff.md`. The orchestrator then closes or abandons the context-heavy worker/session and starts a new one from `docs/agent/README.md` plus the compact handoff. Use `make show-context` to inspect the compact handoff.
 
 Use `make install-host-tools` only for local workstation bootstrap or repair. It installs missing essential tools such as `git`, `make`, `curl`, `jq`, `openssl`, Node.js/npm, `glab`, Docker, Docker Compose, and Codex where supported. It does not authenticate external CLIs or manage secrets; run `glab auth login` separately.
 
