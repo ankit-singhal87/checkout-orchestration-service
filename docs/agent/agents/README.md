@@ -21,8 +21,19 @@ Use these mode labels inside an agent definition or work package when they clari
 - `integrator`: branch integration, conflict handling, validation coordination, commit preparation, push, or authorized merge request preparation.
 - `steward`: durable project hygiene, context defragmentation, handoff maintenance, docs routing, backlog grooming, or guardrail upkeep.
 - `specialist`: narrow domain review or implementation where expertise matters more than broad lane ownership.
+- `observer`: low-cost, read-only branch, merge request, merge, CI, pipeline, or command-output status checks. Observer reports state and blockers, but does not edit files, resolve conflicts, commit, push, prepare MRs, or do other Relay work.
 
 Mode labels do not grant permissions. Autonomy level, allowed paths, branch/worktree assignment, and stop conditions remain authoritative.
+
+## Model Selection
+
+Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when the current tier is insufficient.
+
+- Use a low-cost or small model for `observer` checks, simple read-only branch or MR status, narrow docs formatting, and command-output summarization.
+- Use a standard or mid-capability model for bounded `builder` work, Scribe documentation maintenance, routine Relay integration, focused validation follow-up, and ordinary branch hygiene.
+- Use a high-capability model for Conductor planning under ambiguity, architecture or security decisions, risky code changes, hard merge conflicts, and root-cause debugging when a worker is blocked.
+
+Do not encode vendor-specific internal model names in agent definitions unless the user has approved that toolchain for the current environment. Prefer tier labels so the policy survives model availability changes.
 
 ## Definition Rules
 
@@ -34,6 +45,9 @@ Mode labels do not grant permissions. Autonomy level, allowed paths, branch/work
 - A named agent may edit only its assigned allowed paths for the current work package, even if its durable definition lists a broader ownership lane.
 - Collision boundaries must identify files, folders, migrations, contracts, or generated artifacts the agent must not touch while another active branch owns them.
 - Escalate to the orchestrator when a task crosses the definition, needs a dependency or secret, changes production-adjacent behavior outside the lane, or collides with another active agent branch.
+- The Conductor may step into a blocked worker lane only to identify and fix the root cause, then hand the lane back to the worker or to Relay for integration.
+- Validated stable slices should move quickly to Relay for commit and, when authorized, MR preparation. Do not hold stable commits locally while unrelated work grows the live context.
+- For mutually exclusive independent tasks, the Conductor may run multiple Relay lanes and separate Observers in parallel. Each lane needs its own branch and worktree, distinct writable files, and clear status ownership.
 
 ## Required Agent File Shape
 

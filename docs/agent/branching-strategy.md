@@ -35,6 +35,10 @@ Rules:
 - Push only to GitLab `origin`.
 - Report changed paths, validation, and integration notes back to Relay and the orchestrator.
 - Integrate through Relay review, cherry-pick, merge, or a GitLab merge request.
+- Once a stable slice is validated, move it quickly to Relay for commit and, when authorized, merge request preparation. Do not let validated local work sit while unrelated context accumulates.
+- Mutually exclusive independent tasks may use multiple Relay lanes in parallel when the Conductor assigns distinct branches, worktrees, writable file sets, and validation scopes.
+- Read-only Observer lanes may run alongside each Relay lane to report branch, MR, merge, CI, and pipeline status. Observer must not resolve conflicts, commit, push, prepare MRs, or do other Relay work.
+- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the Conductor decides whether to start or assign Relay for integration work.
 - Delete stale `agent/*` branches after integration or abandonment.
 
 ## Merge Requests
