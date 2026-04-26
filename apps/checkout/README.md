@@ -18,11 +18,12 @@ Blade is included with Laravel. Blade templates live under `resources/views`, an
 - Real payment provider integration.
 - Full auth requirement for shopping or checkout.
 - Extracting pricing, inventory, payment, or order into separate services.
-- Production-style RoadRunner runtime wiring.
 
 ## Phase 2 Runtime
 
-The local default remains `php artisan serve`. `make up-roadrunner` selects the opt-in RoadRunner path and fails with a clear message until Laravel Octane and RoadRunner Composer dependencies are approved and installed.
+The default local runtime is Nginx plus PHP-FPM over HTTP. `make up-app` starts this stack with MySQL and Redis for normal local development and browser checks.
+
+`make up-roadrunner` starts the optional RoadRunner/Octane performance profile. `make up-parity` adds the local-production reverse proxy path with Caddy, HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits.
 
 ## Bootstrap
 

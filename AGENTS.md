@@ -13,8 +13,11 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 
 ## Agent Execution Strategy
 
-- Treat the active Cursor session agent as the lead orchestrator unless the user assigns that role elsewhere.
-- Use the lead orchestrator only for coordination: task slicing, worker assignment, ownership boundaries, stop-condition escalation, and context defragmentation.
+- Treat the active Cursor/Codex session agent as the single `lead-orchestrator` for this repository unless the user explicitly assigns that role to another active session.
+- The user does not need to restate that the active agent is the `lead-orchestrator`; agents must infer it from this file at session start.
+- There must be exactly one active `lead-orchestrator`. If an agent cannot determine who owns orchestration, it must stop after read-only status collection and ask for clarification before assigning workers, editing files, committing, pushing, or preparing merge requests.
+- Codex is not allowed to run production-adjacent work in this repo without an active `lead-orchestrator` because worker routing, collision prevention, stop-condition handling, and integration ownership depend on that role.
+- Use the `lead-orchestrator` only for coordination: current intent, task slicing, worker assignment, ownership boundaries, branch/worktree routing, stop-condition escalation, context defragmentation, and user-facing status.
 - Use named worker agents for implementation, docs, validation, integration, commits, pushes, and merge request preparation.
 - Use Relay for branch integration, validation coordination, commits, pushes, and GitLab merge request preparation.
 - Use Scribe for compact context handoff, stale-context cleanup, and `make defragment-context`.
@@ -34,7 +37,7 @@ Start with [docs/agent/README.md](docs/agent/README.md) for compact agent contex
 
 - GitLab is primary. GitHub is a mirror.
 - Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, `experiment/*`, and `agent/*`.
-- The lead orchestrator should not implement work directly. Assign direct implementation to a named worker on a short-scoped branch, for example `agent/outbox-publisher` or `docs/git-workflow`.
+- The `lead-orchestrator` should not implement work directly. Assign direct implementation to a named worker on a short-scoped branch, for example `agent/outbox-publisher` or `docs/git-workflow`.
 - Parallel specialist agents may create their own `agent/<short-scope>` branches, for example `agent/outbox-publisher`, when their work is independent and would otherwise collide with the orchestrator branch.
 - Agent branches must stay narrow, push only to GitLab `origin`, and be integrated by Relay through review, cherry-pick, merge, or a GitLab merge request under orchestrator direction.
 - Push only to GitLab `origin`.

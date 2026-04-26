@@ -30,9 +30,13 @@ make check-tools
 make install-host-tools
 make up
 make up-app
+make up-roadrunner
+make up-parity
 make down
 make bootstrap-checkout
 make test-checkout
+make test-checkout-runtime
+make test-checkout-parity
 make validate
 make pre-push
 make pre-push-full
@@ -53,7 +57,7 @@ Use `make install-host-tools` only for local workstation bootstrap or repair. It
 
 - Cursor or VS Code PHP Debug extension for listening to Xdebug connections.
 - Xdebug installed in the PHP 8.5 Laravel container, disabled by default and enabled with `XDEBUG_MODE=debug`.
-- RoadRunner CLI later inside the Laravel container when production-style runtime wiring becomes active; not required on the host.
+- RoadRunner CLI inside the Laravel container for the optional performance profile; not required on the host.
 - Delve for Go debugging later, preferably in the Go worker container or a dedicated debug image.
 
 ## Container-Managed Services

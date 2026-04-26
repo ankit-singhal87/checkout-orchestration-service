@@ -1,13 +1,15 @@
 # Debugging Guide
 
-## Laravel And RoadRunner
+## Laravel Runtime
 
 - Application logs should be structured JSON and include `trace_id`, `request_id`, `tenant_id`, and route.
 - Current local containers write JSON application logs to stderr by default through `LOG_STACK=stderr`.
 - HTTP responses include `X-Request-Id` and `X-Trace-Id`; pass either header when reproducing a request that needs correlation.
-- `make up-roadrunner` selects the opt-in RoadRunner startup path. The default runtime remains `php artisan serve`.
-- RoadRunner uses Laravel Octane plus the Spiral RoadRunner packages. If the local `rr` server binary is missing, the opt-in startup script downloads it through `vendor/bin/rr`.
-- Use `docker compose exec checkout php artisan octane:reload` to reload workers.
+- `make up-app` starts the default Nginx/PHP-FPM stack over local HTTP/1.1 for fast feedback and familiar debugging.
+- `make up-roadrunner` starts the optional RoadRunner/Octane performance profile. If the local `rr` server binary is missing, the startup script downloads it through `vendor/bin/rr`.
+- `make up-parity` adds a Caddy reverse proxy for local-production parity: HTTPS, HTTP/2, forwarded headers, security headers, and request-size limits. Use `curl -k` for parity command-line checks unless the Caddy local CA is trusted by the host.
+- Do not force HTTPS or the reverse proxy into every TDD loop. If a future endpoint is gRPC, use HTTP/2 even in the fast path.
+- Use `docker compose exec checkout php artisan optimize:clear` to clear normal Laravel runtime caches. Use RoadRunner reload commands only in the optional performance profile.
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.
 - The host only needs an IDE listener such as the Cursor or VS Code PHP Debug extension.
 - Use path mappings from the container app path, for example `/app`, to the host workspace path.
@@ -30,7 +32,7 @@
 
 ## Traces And Metrics
 
-- Current Phase 1 debugging uses response correlation headers and JSON application logs.
+- Current debugging uses response correlation headers and JSON application logs.
 - Local traces should be visible in Tempo or Jaeger after Laravel OpenTelemetry trace export is wired.
 - Local metrics should be visible in Prometheus/Grafana after application metric export is wired.
 - Local logs should be visible in Loki/Grafana once log shipping is wired.

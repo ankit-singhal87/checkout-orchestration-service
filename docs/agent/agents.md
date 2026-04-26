@@ -6,33 +6,36 @@ Each agent should stay inside its ownership area unless the user asks for a coor
 
 ## Operating Model
 
-Use one lead orchestrator and several bounded worker agents.
+Use one `lead-orchestrator` and several bounded worker agents.
 
-- The lead orchestrator owns only coordination: current intent, task slicing, worker assignment, conflict prevention, stop-condition escalation, and context defragmentation.
-- `Conductor` is the recommended neutral shorthand for the lead orchestrator role when a shorter label helps. Keep `lead orchestrator` available when explicit coordination authority is clearer.
+- The `lead-orchestrator` is the single active coordination owner for this repository. The active Cursor/Codex session assumes this role automatically unless the user explicitly assigns it to another active session.
+- Users do not need to say "you are the lead-orchestrator" on each request. Agents must read this file and self-activate the role at session start.
+- There must be exactly one active `lead-orchestrator`. If orchestration ownership is unclear, an agent may collect read-only status, then must ask for clarification before assigning workers, editing files, creating branches, committing, pushing, or preparing merge requests.
+- Codex must not run production-adjacent repository work without an active `lead-orchestrator`. Without this role, the repo has no authority for worker routing, path ownership, collision prevention, stop-condition escalation, branch integration, or context defragmentation.
+- The `lead-orchestrator` owns only coordination: current intent, task slicing, worker assignment, conflict prevention, path ownership, branch/worktree routing, status polling, stop-condition escalation, and context defragmentation.
 - Worker agents own bounded work packages with explicit allowed paths, expected outputs, validation commands, and stop conditions.
 - Durable agent definitions live under [agents/](agents/). Use `agents` as the stable neutral term and folder name; use mode labels such as `thinker`, `builder`, `integrator`, `steward`, `specialist`, and `observer` inside definitions and work packages when they clarify the kind of work.
 - The orchestrator must not perform implementation, validation, release, or documentation work directly when a named worker owns that lane. It delegates the work and integrates by assigning a worker, not by carrying the execution context itself.
-- The Conductor may step into a struggling worker lane only to identify and fix the root cause of the blocker. After the blocker is understood or corrected, the Conductor hands control back to the original worker or to Relay for integration rather than continuing the lane personally.
+- The `lead-orchestrator` may step into a struggling worker lane only to identify and fix the root cause of the blocker. After the blocker is understood or corrected, the `lead-orchestrator` hands control back to the original worker or to Relay for integration rather than continuing the lane personally.
 - Agents should read [context-handoff.md](context-handoff.md) after [README.md](README.md) and use it as the compact cross-session memory buffer.
 - Agents should use [Makefile](../../Makefile) targets such as `make validate`, `make test-checkout`, `make pre-push`, and `make pre-push-full` for common local workflows. The underlying scripts remain available as fallbacks when `make` is unavailable.
 - Agents may suggest `make install-host-tools` for local workstation bootstrap, but must ask before running it because it installs host packages.
-- The lead orchestrator should create background worker tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
+- The `lead-orchestrator` should create background worker tasks for independent streams so investigation, review, docs, tests, and isolated implementation can progress in parallel and resolve blockers faster.
 - Background agents may explore, review, draft docs, or implement small isolated slices, but they must report findings and changed paths clearly.
-- The lead orchestrator must not wait on worker or subagent completion for more than 20 seconds at a time. Treat 20 seconds as the maximum wait; when actually waiting on a worker, use 10-20 second polling waits. Do not wait when there is independent phase analysis, user-message handling, or another workstream to start. Treat worker waits as a responsive event loop: poll, check newest user intent, reassess phase and priority, then continue waiting, start independent work, close or reassign failed workers, or route another work package as needed.
+- The `lead-orchestrator` must not wait on worker or subagent completion for more than 20 seconds at a time. Treat 20 seconds as the maximum wait; when actually waiting on a worker, use 10-20 second polling waits. Do not wait when there is independent phase analysis, user-message handling, or another workstream to start. Treat worker waits as a responsive event loop: poll, check newest user intent, reassess phase and priority, then continue waiting, start independent work, close or reassign failed workers, or route another work package as needed.
 - Use a keep-alive loop whenever work is pending: after each poll, either act on new information, start another independent lane, or send a short status update if the user has not heard progress recently. For long-running workers, validation, CI, or branch operations, prefer brief user-visible updates about the current blocker or wait target every 30 seconds of wall-clock time.
-- Workers should run in the background where possible. Long-running validation, worker waits, and phase analysis must not freeze orchestrator responsiveness; the Conductor remains responsible for polling, status updates, and routing while work is in flight.
-- Parallel implementation agents may work on their own `agent/<short-scope>` branches when the lead orchestrator assigns an independent lane.
+- Workers should run in the background where possible. Long-running validation, worker waits, and phase analysis must not freeze orchestrator responsiveness; the `lead-orchestrator` remains responsible for polling, status updates, and routing while work is in flight.
+- Parallel implementation agents may work on their own `agent/<short-scope>` branches when the `lead-orchestrator` assigns an independent lane.
 - Agent branches must not edit files owned by another active branch unless the orchestrator explicitly reassigns ownership.
 - Named implementation agents should be narrow enough that multiple agents can work safely without sharing editable files. If an agent definition is too broad to provide clear collision boundaries, split it into narrower lane agents before assigning production-adjacent work.
 - Before production-adjacent use, every named agent definition must include name or stable id, mission, ownership lane, allowed paths, out-of-scope paths, autonomy level, branch naming, expected inputs and outputs, validation commands, stop conditions, escalation rules, and collision boundaries.
-- Non-read-only workers should create or use their own short-scoped branch before editing and, when running in parallel, their own worktree. Read-only advisory workers may stay in the current worktree. The lead orchestrator and Relay integrate editing branches deliberately.
+- Non-read-only workers should create or use their own short-scoped branch before editing and, when running in parallel, their own worktree. Read-only advisory workers may stay in the current worktree. The `lead-orchestrator` and Relay integrate editing branches deliberately.
 - Agents must follow existing coding standards. When a work package introduces a new implementation technology, the agent should add or update a coding standards document before writing substantial code in that technology.
 - GitLab merge request creation is agent-allowed only when the user asks and an approved tool/token is available. Merge remains a human step.
 
 ### Worker Selection
 
-The lead orchestrator chooses the worker by matching the requested outcome to the narrowest safe ownership lane, then choosing the mode needed for the task:
+The `lead-orchestrator` chooses the worker by matching the requested outcome to the narrowest safe ownership lane, then choosing the mode needed for the task:
 
 - Use `thinker` for read-only architecture, security, unfamiliar-code, contract, or risk review.
 - Use `builder` for bounded implementation, docs, tests, fixtures, scripts, and local tooling edits.
@@ -47,17 +50,17 @@ Selection rules:
 - Split or define a narrower agent before assigning production-adjacent work when the existing roster name is too broad to prevent file collisions.
 - Assign a branch and worktree to every non-read-only worker before edits begin; keep read-only advisory workers branchless only while they remain read-only.
 - Choose the cheapest model tier that can satisfy the task's risk and complexity, then escalate only when evidence shows the current tier is insufficient.
-- Treat cost-tier suggestions as routing hints, not permissions or hard requirements. The Conductor may override them for a specific work package based on ambiguity, blast radius, active failures, context size, or required speed.
+- Treat cost-tier suggestions as routing hints, not permissions or hard requirements. The `lead-orchestrator` may override them for a specific work package based on ambiguity, blast radius, active failures, context size, or required speed.
 - Use a low-cost or small model for Observer status checks, simple read-only status, narrow docs formatting, and command-output summarization.
 - Use a standard or mid-capability model for bounded builders, Scribe documentation work, routine Relay integration, focused validation follow-up, and ordinary branch hygiene.
-- Use a high-capability model for Conductor planning under ambiguity, architecture or security decisions, risky code changes, difficult conflict resolution, and root-cause debugging when a worker is blocked.
+- Use a high-capability model for `lead-orchestrator` planning under ambiguity, architecture or security decisions, risky code changes, difficult conflict resolution, and root-cause debugging when a worker is blocked.
 - Stop and ask when the worker type is ambiguous, the task crosses ownership lanes, or two workers need the same editable file.
 
 Suggested starting tiers by agent family:
 
 | Agent family | Suggested tier | Override upward when |
 | --- | --- | --- |
-| Conductor | High for ambiguous orchestration; medium for routine routing | Branch state, worker outputs, or product direction conflicts |
+| lead-orchestrator | High for ambiguous orchestration; medium for routine routing | Branch state, worker outputs, or product direction conflicts |
 | Atlas | High | Architecture, service boundaries, ADRs, or production tradeoffs are ambiguous |
 | Loom | Medium | Checkout behavior, persistence, tenant isolation, or idempotency risk is high |
 | Forge | Medium | CI/runtime/container changes affect shared developer or pipeline workflows |
@@ -66,16 +69,18 @@ Suggested starting tiers by agent family:
 | Sprout | Low to medium | Seed/reset behavior touches migrations, tenant isolation, or integration fixtures |
 | Hammer | Medium | Go extraction, concurrency, async delivery, or latency behavior is non-trivial |
 | Relay | Medium | Merge conflicts, failed CI, release mechanics, or history surgery require root-cause work |
-| Observer | Low | Escalate to Conductor or Relay instead of changing mode when status is blocked |
+| Observer | Low | Escalate to the `lead-orchestrator` or Relay instead of changing mode when status is blocked |
 | Scribe | Low to medium | Handoff cleanup requires resolving contradictory durable docs |
 | Shield | High | Secrets, tenant isolation, auth, payment simulation, or IAM/network risk is involved |
 | Gauge | Medium | Test strategy spans multiple layers, load evidence, or flaky failure diagnosis |
 
-### Lead Orchestrator - Cursor Session Agent
+### lead-orchestrator - Cursor/Codex Session Agent
 
-The active Cursor session agent is the lead orchestrator unless the user explicitly assigns that role elsewhere.
+The active Cursor/Codex session agent is the `lead-orchestrator` unless the user explicitly assigns that role to another active session.
 
-`Conductor` may be used as a neutral role name for this lead orchestrator. The Conductor coordinates, routes work, prevents collisions, polls workers, and stays out of direct implementation when a worker owns the lane. The Conductor never works a worker-owned lane directly; it assigns the lane, monitors it, unblocks it when necessary, and hands it back to the worker or Relay.
+Do not use `Conductor` as a role name in this repository. `lead-orchestrator` is the canonical name in docs, work packages, handoffs, and user-facing status.
+
+The `lead-orchestrator` coordinates, routes work, prevents collisions, polls workers, and stays out of direct implementation when a worker owns the lane. It never works a worker-owned lane directly; it assigns the lane, monitors it, unblocks it when necessary, and hands it back to the worker or Relay.
 
 Responsibilities:
 
@@ -90,7 +95,7 @@ Responsibilities:
 - Prevent context growth by routing validated stable slices quickly to Relay for commit and, when authorized, merge request preparation. Stable validated commits should not sit locally for long while unrelated work continues.
 - Stop and ask when worker outputs conflict, when ownership is unclear, or when a requested action crosses a stop condition.
 
-The orchestrator stays hands-off for execution. Worker agents move independently in their lanes, while the orchestrator owns routing, boundaries, and whether additional workers are needed. Conductor work is coordination work only; implementation, validation execution, release mechanics, and documentation edits belong to assigned workers unless Conductor is diagnosing a blocker before hand-back.
+The `lead-orchestrator` stays hands-off for execution. Worker agents move independently in their lanes, while the `lead-orchestrator` owns routing, boundaries, and whether additional workers are needed. `lead-orchestrator` work is coordination work only; implementation, validation execution, release mechanics, and documentation edits belong to assigned workers unless the `lead-orchestrator` is diagnosing a blocker before hand-back.
 
 ## Agile Working Model
 
@@ -202,7 +207,7 @@ Run agents in parallel when workstreams are independent:
 - Shield: tenant isolation, secrets, auth, payment simulation safety.
 - Beacon: OpenTelemetry, logs, metrics, traces, SLO evidence.
 - Relay: branch integration, validation coordination, commits, pushes, and merge request preparation.
-- Observer: read-only branch, MR, merge, CI, and pipeline status checks, including concise blocker reports back to Conductor.
+- Observer: read-only branch, MR, merge, CI, and pipeline status checks, including concise blocker reports back to the `lead-orchestrator`.
 - Scribe: compact handoffs, context defragmentation, durable doc routing, and stale-context cleanup.
 
 Avoid parallel edits to the same files. If two agents need the same file, one should review while the owning worker applies the final edit.
@@ -210,12 +215,12 @@ Avoid parallel edits to the same files. If two agents need the same file, one sh
 Parallel branch rules:
 
 - Use `agent/<short-scope>` for independent specialist branches.
-- For mutually exclusive independent tasks, the Conductor may start multiple Relay lanes in parallel, each with its own branch and worktree, and may pair each lane with a separate Observer. These lanes must have distinct writable files and independent validation or MR status checks.
+- For mutually exclusive independent tasks, the `lead-orchestrator` may start multiple Relay lanes in parallel, each with its own branch and worktree, and may pair each lane with a separate Observer. These lanes must have distinct writable files and independent validation or MR status checks.
 - Direct foreground implementation should be assigned to a worker on a short-scoped branch instead of accumulating unrelated work in the orchestrator thread.
 - Keep each agent branch scoped to its assigned files and acceptance criteria.
 - Rebase or merge from GitLab `main` only under orchestrator direction and Relay execution.
 - Relay integrates agent branches deliberately and validates the combined tree before user-facing push or MR creation.
-- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the Conductor may start Relay to investigate and integrate. Observer should remain read-only and should not convert itself into Relay.
+- If Observer reports a failed check, blocked merge, conflict, or unclear branch state, the `lead-orchestrator` may start Relay to investigate and integrate. Observer should remain read-only and should not convert itself into Relay.
 - Delete stale `agent/*` branches after their work is integrated or abandoned.
 
 ## Main Merge Conflict Playbook
@@ -357,8 +362,8 @@ Owns low-cost, read-only branch, merge request, merge, CI, and pipeline status c
 Phase 1 responsibilities:
 
 - Check branch/MR/CI status and summarize whether a lane is green, pending, blocked, failed, merged, or stale.
-- Report concise blocker evidence to the Conductor without editing files, resolving conflicts, committing, pushing, or preparing merge requests.
-- Stay separate from Relay. If status reveals a blocker that needs integration work, the Conductor decides whether to start or assign Relay.
+- Report concise blocker evidence to the `lead-orchestrator` without editing files, resolving conflicts, committing, pushing, or preparing merge requests.
+- Stay separate from Relay. If status reveals a blocker that needs integration work, the `lead-orchestrator` decides whether to start or assign Relay.
 - Use the lowest-cost capable model for routine status checks and command-output summaries.
 
 ### Scribe - Context And Documentation Steward
