@@ -9,7 +9,7 @@ This file is the compact handoff buffer for orchestrator-owned agent context def
 
 ## Active Threads
 
-- Next platform slice: local Kubernetes direction should favor `kind` as the default EKS-like local cluster path unless a later ADR chooses otherwise.
+- Local Kubernetes direction is docs-only/local-only: Docker Compose remains the fastest app demo runtime, `kind` is the default local EKS-parity manifest validation path, and Amazon EKS is the intended production Kubernetes target but remains unapproved for real deployment until approval, budget/cost alerts, TTL/resource ownership tags, destroy runbooks, and rollback checkpoints exist.
 - RoadRunner production-style runtime still needs explicit approval for Composer dependencies before enabling a real Octane/RoadRunner server path.
 
 ## Defragmentation Rules

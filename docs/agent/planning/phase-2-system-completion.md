@@ -8,13 +8,15 @@ Phase 2 should optimize for interview-demo system completeness, not checkout fea
 2. **Runtime story:** add an opt-in RoadRunner path only after dependency compatibility is verified; keep `php artisan serve` as the default local fallback. **Current status:** opt-in startup path exists; Laravel Octane/RoadRunner dependency installation still requires explicit approval.
 3. **Observability path:** make request logs, trace/request IDs, and local collector docs easy to demo before adding provider-specific exporters.
 4. **Demo runbook:** document a short path that starts local services, walks two tenants through checkout, shows an outbox event, and verifies tests. **Current status:** [demo-runbook.md](../demo-runbook.md).
-5. **Cloud/deploy shape:** keep AWS/EKS/Terraform optional and documented until budget guardrails and destroy workflows are explicit.
+5. **Cloud/deploy shape:** keep Docker Compose as the fastest/default app demo runtime and use `kind` as the default local Kubernetes validation target for EKS-parity manifest work. Amazon EKS is the intended production Kubernetes target, but AWS/EKS/Terraform deployment remains unapproved until budget guardrails, ownership/TTL tags, rollback checkpoints, and destroy workflows are explicit.
 
 ## Low-ROI For Now
 
 - More Laravel checkout endpoints such as vouchers, loyalty, collection points, and address book.
 - Go service extraction before a clear async or latency boundary is active.
 - Provider-specific observability dashboards before the OTLP/local story is demonstrable.
+- EKS cluster creation, Terraform apply, registry push, cloud `kubectl` context, managed service setup, or deploy workflow before the local `kind` manifest path and explicit approval, budget/cost alerts, TTL/resource ownership tags, destroy runbooks, and rollback checkpoints exist.
+- AWS-only Kubernetes features in base manifests before a separate EKS overlay exists; keep the local base portable and document local-vs-EKS differences.
 - Full SCAYLE-shaped API coverage.
 
 ## Completed Async Slice
