@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ConsumeOrderConfirmedEvents;
 use App\Console\Commands\PublishOutboxEvents;
 use App\Domain\Tenant\TenantContext;
 use App\Http\Middleware\ObserveHttpRequest;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withCommands([
+        ConsumeOrderConfirmedEvents::class,
         PublishOutboxEvents::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {

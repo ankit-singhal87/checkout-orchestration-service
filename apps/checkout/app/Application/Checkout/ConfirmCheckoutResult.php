@@ -14,6 +14,7 @@ final readonly class ConfirmCheckoutResult
     private function __construct(
         public ConfirmCheckoutStatus $status,
         public ?OrderRecord $order = null,
+        public ?string $failureReason = null,
     ) {}
 
     /**
@@ -54,5 +55,13 @@ final readonly class ConfirmCheckoutResult
     public static function idempotencyConflict(): self
     {
         return new self(ConfirmCheckoutStatus::IdempotencyConflict);
+    }
+
+    /**
+     * Build a failed result for deterministic simulator business outcomes.
+     */
+    public static function simulatorFailed(string $reason): self
+    {
+        return new self(ConfirmCheckoutStatus::NotReady, failureReason: $reason);
     }
 }

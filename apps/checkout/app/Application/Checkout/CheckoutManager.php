@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Checkout;
 
+use App\Application\Checkout\Simulation\InventoryReservationSimulator;
+use App\Application\Checkout\Simulation\PaymentAuthorizationSimulator;
 use App\Domain\Checkout\CheckoutStatus;
 use App\Domain\Checkout\PaymentMethod;
 use App\Domain\Checkout\ShippingOption;
@@ -22,7 +24,11 @@ use Illuminate\Support\Str;
  */
 final readonly class CheckoutManager
 {
-    public function __construct(private CheckoutTotals $totals) {}
+    public function __construct(
+        private CheckoutTotals $totals,
+        private InventoryReservationSimulator $inventory,
+        private PaymentAuthorizationSimulator $payments,
+    ) {}
 
     /**
      * Start or resume checkout for the current tenant cart.
@@ -200,6 +206,22 @@ final readonly class CheckoutManager
 
             if (! $checkout->status->canConfirm()) {
                 return ConfirmCheckoutResult::notReady();
+            }
+
+            $payment = $this->payments->authorize($tenant, $checkout, $idempotencyKey);
+            if (! $payment->successful) {
+                $checkout->status = CheckoutStatus::Failed;
+                $checkout->save();
+
+                return ConfirmCheckoutResult::simulatorFailed($payment->reason);
+            }
+
+            $inventory = $this->inventory->reserve($tenant, $checkout);
+            if (! $inventory->successful) {
+                $checkout->status = CheckoutStatus::Failed;
+                $checkout->save();
+
+                return ConfirmCheckoutResult::simulatorFailed($inventory->reason);
             }
 
             $orderRef = 'ord_'.Str::ulid()->toString();

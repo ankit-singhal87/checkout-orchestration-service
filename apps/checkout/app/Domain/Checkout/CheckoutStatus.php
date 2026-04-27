@@ -13,6 +13,7 @@ enum CheckoutStatus: string
     case Addressed = 'addressed';
     case ShippingSelected = 'shipping_selected';
     case PaymentSelected = 'payment_selected';
+    case Failed = 'failed';
     case Confirmed = 'confirmed';
 
     /**

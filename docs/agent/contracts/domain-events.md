@@ -106,6 +106,9 @@ Every processor must:
 - Customer-facing checkout responses must not depend on analytics, email, search, or observability projections.
 - Events for the same aggregate should preserve commit order.
 - Payload schemas are versioned with `schemaVersion`.
+- Failed outbox publishes increment retry metadata and leave `published_at` empty.
+- Rows with `next_publish_at` in the future are not publishable until that timestamp.
+- Rows with `poisoned_at` are poison messages and the publisher skips them until an operator or repair process clears the poison state.
 - Processor writes must be tenant-scoped and must not trust tenant identifiers from unverified headers or path segments.
 
 ## Outbox Row Shape
@@ -119,7 +122,9 @@ Every processor must:
 - `payload`
 - `published_at`
 - `publish_attempts`
+- `next_publish_at`
+- `last_publish_attempted_at`
 - `last_publish_error`
 - `poisoned_at`
 
-`created_at` is the current occurrence timestamp. Add retry/error metadata in the same migration that introduces a retrying publisher.
+`created_at` is the current occurrence timestamp. `publish_attempts` counts failed publish attempts. `next_publish_at` schedules the next retry. `last_publish_attempted_at` and `last_publish_error` preserve the last failure context. `poisoned_at` marks a poison message after the publisher exhausts its retry ceiling.

@@ -8,16 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Eloquent record for domain events awaiting async publication.
+ * Processed-event ledger for idempotent order processor side effects.
  */
-final class OutboxEventRecord extends Model
+final class OrderProcessorProcessedEventRecord extends Model
 {
-    protected $table = 'outbox_events';
+    protected $table = 'order_processor_processed_events';
 
     protected $guarded = [];
 
     /**
-     * Cast structured event payloads.
+     * Cast structured processor event columns.
      *
      * @return array<string, string>
      */
@@ -25,16 +25,12 @@ final class OutboxEventRecord extends Model
     {
         return [
             'payload' => 'array',
-            'publish_attempts' => 'integer',
-            'published_at' => 'datetime',
-            'next_publish_at' => 'datetime',
-            'last_publish_attempted_at' => 'datetime',
-            'poisoned_at' => 'datetime',
+            'processed_at' => 'datetime',
         ];
     }
 
     /**
-     * Tenant that owns the event.
+     * Tenant that owns the processed event.
      */
     public function tenant(): BelongsTo
     {
