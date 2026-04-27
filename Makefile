@@ -19,6 +19,7 @@ help:
 	@printf '%s\n' '  make test-checkout            Run checkout app tests'
 	@printf '%s\n' '  make test-checkout-runtime    Smoke test RoadRunner HTTP runtime'
 	@printf '%s\n' '  make test-checkout-parity     Smoke test Caddy HTTPS/H1/H2/H3 edge path'
+	@printf '%s\n' '  make test-worker-runtime-smoke Smoke test outbox and order processor workers'
 	@printf '%s\n' '  make test-order-processor-runtime Smoke test order processor command registration'
 	@printf '%s\n' '  make validate                 Run scaffold and Phase 1 validation'
 	@printf '%s\n' '  make pre-push                 Run the repository pre-push checks'
@@ -93,6 +94,11 @@ test-checkout-runtime:
 .PHONY: test-checkout-parity
 test-checkout-parity:
 	sh scripts/test/checkout-parity.sh
+
+.PHONY: test-worker-runtime-smoke
+test-worker-runtime-smoke:
+	sh scripts/test/worker-runtime.sh
+	sh scripts/test/order-processor-runtime.sh
 
 .PHONY: test-order-processor-runtime
 test-order-processor-runtime:
