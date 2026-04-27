@@ -44,6 +44,9 @@ make test-order-processor-runtime
 make validate
 make pre-push
 make pre-push-full
+make test-root-tools
+make tools-audit
+make tools-outdated
 make show-context
 make defragment-context
 make create-auto-merge-mr

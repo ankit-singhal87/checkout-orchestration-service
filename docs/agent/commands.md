@@ -56,3 +56,18 @@ shared tools. Avoid floating `npx <tool>@latest` in documented commands
 because it is not reproducible. One-off `npx` use is acceptable for local
 investigation, but promote it to a pinned root dev dependency before making it
 part of validation, CI, or agent runbooks.
+
+## Dependency Updates
+
+Update root npm tooling deliberately:
+
+- Run `make tools-outdated` to inspect available updates.
+- Update one tool family per branch, for example Codex workflows, Markdown
+  tooling, or OpenAPI tooling.
+- Prefer exact versions in `devDependencies`; let `package-lock.json` record the
+  transitive dependency graph.
+- Run `npm install` after editing root npm dependencies.
+- Run `make tools-audit` after dependency changes.
+- Do not run `npm audit fix --force` without review; it may downgrade or make
+  breaking dependency changes.
+- Keep runtime, Laravel frontend, and PHP dependencies out of the root package.

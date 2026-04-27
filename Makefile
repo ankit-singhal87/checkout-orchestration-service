@@ -137,7 +137,7 @@ validate-phase1:
 	sh scripts/ci/validate-phase1.sh
 
 .PHONY: validate
-validate: validate-scaffold validate-phase1
+validate: validate-scaffold validate-phase1 test-root-tools
 
 .PHONY: migration-immutability
 migration-immutability:
