@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Infrastructure\Persistence\Eloquent\OutboxEventRecord;
 use App\Infrastructure\Persistence\Eloquent\TenantRecord;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 it('publishes unpublished outbox events to Redis Streams', function () {
@@ -57,6 +58,21 @@ it('publishes unpublished outbox events to Redis Streams', function () {
 
     Redis::shouldReceive('connection')->once()->andReturn($connection);
 
+    Log::shouldReceive('info')
+        ->once()
+        ->with('outbox_event_published', \Mockery::on(function (array $context) use ($event): bool {
+            return $context['command'] === 'checkout:outbox:publish'
+                && $context['processor'] === 'checkout.outbox-publisher'
+                && $context['status'] === 'published'
+                && $context['event_id'] === $event->event_id
+                && $context['event_type'] === 'order.confirmed'
+                && $context['tenant_id'] === 'fashion-store'
+                && $context['shop_id'] === 'fashion-main'
+                && $context['stream'] === 'checkout:events'
+                && is_int($context['latency_ms'])
+                && ! array_key_exists('tenant_record_id', $context);
+        }));
+
     $this
         ->artisan('checkout:outbox:publish', ['--limit' => 10])
         ->assertExitCode(0);
@@ -87,6 +103,19 @@ it('leaves outbox events unpublished when Redis publishing fails', function () {
         ->andThrow(new RuntimeException('Redis unavailable'));
 
     Redis::shouldReceive('connection')->once()->andReturn($connection);
+
+    Log::shouldReceive('error')
+        ->once()
+        ->with('outbox_event_publish_failed', \Mockery::on(function (array $context) use ($event): bool {
+            return $context['command'] === 'checkout:outbox:publish'
+                && $context['processor'] === 'checkout.outbox-publisher'
+                && $context['status'] === 'failed'
+                && $context['event_id'] === $event->event_id
+                && $context['tenant_id'] === 'fashion-store'
+                && $context['error'] === 'Redis unavailable'
+                && is_int($context['latency_ms'])
+                && ! array_key_exists('tenant_record_id', $context);
+        }));
 
     $this
         ->artisan('checkout:outbox:publish', ['--limit' => 10])

@@ -11,6 +11,7 @@ use App\Infrastructure\Persistence\Eloquent\TenantRecord;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use JsonException;
 use Throwable;
@@ -66,9 +67,17 @@ final class ConsumeOrderConfirmedEvents extends Command
         $poisoned = 0;
 
         foreach ($messages as $message) {
+            $startedAt = microtime(true);
+
             try {
                 $result = $this->processMessage($stream, $message);
                 Redis::connection()->command('xack', [$stream, self::PROCESSOR_NAME, $message['id']]);
+                Log::info('order_processor_event_consumed', $this->observabilityContext(
+                    message: $message,
+                    status: $result,
+                    startedAt: $startedAt,
+                    stream: $stream,
+                ));
 
                 match ($result) {
                     'processed' => $processed++,
@@ -76,6 +85,15 @@ final class ConsumeOrderConfirmedEvents extends Command
                     'poisoned' => $poisoned++,
                 };
             } catch (Throwable $exception) {
+                Log::error('order_processor_event_consume_failed', $this->observabilityContext(
+                    message: $message,
+                    status: 'failed',
+                    startedAt: $startedAt,
+                    stream: $stream,
+                    extra: [
+                        'error' => mb_substr($exception->getMessage(), 0, 1000),
+                    ],
+                ));
                 $this->error(sprintf(
                     'Failed to consume stream message %s: %s',
                     $message['id'],
@@ -95,6 +113,45 @@ final class ConsumeOrderConfirmedEvents extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Build safe structured context for worker log evidence.
+     *
+     * @param  array{id: string, fields: array<string, string>}  $message
+     * @return array<string, mixed>
+     */
+    private function observabilityContext(
+        array $message,
+        string $status,
+        float $startedAt,
+        string $stream,
+        array $extra = [],
+    ): array {
+        return [
+            ...$extra,
+            'command' => 'checkout:order-processor:consume',
+            'processor' => self::PROCESSOR_NAME,
+            'status' => $status,
+            'event_id' => $this->safeField($message['fields'], 'eventId'),
+            'event_type' => $this->safeField($message['fields'], 'eventType'),
+            'tenant_id' => $this->safeField($message['fields'], 'tenantId'),
+            'stream' => $stream,
+            'stream_message_id' => $message['id'],
+            'latency_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+        ];
+    }
+
+    /**
+     * Return non-empty stream field values only.
+     *
+     * @param  array<string, string>  $fields
+     */
+    private function safeField(array $fields, string $key): ?string
+    {
+        $value = trim($fields[$key] ?? '');
+
+        return $value === '' ? null : $value;
     }
 
     /**

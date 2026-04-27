@@ -1,11 +1,11 @@
 # Order Processor Worker
 
-Placeholder for async post-order side effects such as payment settlement simulation, confirmation notifications, search indexing, analytics events, and demo audit projections.
+Consumes committed order events for replay-safe post-order side effects and demo audit projections.
 
 ## Phase 3 Scope
 
 - Consume committed order and simulator events from `checkout:events`.
-- Own replay-safe order confirmation side effects, notification stubs, and audit/demo projections.
+- Own replay-safe order confirmation side effects and audit/demo projections.
 - Keep payment and inventory simulator state behind their own processor boundaries unless the implementation lane explicitly combines them for a small local smoke path.
 - Keep customer-facing order confirmation synchronous enough to commit the MySQL order record before returning to the shopper.
 
@@ -27,11 +27,15 @@ Placeholder for async post-order side effects such as payment settlement simulat
 
 ## Local Consumer
 
-Run the first local consumer with `php artisan checkout:order-processor:consume`. It reads from `checkout:events` with consumer group `checkout.order-processor` and currently handles `order.confirmed` envelopes.
+Run the local consumer with `php artisan checkout:order-processor:consume`. It reads from `checkout:events` with consumer group `checkout.order-processor` and currently handles `order.confirmed` envelopes.
 
 The local Docker runtime exposes the same consumer through `make up-order-processor`. Use `make test-order-processor-runtime` for the cheap command-registration smoke check.
 
-The first local side effect is the processed-event ledger in `order_processor_processed_events`. It records the envelope and provides replay safety with unique tenant/processor/event and tenant/processor/idempotency constraints. Invalid envelopes are recorded in `order_processor_poison_events` before the Redis Stream message is acknowledged.
+The first local side effects are:
+
+- `order_processor_processed_events` records the envelope and provides replay safety with unique tenant/processor/event and tenant/processor/idempotency constraints.
+- `order_processor_audit_events` stores a rebuildable audit projection for consumed order events.
+- `order_processor_poison_events` records invalid envelopes before the Redis Stream message is acknowledged.
 
 ## Consistency Rule
 
@@ -40,4 +44,4 @@ This worker must never decide whether an order exists. It reacts to committed ou
 ## Incremental Tasks
 
 1. Add the notification stub after duplicate delivery is proven safe.
-2. Add the audit/demo projection after poison handling is visible in the runbook.
+2. Add an end-to-end event-pipeline smoke after the outbox publisher, consumer, and fixtures have one stable shared path.

@@ -1,6 +1,6 @@
 # Phase 2/3 Demo Runbook
 
-Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, request correlation, and validation. Phase 3 extends the same path with worker consumption, retry/poison evidence, and deterministic inventory/payment simulators as those lanes land.
+Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, order processor consumption, request correlation, and validation. Phase 3 extends the same path with richer retry/poison evidence and deterministic inventory/payment simulators as those lanes land.
 
 ## Start Local Services
 
@@ -68,15 +68,32 @@ make demo-redis-events
 
 Expected stream: `checkout:events`.
 
+## Consume Order Events
+
+Start the local outbox worker and order processor runtime:
+
+```bash
+make up-outbox-worker
+make up-order-processor
+```
+
+The order processor runs `php artisan checkout:order-processor:consume` in the `checkout-order-processor` Compose service. It consumes `order.confirmed` envelopes from `checkout:events` with consumer group `checkout.order-processor`, records replay protection in `order_processor_processed_events`, writes invalid envelopes to `order_processor_poison_events`, and maintains the rebuildable audit projection in `order_processor_audit_events`.
+
 Phase 3 worker evidence should show:
 
 - Envelope fields from [domain-events.md](contracts/domain-events.md), including event id, tenant, trace/request ids, correlation id, causation id, and idempotency key.
-- Consumer group names such as `checkout.inventory-reservations`, `checkout.payment-simulator`, and `checkout.order-processor`.
+- Consumer group names such as `checkout.order-processor`, with inventory and payment simulator groups added by their lanes.
 - Duplicate delivery replaying safely without duplicate inventory, payment, notification, or audit side effects.
 - Poison-message isolation for invalid envelopes or exhausted retry attempts.
 - Deterministic inventory/payment simulator results derived from tenant-scoped fixture state and idempotency keys.
 
-Until worker runtime targets exist, use the specific worker README for the command that starts and inspects that processor.
+The current smoke target is command registration for the order processor runtime:
+
+```bash
+make test-order-processor-runtime
+```
+
+An end-to-end event pipeline smoke can be added later once the processor lanes share one stable fixture path; do not assume that command exists yet.
 
 ## Show Correlation
 
@@ -124,5 +141,6 @@ make validate
 make test-checkout
 make test-checkout-runtime
 make test-checkout-parity
+make test-order-processor-runtime
 make pre-push-full
 ```
