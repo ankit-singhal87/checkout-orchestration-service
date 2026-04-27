@@ -4,7 +4,7 @@ Phase 1 turns the Phase 0 plan into a repo foundation without overbuilding servi
 
 ## Current implementation snapshot
 
-For a dated, detailed list of what is in the tree today (Laravel web checkout, persistence, tests, CI), see **[phase-1-current-state](../agent/planning/phase-1-current-state.md)** in [docs/agent/planning](../agent/planning).
+For a dated, detailed list of what is in the tree today, prefer the current human review pages and source anchors.
 
 ## Parallel Work Streams
 

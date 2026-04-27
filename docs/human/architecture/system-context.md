@@ -26,7 +26,7 @@ flowchart LR
 - Production deploy mode uses Amazon RDS for MySQL. Local Docker Compose MySQL, and any future `kind` MySQL binding, are local/dev/test only; EKS runs application workloads and does not host the production database.
 - Redis is used locally for support concerns such as cache, locks, idempotency/rate-limit backing, and Redis Streams. Checkout existence does not depend on async side effects.
 - OpenSearch is optional and remains a read model/projection, not a transactional checkout dependency.
-- Observability is OpenTelemetry/OTLP-first. The current demo has request/trace correlation headers and structured JSON HTTP logs; full OTLP traces/metrics and provider-specific exporters remain later profile work.
+- Observability is OpenTelemetry/OTLP-first. The current demo has request/trace correlation headers and structured JSON HTTP logs; complete application traces, metrics, and provider-specific exporters remain later profile work.
 - GitLab is primary. GitHub remains a mirror/portfolio target.
 
 ## System Responsibilities

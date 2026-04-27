@@ -5,9 +5,9 @@ Independent, work-in-progress, generic headless-commerce checkout orchestration 
 ## Status
 
 - WIP architecture POC.
-- Not production-ready.
+- Not suitable for production use.
 - Independent generic headless-commerce checkout demo.
-- Not affiliated with, endorsed by, sponsored by, or based on any vendor internal implementation.
+- Independent project with no vendor affiliation, sponsorship, or proprietary implementation basis.
 
 See [DISCLAIMER.md](DISCLAIMER.md) for the full independent-project disclaimer.
 
@@ -46,5 +46,5 @@ The default checkout app listens on `http://localhost:8080`. Tenant demo hosts i
 - No real PSP integration.
 - No real inventory service.
 - No real Keycloak/OIDC integration yet.
-- AWS deployment is documented but not fully provisioned.
+- AWS deployment is documented but not yet provisioned.
 - Production image hardening is future work.

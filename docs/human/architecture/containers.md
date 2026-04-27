@@ -57,7 +57,7 @@ flowchart LR
   Otlp -. selected later .-> Backend[Grafana Cloud / Datadog / Dash0 / self-hosted]
 ```
 
-Deploy mode remains optional and manually approved. RoadRunner is the preferred production-style PHP runtime, but Kubernetes, OpenSearch production projections, external cloud message brokers, and cloud telemetry exporters stay behind Phase 4+ slices. Phase 3 focuses on local peripheral workers and services around the existing checkout core.
+Deploy mode remains optional and manually approved. RoadRunner/Octane is an optional parity/performance profile, while Kubernetes, OpenSearch production projections, external cloud message brokers, and cloud telemetry exporters stay behind later slices. Phase 3 focuses on local peripheral workers and services around the existing checkout core.
 
 Amazon EKS is the production target for application workloads. Production MySQL runs on Amazon RDS for MySQL, not as a self-managed StatefulSet or other in-cluster database on EKS. Local Docker Compose MySQL, and any future `kind` MySQL binding, exist only for development, testing, and local manifest validation.
 
