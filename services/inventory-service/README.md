@@ -5,9 +5,12 @@ Placeholder for the Go gRPC service that owns tenant-scoped stock reservation, m
 ## MVP Scope
 
 - Document the boundary and contract shape for a Go inventory service.
+- Treat [../../proto/inventory/v1/inventory.proto](../../proto/inventory/v1/inventory.proto) as a hand-authored contract.
+- Do not commit generated code yet.
 - Own inventory reservation and materialization outside Laravel.
 - Keep local/dev behavior deterministic and tenant-scoped.
 - Preserve the current Laravel simulator only as scaffold while the service boundary is introduced.
+- Customer and shipment downstream processing is out of scope.
 
 ## Supersession Note
 

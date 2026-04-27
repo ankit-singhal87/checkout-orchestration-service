@@ -4,11 +4,13 @@ Placeholder for the MVP Go worker that turns an order placement into a confirmed
 
 ## MVP Scope
 
+- Treat [../../proto/order/v1/order_events.proto](../../proto/order/v1/order_events.proto) as a hand-authored contract.
+- Do not commit generated code yet.
 - Consume `order.placed`.
 - Call inventory `Materialize(order_id)` for the placement reservation.
 - Save the durable MySQL order outcome using the placement snapshot.
 - Emit `order.confirmed` from the committed outbox transaction.
-- Leave customer, shipment, email, analytics, and search side effects to downstream consumers.
+- Keep customer, shipment, email, analytics, and search consumers downstream and out of scope.
 
 ## Supersession Note
 

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "checkout-orchestration-service/proto/order/v1;orderv1";
+
+message OrderItem {
+  string sku = 1;
+  string variant_id = 2;
+  int32 quantity = 3;
+  string unit_price = 4;
+  string line_total = 5;
+}
+
+message OrderPlaced {
+  string tenant_id = 1;
+  string order_id = 2;
+  string idempotency_key = 3;
+  repeated OrderItem items = 4;
+  string currency = 5;
+  string subtotal = 6;
+  string tax_total = 7;
+  string shipping_total = 8;
+  string grand_total = 9;
+  string correlation_id = 10;
+  string causation_id = 11;
+  string occurred_at = 12;
+}
+
+message OrderConfirmed {
+  string tenant_id = 1;
+  string order_id = 2;
+  string idempotency_key = 3;
+  repeated OrderItem items = 4;
+  string currency = 5;
+  string subtotal = 6;
+  string tax_total = 7;
+  string shipping_total = 8;
+  string grand_total = 9;
+  string correlation_id = 10;
+  string causation_id = 11;
+  string occurred_at = 12;
+}
