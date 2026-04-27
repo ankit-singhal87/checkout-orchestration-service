@@ -21,6 +21,8 @@ The worker exits on publisher command failure so Compose can apply its restart p
 
 The order processor is a separate consumer. Start it with `make up-order-processor`; it reads the `checkout:events` stream through consumer group `checkout.order-processor` and currently projects consumed `order.confirmed` envelopes into `order_processor_processed_events`, `order_processor_audit_events`, and `order_processor_poison_events`.
 
+That runtime is current scaffold and prior implementation baseline. The target architecture keeps the outbox publisher transport-only while the Go order preprocessor consumes `order.placed` and emits `order.confirmed`.
+
 ## Transports
 
 - Local/dev: Redis Streams.
@@ -42,10 +44,17 @@ The order processor is a separate consumer. Start it with `make up-order-process
 - Mark or move permanently invalid rows to the poison path with event id, event type, tenant record id, attempts, and error reason.
 - Redis unavailability must not roll back checkout/order commits.
 
+## MVP Event Streams
+
+- `order.placed` is emitted after Laravel checkout commits the order placement intent.
+- `order.confirmed` is emitted after the Go order preprocessor materializes inventory through the Go inventory service and saves the durable order outcome.
+
+The publisher preserves the committed outbox envelope and does not enrich events with customer, shipment, or search-specific payloads. Those concerns belong to downstream consumers.
+
 ## Incremental Tasks
 
-1. Validate the envelope fields emitted for `order.confirmed`.
+1. Validate the envelope fields emitted for `order.placed` and `order.confirmed`.
 2. Add retry metadata and tests around transient Redis failure.
 3. Add poison isolation for invalid payload/schema rows.
 4. Add worker/runbook evidence for stream inspection and replay-safe consumption.
-5. Revisit Go only after local Laravel publishing shows measured throughput or operational limits.
+5. Keep customer, shipment, email, analytics, and search behavior downstream of `order.confirmed`.
