@@ -7,7 +7,43 @@ Publishes committed domain events from the database outbox to local Redis Stream
 - Define the outbox ownership and transport mapping.
 - Keep the implementation choice open: Laravel worker first, Go worker later if throughput or operational needs justify it.
 
+## Local Runtime
+
+The first local runtime is the Docker Compose `checkout-outbox-worker` service. It reuses the checkout PHP image and runs `scripts/dev/start-outbox-worker.sh`, a polling loop around the existing Laravel `checkout:outbox:publish` command.
+
+Start it with:
+
+```bash
+make up-outbox-worker
+```
+
+The worker exits on publisher command failure so Compose can apply its restart policy. It does not implement inventory, payment, notification, or read-model processors.
+
 ## Transports
 
 - Local/dev: Redis Streams.
 - Deploy mode: AWS SQS/SNS, after cloud guardrails exist.
+
+## Phase 3 Contract
+
+- Source: committed MySQL outbox rows.
+- Local stream: `checkout:events`.
+- Publisher identity: `checkout.outbox-publisher`.
+- Message body: the event envelope defined in [domain-events.md](../../docs/agent/contracts/domain-events.md).
+- Ordering: preserve commit order per aggregate where feasible; never reorder events for the same aggregate intentionally.
+- Publish acknowledgement: mark `published_at` only after the transport write succeeds.
+
+## Retry And Poison
+
+- Track publish attempts and last error with the outbox row when retrying publisher behavior is introduced.
+- Retry transient transport failures with bounded exponential backoff and jitter.
+- Mark or move permanently invalid rows to the poison path with event id, event type, tenant record id, attempts, and error reason.
+- Redis unavailability must not roll back checkout/order commits.
+
+## Incremental Tasks
+
+1. Validate the envelope fields emitted for `order.confirmed`.
+2. Add retry metadata and tests around transient Redis failure.
+3. Add poison isolation for invalid payload/schema rows.
+4. Add worker/runbook evidence for stream inspection and replay-safe consumption.
+5. Revisit Go only after local Laravel publishing shows measured throughput or operational limits.

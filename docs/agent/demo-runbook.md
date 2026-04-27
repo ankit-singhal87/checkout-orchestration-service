@@ -1,6 +1,6 @@
-# Phase 2 Demo Runbook
+# Phase 2/3 Demo Runbook
 
-Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, request correlation, and validation.
+Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, request correlation, and validation. Phase 3 extends the same path with worker consumption, retry/poison evidence, and deterministic inventory/payment simulators as those lanes land.
 
 ## Start Local Services
 
@@ -68,6 +68,16 @@ make demo-redis-events
 
 Expected stream: `checkout:events`.
 
+Phase 3 worker evidence should show:
+
+- Envelope fields from [domain-events.md](contracts/domain-events.md), including event id, tenant, trace/request ids, correlation id, causation id, and idempotency key.
+- Consumer group names such as `checkout.inventory-reservations`, `checkout.payment-simulator`, and `checkout.order-processor`.
+- Duplicate delivery replaying safely without duplicate inventory, payment, notification, or audit side effects.
+- Poison-message isolation for invalid envelopes or exhausted retry attempts.
+- Deterministic inventory/payment simulator results derived from tenant-scoped fixture state and idempotency keys.
+
+Until worker runtime targets exist, use the specific worker README for the command that starts and inspects that processor.
+
 ## Show Correlation
 
 Call an API endpoint with a fixed request ID:
@@ -94,6 +104,7 @@ Future work:
 - Application OTLP trace export.
 - Log shipping to Loki.
 - Grafana dashboards and provisioned datasources.
+- Worker metrics for publish lag, processing latency, attempts, poison count, and processor status.
 
 ## Optional Observability Stack
 

@@ -158,26 +158,48 @@ final readonly class CheckoutManager
      */
     public function confirm(TenantContext $tenant, string $checkoutId, string $idempotencyKey): ?OrderRecord
     {
-        return DB::transaction(function () use ($tenant, $checkoutId, $idempotencyKey): ?OrderRecord {
+        $result = $this->confirmOrder($tenant, $checkoutId, $idempotencyKey);
+
+        return $result->order;
+    }
+
+    /**
+     * Confirm checkout and preserve conflict details for public API boundaries.
+     */
+    public function confirmOrder(TenantContext $tenant, string $checkoutId, string $idempotencyKey): ConfirmCheckoutResult
+    {
+        return DB::transaction(function () use ($tenant, $checkoutId, $idempotencyKey): ConfirmCheckoutResult {
+            /** @var CheckoutStateRecord|null $checkout */
+            $checkout = CheckoutStateRecord::query()
+                ->where('tenant_record_id', $tenant->recordId)
+                ->where('checkout_id', $checkoutId)
+                ->with(['cart.items.variant.product', 'order'])
+                ->lockForUpdate()
+                ->first();
+
+            if (! $checkout instanceof CheckoutStateRecord) {
+                return ConfirmCheckoutResult::notFound();
+            }
+
             $existingOrder = OrderRecord::query()
                 ->where('tenant_record_id', $tenant->recordId)
                 ->where('idempotency_key', $idempotencyKey)
                 ->first();
 
             if ($existingOrder instanceof OrderRecord) {
-                return $existingOrder;
+                if ((int) $existingOrder->checkout_state_record_id !== (int) $checkout->id) {
+                    return ConfirmCheckoutResult::idempotencyConflict();
+                }
+
+                return ConfirmCheckoutResult::replayed($existingOrder);
             }
 
-            /** @var CheckoutStateRecord|null $checkout */
-            $checkout = CheckoutStateRecord::query()
-                ->where('tenant_record_id', $tenant->recordId)
-                ->where('checkout_id', $checkoutId)
-                ->with('cart.items.variant.product')
-                ->lockForUpdate()
-                ->first();
+            if ($checkout->status === CheckoutStatus::Confirmed) {
+                return ConfirmCheckoutResult::idempotencyConflict();
+            }
 
-            if (! $checkout instanceof CheckoutStateRecord || ! $checkout->status->canConfirm()) {
-                return null;
+            if (! $checkout->status->canConfirm()) {
+                return ConfirmCheckoutResult::notReady();
             }
 
             $orderRef = 'ord_'.Str::ulid()->toString();
@@ -213,7 +235,7 @@ final readonly class CheckoutManager
                 ],
             ]);
 
-            return $order;
+            return ConfirmCheckoutResult::confirmed($order);
         });
     }
 

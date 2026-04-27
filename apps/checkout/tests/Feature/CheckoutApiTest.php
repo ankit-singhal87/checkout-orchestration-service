@@ -40,41 +40,7 @@ it('creates and reads a checkout state for a tenant cart', function () {
 });
 
 it('confirms an API checkout idempotently', function () {
-    $cart = apiCheckoutCart('fashion-store', 'fashion-variant-001-purple-s');
-    $checkoutId = $this
-        ->putJson('http://fashion-demo.localhost/api/checkout/state', ['cartId' => $cart->cart_id])
-        ->json('checkoutId');
-
-    $this
-        ->putJson('http://fashion-demo.localhost/api/checkout/state/address', [
-            'checkoutId' => $checkoutId,
-            'shippingAddress' => [
-                'name' => 'API Shopper',
-                'line1' => 'API Street 1',
-                'postalCode' => '10115',
-                'city' => 'Berlin',
-                'country' => 'DE',
-            ],
-        ])
-        ->assertOk()
-        ->assertJsonPath('status', 'addressed');
-
-    $this
-        ->putJson('http://fashion-demo.localhost/api/checkout/state/shipping-option', [
-            'checkoutId' => $checkoutId,
-            'shippingOption' => 'standard',
-        ])
-        ->assertOk()
-        ->assertJsonPath('status', 'shipping_selected');
-
-    $this
-        ->putJson('http://fashion-demo.localhost/api/checkout/state/payment-method', [
-            'checkoutId' => $checkoutId,
-            'paymentMethod' => 'invoice',
-        ])
-        ->assertOk()
-        ->assertJsonPath('status', 'payment_selected')
-        ->assertJsonPath('nextActions.0', 'confirm_order');
+    $checkoutId = apiConfirmableCheckout();
 
     $idempotencyKey = checkoutTestNamespace('api-order-confirmation');
 
@@ -97,6 +63,81 @@ it('confirms an API checkout idempotently', function () {
     expect($first->json('orderRef'))->toBe($second->json('orderRef'))
         ->and(OrderRecord::query()->count())->toBe(1)
         ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(1);
+});
+
+it('rejects a repeated checkout confirmation with a different idempotency key', function () {
+    $checkoutId = apiConfirmableCheckout();
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $checkoutId,
+            'idempotencyKey' => checkoutTestNamespace('api-order-confirmation-first-key'),
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'confirmed');
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $checkoutId,
+            'idempotencyKey' => checkoutTestNamespace('api-order-confirmation-second-key'),
+        ])
+        ->assertConflict()
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJsonPath('type', 'https://checkout.example.test/problems/checkout-state-conflict')
+        ->assertJsonPath('status', 409)
+        ->assertJsonPath('tenant', 'fashion-store')
+        ->assertJsonPath('shop', 'fashion-main');
+
+    expect(OrderRecord::query()->count())->toBe(1)
+        ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(1);
+});
+
+it('rejects idempotency key reuse across different checkout confirmations', function () {
+    $firstCheckoutId = apiConfirmableCheckout();
+    $secondCheckoutId = apiConfirmableCheckout();
+    $idempotencyKey = checkoutTestNamespace('api-order-confirmation-shared-key');
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $firstCheckoutId,
+            'idempotencyKey' => $idempotencyKey,
+        ])
+        ->assertOk();
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $secondCheckoutId,
+            'idempotencyKey' => $idempotencyKey,
+        ])
+        ->assertConflict()
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJsonPath('type', 'https://checkout.example.test/problems/checkout-state-conflict')
+        ->assertJsonPath('status', 409)
+        ->assertJsonPath('tenant', 'fashion-store')
+        ->assertJsonPath('shop', 'fashion-main');
+
+    expect(OrderRecord::query()->count())->toBe(1)
+        ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(1);
+});
+
+it('returns Problem Details when confirming another tenant checkout state', function () {
+    $checkoutId = apiConfirmableCheckout(
+        tenantId: 'sports-outlet',
+        variantId: 'sports-variant-001-teal-one-size',
+        host: 'sports-demo.localhost',
+    );
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $checkoutId,
+            'idempotencyKey' => checkoutTestNamespace('api-order-confirmation-wrong-tenant'),
+        ])
+        ->assertNotFound()
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJsonPath('type', 'https://checkout.example.test/problems/checkout-state-not-found')
+        ->assertJsonPath('status', 404)
+        ->assertJsonPath('tenant', 'fashion-store')
+        ->assertJsonPath('shop', 'fashion-main');
 });
 
 it('updates basket item quantity and invalidates dependent selections', function () {
@@ -197,6 +238,8 @@ it('returns Problem Details for API validation failures', function () {
 
 function apiCheckoutCart(string $tenantId, string $variantId): CartRecord
 {
+    static $cartSequence = 0;
+
     $tenant = TenantRecord::query()
         ->where('tenant_id', $tenantId)
         ->firstOrFail();
@@ -208,7 +251,7 @@ function apiCheckoutCart(string $tenantId, string $variantId): CartRecord
     /** @var CartRecord $cart */
     $cart = CartRecord::query()->create([
         'tenant_record_id' => $tenant->id,
-        'cart_id' => checkoutTestNamespace($tenantId.'-'.$variantId),
+        'cart_id' => checkoutTestNamespace($tenantId.'-'.$variantId.'-'.(++$cartSequence)),
     ]);
 
     CartItemRecord::query()->create([
@@ -218,4 +261,49 @@ function apiCheckoutCart(string $tenantId, string $variantId): CartRecord
     ]);
 
     return $cart;
+}
+
+function apiConfirmableCheckout(
+    string $variantId = 'fashion-variant-001-purple-s',
+    string $tenantId = 'fashion-store',
+    string $host = 'fashion-demo.localhost',
+): string {
+    $cart = apiCheckoutCart($tenantId, $variantId);
+    $baseUrl = 'http://'.$host;
+    $checkoutId = test()
+        ->putJson($baseUrl.'/api/checkout/state', ['cartId' => $cart->cart_id])
+        ->json('checkoutId');
+
+    test()
+        ->putJson($baseUrl.'/api/checkout/state/address', [
+            'checkoutId' => $checkoutId,
+            'shippingAddress' => [
+                'name' => 'API Shopper',
+                'line1' => 'API Street 1',
+                'postalCode' => '10115',
+                'city' => 'Berlin',
+                'country' => 'DE',
+            ],
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'addressed');
+
+    test()
+        ->putJson($baseUrl.'/api/checkout/state/shipping-option', [
+            'checkoutId' => $checkoutId,
+            'shippingOption' => 'standard',
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'shipping_selected');
+
+    test()
+        ->putJson($baseUrl.'/api/checkout/state/payment-method', [
+            'checkoutId' => $checkoutId,
+            'paymentMethod' => 'invoice',
+        ])
+        ->assertOk()
+        ->assertJsonPath('status', 'payment_selected')
+        ->assertJsonPath('nextActions.0', 'confirm_order');
+
+    return (string) $checkoutId;
 }

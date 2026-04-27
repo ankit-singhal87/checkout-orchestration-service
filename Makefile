@@ -7,6 +7,7 @@ help:
 	@printf '%s\n' '  make up                       Start default local services'
 	@printf '%s\n' '  make up-app                   Start Nginx/PHP-FPM checkout app over HTTP'
 	@printf '%s\n' '  make up-roadrunner            Start optional RoadRunner performance profile'
+	@printf '%s\n' '  make up-outbox-worker         Start checkout app plus outbox worker'
 	@printf '%s\n' '  make up-parity                Start Caddy HTTPS/H1/H2/H3 edge path'
 	@printf '%s\n' '  make up-search                Start search profile services'
 	@printf '%s\n' '  make up-observability         Start observability profile services'
@@ -42,6 +43,10 @@ up-app:
 .PHONY: up-roadrunner
 up-roadrunner:
 	COMPOSE_PROFILES=performance docker compose up -d checkout-roadrunner
+
+.PHONY: up-outbox-worker
+up-outbox-worker:
+	COMPOSE_PROFILES=app,worker sh scripts/dev/up.sh
 
 .PHONY: up-parity
 up-parity:
