@@ -2,18 +2,13 @@
 
 ## Purpose
 
-This is the human-facing entrypoint for the checkout orchestration service. It is
-written for reviewers who need a concise view of what the project is, what works
-today, which decisions matter, and where the gaps are.
+This is the human-facing entrypoint for the checkout orchestration service. It is written for reviewers who need a concise view of what the project is, what works today, which decisions matter, and where the gaps are.
 
 ## Status
 
-The project is a work-in-progress, independent, vendor-neutral checkout
-orchestration proof of concept for a generic headless-commerce platform. It is
-not suitable for production use.
+The project is a work-in-progress, independent, vendor-neutral checkout orchestration proof of concept for a generic headless-commerce platform. It is not suitable for production use.
 
-Local development is the primary mode. AWS-oriented deployment planning exists,
-but cloud deployment remains optional and manually approved.
+Local development is the primary mode. AWS-oriented deployment planning exists, but cloud deployment remains optional and manually approved.
 
 ## Key points
 
@@ -50,7 +45,4 @@ but cloud deployment remains optional and manually approved.
 
 ## Where to go from here
 
-Read the [reviewer guide](reviewer-guide.md), then jump to the
-[architecture summary](architecture.md) or
-[tradeoff summary](tradeoff-summary.md) depending on whether you want system
-shape or decision rationale first.
+Read the [reviewer guide](reviewer-guide.md), then jump to the [architecture summary](architecture.md) or [tradeoff summary](tradeoff-summary.md) depending on whether you want system shape or decision rationale first.

@@ -6,20 +6,15 @@ This guide gives an external reviewer a compact path through the repository with
 
 ## Status
 
-The project is a work-in-progress architecture proof of concept for a
-multi-tenant commerce checkout platform. It currently demonstrates a local
-Laravel checkout path, runtime profiles, CI checks, and documented architecture
-tradeoffs. It is not suitable for production use.
+The project is a work-in-progress architecture proof of concept for a multi-tenant commerce checkout platform. It currently demonstrates a local Laravel checkout path, runtime profiles, CI checks, and documented architecture tradeoffs. It is not suitable for production use.
 
 ## Key points
 
-- Main point: the repository is a reviewable checkout orchestration demo with
-  explicit boundaries, tests, ADRs, and known gaps.
+- Main point: the repository is a reviewable checkout orchestration demo with explicit boundaries, tests, ADRs, and known gaps.
 - Default local runtime is Laravel behind Nginx/PHP-FPM over HTTP.
 - Optional profiles cover RoadRunner/Octane runtime smoke checks and Caddy HTTPS/H1/H2/H3 edge smoke checks.
 - Order confirmation uses MySQL transactions, idempotency, and a transactional outbox row.
-- Redis Streams publication and a local order processor path exist for demos;
-  production-grade delivery remains future work.
+- Redis Streams publication and a local order processor path exist for demos; production-grade delivery remains future work.
 
 ## Details
 
@@ -29,8 +24,7 @@ tradeoffs. It is not suitable for production use.
 2. Skim the [architecture summary](architecture.md).
 3. Review the [Laravel boundary decision](adr/0006-laravel-clean-boundaries.md).
 4. Review the [RDS MySQL decision](adr/0007-production-database-rds-mysql.md).
-5. Inspect the
-   [checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php).
+5. Inspect the [checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php).
 6. Skim the [local command entrypoints](../../Makefile).
 
 ### 30-minute review path
@@ -57,11 +51,7 @@ tradeoffs. It is not suitable for production use.
 
 ### Suggested demo narrative
 
-Start with the project status in the root overview. Show the default local
-runtime, then walk through a tenant checkout. Use the checkout manager to explain
-the transaction boundary, then show the outbox publisher and worker command as
-the async path. Close with tradeoffs and known gaps so the review stays
-grounded.
+Start with the project status in the root overview. Show the default local runtime, then walk through a tenant checkout. Use the checkout manager to explain the transaction boundary, then show the outbox publisher and worker command as the async path. Close with tradeoffs and known gaps so the review stays grounded.
 
 ### What not to review deeply
 
@@ -72,10 +62,7 @@ grounded.
 
 ### How to interpret AI-agent-assisted work
 
-Treat the repository like any other codebase: review source, tests, ADRs, and
-validation evidence. The relevant human signal is whether the architecture is
-coherent, the boundaries are explicit, the implementation matches the claims,
-and known gaps are stated plainly.
+Treat the repository like any other codebase: review source, tests, ADRs, and validation evidence. The relevant human signal is whether the architecture is coherent, the boundaries are explicit, the implementation matches the claims, and known gaps are stated plainly.
 
 ## Current limitations
 
@@ -84,8 +71,7 @@ and known gaps are stated plainly.
 - Identity integration is not active in the checkout path.
 - AWS deployment and production image hardening remain future work.
 - HTTP/3 coverage is an edge smoke check, not a full application protocol matrix.
-- Broad commerce API features such as vouchers, collection points, loyalty,
-  address book, and full customer account flows are deferred.
+- Broad commerce API features such as vouchers, collection points, loyalty, address book, and full customer account flows are deferred.
 - OpenSearch/search projections are not transactional checkout infrastructure.
 
 ## Source anchors
@@ -101,6 +87,4 @@ and known gaps are stated plainly.
 
 ## Where to go from here
 
-Use the [architecture summary](architecture.md) for system shape, the
-[tradeoff summary](tradeoff-summary.md) for decision rationale, and the
-[known gaps](known-gaps.md) before drawing conclusions about maturity.
+Use the [architecture summary](architecture.md) for system shape, the [tradeoff summary](tradeoff-summary.md) for decision rationale, and the [known gaps](known-gaps.md) before drawing conclusions about maturity.

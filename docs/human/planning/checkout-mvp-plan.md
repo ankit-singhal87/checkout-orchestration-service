@@ -104,8 +104,6 @@ flowchart LR
   EKS --> CloudFront[CloudFrontAndWAF]
 ```
 
-
-
 ## Domain-Driven Design Boundaries
 
 Use DDD to keep the codebase understandable even when everything starts inside one Laravel app.
@@ -154,8 +152,6 @@ flowchart LR
   CheckoutApi --> Search[(OpenSearchOrElastic)]
   CheckoutApi --> Observability[OTelLogsMetricsTraces]
 ```
-
-
 
 Candidate public API shape:
 
