@@ -35,10 +35,11 @@ Recipe-generated planning artifacts may use upstream-standard paths:
 Use those paths for draft or recipe-native artifacts. Move durable repository
 policy into existing repo-owned docs when it becomes authoritative:
 
-- Architecture and ADR narrative: `docs/human`
+- Architecture, ADR narrative, runbooks, status, and roadmap: `wiki`
 - Agent operations: `docs/agent`
 - Compact cross-session handoff: `docs/agent/context-handoff.md`
-- Public contracts: `docs/agent/contracts` and `docs/agent/api`
+- Public contracts: `docs/contracts` and `docs/api`
+- Implementation standards: `docs/standards`
 
 ## Unattended Development
 

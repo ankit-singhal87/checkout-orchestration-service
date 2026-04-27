@@ -40,18 +40,18 @@ Create a single monorepo with clear service boundaries, free local execution, an
 
 Proposed structure:
 
-- [apps/checkout](../../../apps/checkout) - Laravel PHP app served by Nginx/PHP-FPM in the default local path and optionally by RoadRunner/Octane in the performance profile, containing the Blade checkout UI, public checkout API, application services, Eloquent models, and checkout domain orchestration.
-- [services/inventory-service](../../../services/inventory-service) - optional Go gRPC service for stock reservation/release once the Laravel happy path is stable.
-- [workers/order-processor](../../../workers/order-processor) - selected Go worker for async order side effects, payment settlement simulation, search indexing, analytics, and notification events.
-- [workers/outbox-publisher](../../../workers/outbox-publisher) - Go or Laravel worker that publishes committed outbox events to Redis Streams locally or SQS/SNS in deploy mode.
-- [proto](../../../proto) - shared gRPC contracts.
-- [seed](../../../seed) - deterministic tenant, catalog, product image, variation, cart, and checkout seed data.
-- [infra/terraform](../../../infra/terraform) - optional HashiCorp Terraform for VPC, EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch/Elastic option, IAM, budgets, and a selected observability exporter.
-- [infra/k8s](../../../infra/k8s) - Kubernetes manifests or Helm-style overlays for local Kubernetes and optional EKS deployment.
-- [docker](../../../docker) - Dockerfiles and local development images.
-- [.gitlab-ci.yml](../../../.gitlab-ci.yml) - primary GitLab CI/CD pipeline for lint, test, build, scan, images, preview/demo checks, and optional deploy.
-- [.github/workflows](../../../.github/workflows) - optional mirror validation only.
-- [docs](../../) - architecture decision records, runbooks, diagrams, and agent handoff docs.
+- [apps/checkout](../../apps/checkout) - Laravel PHP app served by Nginx/PHP-FPM in the default local path and optionally by RoadRunner/Octane in the performance profile, containing the Blade checkout UI, public checkout API, application services, Eloquent models, and checkout domain orchestration.
+- [services/inventory-service](../../services/inventory-service) - optional Go gRPC service for stock reservation/release once the Laravel happy path is stable.
+- [workers/order-processor](../../workers/order-processor) - selected Go worker for async order side effects, payment settlement simulation, search indexing, analytics, and notification events.
+- [workers/outbox-publisher](../../workers/outbox-publisher) - Go or Laravel worker that publishes committed outbox events to Redis Streams locally or SQS/SNS in deploy mode.
+- [proto](../../proto) - shared gRPC contracts.
+- [seed](../../seed) - deterministic tenant, catalog, product image, variation, cart, and checkout seed data.
+- [infra/terraform](../../infra/terraform) - optional HashiCorp Terraform for VPC, EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch/Elastic option, IAM, budgets, and a selected observability exporter.
+- [infra/k8s](../../infra/k8s) - Kubernetes manifests or Helm-style overlays for local Kubernetes and optional EKS deployment.
+- [docker](../../docker) - Dockerfiles and local development images.
+- [.gitlab-ci.yml](../../.gitlab-ci.yml) - primary GitLab CI/CD pipeline for lint, test, build, scan, images, preview/demo checks, and optional deploy.
+- [.github/workflows](../../.github/workflows) - optional mirror validation only.
+- [docs](../../docs) and [wiki](../README.md) - artifacts, contracts, runbooks, diagrams, and agent handoff docs.
 
 ## Documentation Model
 
@@ -64,7 +64,7 @@ C4 deliverables:
 - Component Diagrams: checkout orchestration components, tenant resolution, cart/checkout/order contexts, outbox publisher, observability adapters, Problem Details adapter, cache/rate-limit/idempotency adapters.
 - Code Diagrams: only for high-value areas such as checkout state machine, order confirmation transaction, inventory reservation, and outbox publishing.
 
-Keep C4 diagrams in [docs/human/architecture](../architecture) and use them alongside ADRs. Prefer diagrams that clarify service boundaries and data flow rather than documenting every class.
+Keep C4 diagrams in [wiki/architecture](../architecture) and use them alongside ADRs. Prefer diagrams that clarify service boundaries and data flow rather than documenting every class.
 
 ## Execution Modes
 
@@ -473,7 +473,7 @@ Example cart summary fields:
 
 Default MVP recommendation: use local OpenSearch for the free demo, then support AWS OpenSearch first through Terraform when an AWS account exists. This keeps infrastructure under AWS/EKS/IAM networking, simplifies private access from EKS, and avoids cross-vendor operational setup for the first cloud milestone.
 
-Document Elastic Cloud as an alternative in [docs/human/adr/search-platform.md](../adr/search-platform.md):
+Document Elastic Cloud as an alternative in [wiki/adr/search-platform.md](../adr/search-platform.md):
 
 - AWS OpenSearch benefits: native AWS IAM/VPC integration, simpler Terraform ownership, lower vendor sprawl, easier private networking from EKS.
 - AWS OpenSearch risks: version/API drift from Elastic, fewer Elastic-native features, licensing/plugin differences.
@@ -525,7 +525,7 @@ Primary hosting and CI:
 - GitLab is the write target, review target, and CI/CD host.
 - GitHub is a GitLab-fed portfolio mirror only.
 - Merge requests and merges are manual GitLab steps.
-- Keep shared CI scripts under [scripts/ci](../../../scripts/ci).
+- Keep shared CI scripts under [scripts/ci](../../scripts/ci).
 
 ## Delivery Roles
 
@@ -567,13 +567,13 @@ Repository and branch setup:
 
 Initial files and agent guidance:
 
-- Add [AGENTS.md](../../../AGENTS.md) with project rules for AI agents: scope boundaries, no secret commits, GitLab primary/GitHub mirror, Laravel-first principle, Go extraction rules, testing expectations, and plan adherence.
-- Add [README.md](../../../README.md) with project purpose, local/dev mode, deploy mode, quickstart placeholder, and architecture summary.
-- Add [docs/human/phase-0-risk-register.md](../phase-0-risk-register.md).
+- Add [AGENTS.md](../../AGENTS.md) with project rules for AI agents: scope boundaries, no secret commits, GitLab primary/GitHub mirror, Laravel-first principle, Go extraction rules, testing expectations, and plan adherence.
+- Add [README.md](../../README.md) with project purpose, local/dev mode, deploy mode, quickstart placeholder, and architecture summary.
+- Add [wiki/status/phase-0-risk-register.md](../status/phase-0-risk-register.md).
 - Add AI-tooling guidance for local contributors.
-- Add [docs/human/architecture](../architecture) C4 skeleton.
-- Add [docs/human/adr](../adr) with ADR index and initial ADRs.
-- Add [scripts/ci](../../../scripts/ci) placeholders for shared CI commands.
+- Add [wiki/architecture](../architecture) C4 skeleton.
+- Add [wiki/adr](../adr) with ADR index and initial ADRs.
+- Add [scripts/ci](../../scripts/ci) placeholders for shared CI commands.
 
 Local tools and debugging setup:
 
@@ -581,7 +581,7 @@ Local tools and debugging setup:
 - Add `.editorconfig`, `.gitignore`, and local `.env.example` files.
 - Add `docker-compose.yml` skeleton for Laravel through Nginx/PHP-FPM, optional RoadRunner/Octane performance profile, MySQL, Redis, OpenSearch, and optional observability profile services.
 - Add debugging guidance for Laravel logs, RoadRunner worker reloads, Xdebug optional use, Go debugger optional use, database inspection, Redis inspection, and trace lookup.
-- Add preflight script placeholders such as [scripts/dev/check-tools.sh](../../../scripts/dev/check-tools.sh), [scripts/dev/up.sh](../../../scripts/dev/up.sh), and [scripts/dev/down.sh](../../../scripts/dev/down.sh).
+- Add preflight script placeholders such as [scripts/dev/check-tools.sh](../../scripts/dev/check-tools.sh), [scripts/dev/up.sh](../../scripts/dev/up.sh), and [scripts/dev/down.sh](../../scripts/dev/down.sh).
 
 Main risks:
 
@@ -628,7 +628,7 @@ Phase 0: Scaffolding, risk, and tooling setup
 - Create the public GitLab repository as primary and the public GitHub repository as a read-only mirror fed by GitLab.
 - Use `cursor-dev-agent-git` only for local Git HTTPS access to GitLab; do not reuse it for CI, registry, API automation, or deploys.
 - Protect `main` and define short-lived branch naming: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
-- Create initial docs-only commit with [README.md](../../../README.md), [AGENTS.md](../../../AGENTS.md), C4 docs skeleton, ADR skeleton, risk register, AI tooling notes, [.gitignore](../../../.gitignore), [.editorconfig](../../../.editorconfig), and `.env.example`.
+- Create initial docs-only commit with [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), C4 docs skeleton, ADR skeleton, risk register, AI tooling notes, [.gitignore](../../.gitignore), [.editorconfig](../../.editorconfig), and `.env.example`.
 - Add GitLab CI/CD skeleton and optional GitHub mirror validation.
 - Add local toolchain/debugging docs and script placeholders.
 - Confirm local-only first milestone, Laravel-first principle, GitLab primary CI, GitLab-managed GitHub mirror, OpenTelemetry/OTLP-first observability, and optional AWS deploy mode.
@@ -636,7 +636,7 @@ Phase 0: Scaffolding, risk, and tooling setup
 Phase 1: Repository foundation and contracts
 
 - Create monorepo layout, shared documentation, Docker Compose, proto contracts, and service READMEs.
-- Add C4 documentation skeleton under [docs/human/architecture](../architecture).
+- Add C4 documentation skeleton under [wiki/architecture](../architecture).
 - Define named delivery roles with ownership boundaries and collaboration rules.
 - Define host tool requirements: Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
 - Keep MySQL, Redis, OpenSearch, and optional Keycloak container-managed with named volumes for persistent local data. Observability containers are optional profiles.
@@ -646,7 +646,7 @@ Phase 1: Repository foundation and contracts
 - Build the first Laravel + Blade MVVM-style UI for two tenants with seeded product listing, product detail, cart, checkout, and confirmation screens.
 - Keep checkout orchestration and business flow in Laravel/PHP for Phase 1.
 - Keep checkout usable without login. Add optional login/signup entry points and post-checkout account creation prompt only.
-- Add primary [.gitlab-ci.yml](../../../.gitlab-ci.yml) skeleton for lint/test/build and optional GitHub mirror validation.
+- Add primary [.gitlab-ci.yml](../../.gitlab-ci.yml) skeleton for lint/test/build and optional GitHub mirror validation.
 
 Phase 2: Local runnable checkout path - closed baseline
 

@@ -121,9 +121,9 @@ Local async transport uses Redis Streams. Deploy messaging is planned as an AWS 
 - [Checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php)
 - [Outbox publisher command](../../apps/checkout/app/Console/Commands/PublishOutboxEvents.php)
 - [Order processor command](../../apps/checkout/app/Console/Commands/ConsumeOrderConfirmedEvents.php)
-- [Laravel boundary decision](adr/0006-laravel-clean-boundaries.md)
-- [RDS MySQL decision](adr/0007-production-database-rds-mysql.md)
+- [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md)
+- [RDS MySQL decision](../adr/0007-production-database-rds-mysql.md)
 
 ## Where to go from here
 
-Read the [tradeoff summary](tradeoff-summary.md) to understand why these boundaries were chosen, then read [known gaps](known-gaps.md) before reviewing the older [C4 supporting views](architecture/README.md).
+Read the [tradeoff summary](../review/tradeoff-summary.md) to understand why these boundaries were chosen, then read [known gaps](../status/known-gaps.md) before reviewing the older [C4 supporting views](README.md).

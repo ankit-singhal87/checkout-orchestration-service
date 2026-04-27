@@ -21,9 +21,9 @@ The project is a work-in-progress architecture proof of concept for a multi-tena
 ### 10-minute review path
 
 1. Read the [project overview](../../README.md).
-2. Skim the [architecture summary](architecture.md).
-3. Review the [Laravel boundary decision](adr/0006-laravel-clean-boundaries.md).
-4. Review the [RDS MySQL decision](adr/0007-production-database-rds-mysql.md).
+2. Skim the [architecture summary](../architecture/summary.md).
+3. Review the [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md).
+4. Review the [RDS MySQL decision](../adr/0007-production-database-rds-mysql.md).
 5. Inspect the [checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php).
 6. Skim the [local command entrypoints](../../Makefile).
 
@@ -31,11 +31,11 @@ The project is a work-in-progress architecture proof of concept for a multi-tena
 
 1. Follow the 10-minute path.
 2. Read the [tradeoff summary](tradeoff-summary.md).
-3. Read the [known gaps](known-gaps.md).
+3. Read the [known gaps](../status/known-gaps.md).
 4. Inspect the [edge parity smoke check](../../scripts/test/checkout-parity.sh).
 5. Inspect the [outbox publisher command](../../apps/checkout/app/Console/Commands/PublishOutboxEvents.php).
 6. Inspect the [order processor command](../../apps/checkout/app/Console/Commands/ConsumeOrderConfirmedEvents.php).
-7. Skim the [older C4 supporting views](architecture/README.md) only where more diagram evidence helps.
+7. Skim the [older C4 supporting views](../architecture/README.md) only where more diagram evidence helps.
 
 ### What works today
 
@@ -77,9 +77,9 @@ Treat the repository like any other codebase: review source, tests, ADRs, and va
 ## Source anchors
 
 - [Project overview](../../README.md)
-- [Architecture summary](architecture.md)
+- [Architecture summary](../architecture/summary.md)
 - [Tradeoff summary](tradeoff-summary.md)
-- [Known gaps](known-gaps.md)
+- [Known gaps](../status/known-gaps.md)
 - [Checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php)
 - [Web checkout routes](../../apps/checkout/routes/web.php)
 - [Public checkout API routes](../../apps/checkout/routes/api.php)
@@ -87,4 +87,4 @@ Treat the repository like any other codebase: review source, tests, ADRs, and va
 
 ## Where to go from here
 
-Use the [architecture summary](architecture.md) for system shape, the [tradeoff summary](tradeoff-summary.md) for decision rationale, and the [known gaps](known-gaps.md) before drawing conclusions about maturity.
+Use the [architecture summary](../architecture/summary.md) for system shape, the [tradeoff summary](tradeoff-summary.md) for decision rationale, and the [known gaps](../status/known-gaps.md) before drawing conclusions about maturity.

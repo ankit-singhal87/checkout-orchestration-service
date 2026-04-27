@@ -9,7 +9,7 @@ Seed data should make the demo feel realistic while staying deterministic and sa
 
 ## Fixture Source
 
-Seed source files live under [seed/fixtures](../../../seed/fixtures) and are treated as deterministic inputs for Laravel seeders, tests, screenshots, and demos. Generated database rows, OpenSearch documents, Redis cache entries, and uploaded/static derivatives are rebuildable outputs.
+Seed source files live under [seed/fixtures](../../seed/fixtures) and are treated as deterministic inputs for Laravel seeders, tests, screenshots, and demos. Generated database rows, OpenSearch documents, Redis cache entries, and uploaded/static derivatives are rebuildable outputs.
 
 Fixture IDs should be stable, human-readable, and tenant-prefixed where useful:
 
