@@ -8,6 +8,7 @@ help:
 	@printf '%s\n' '  make up-app                   Start Nginx/PHP-FPM checkout app over HTTP'
 	@printf '%s\n' '  make up-roadrunner            Start optional RoadRunner performance profile'
 	@printf '%s\n' '  make up-outbox-worker         Start checkout app plus outbox worker'
+	@printf '%s\n' '  make up-order-processor       Start order processor worker'
 	@printf '%s\n' '  make up-parity                Start Caddy HTTPS/H1/H2/H3 edge path'
 	@printf '%s\n' '  make up-search                Start search profile services'
 	@printf '%s\n' '  make up-observability         Start observability profile services'
@@ -18,6 +19,7 @@ help:
 	@printf '%s\n' '  make test-checkout            Run checkout app tests'
 	@printf '%s\n' '  make test-checkout-runtime    Smoke test RoadRunner HTTP runtime'
 	@printf '%s\n' '  make test-checkout-parity     Smoke test Caddy HTTPS/H1/H2/H3 edge path'
+	@printf '%s\n' '  make test-order-processor-runtime Smoke test order processor command registration'
 	@printf '%s\n' '  make validate                 Run scaffold and Phase 1 validation'
 	@printf '%s\n' '  make pre-push                 Run the repository pre-push checks'
 	@printf '%s\n' '  make pre-push-full            Run pre-push checks including checkout tests'
@@ -46,6 +48,10 @@ up-roadrunner:
 
 .PHONY: up-outbox-worker
 up-outbox-worker:
+	COMPOSE_PROFILES=app,worker sh scripts/dev/up.sh
+
+.PHONY: up-order-processor
+up-order-processor:
 	COMPOSE_PROFILES=app,worker sh scripts/dev/up.sh
 
 .PHONY: up-parity
@@ -87,6 +93,10 @@ test-checkout-runtime:
 .PHONY: test-checkout-parity
 test-checkout-parity:
 	sh scripts/test/checkout-parity.sh
+
+.PHONY: test-order-processor-runtime
+test-order-processor-runtime:
+	sh scripts/test/order-processor-runtime.sh
 
 .PHONY: test-markdown-links
 test-markdown-links:

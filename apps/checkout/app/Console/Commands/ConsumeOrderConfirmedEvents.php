@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Infrastructure\Persistence\Eloquent\OrderProcessorAuditEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorPoisonEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorProcessedEventRecord;
 use App\Infrastructure\Persistence\Eloquent\TenantRecord;
@@ -230,6 +231,24 @@ final class ConsumeOrderConfirmedEvents extends Command
                     'trace_id' => $fields['traceId'] ?? null,
                     'request_id' => $fields['requestId'] ?? null,
                     'processed_at' => now(),
+                    'payload' => $payload,
+                ]);
+
+                OrderProcessorAuditEventRecord::query()->create([
+                    'tenant_record_id' => $tenant->id,
+                    'processor_name' => self::PROCESSOR_NAME,
+                    'event_id' => $fields['eventId'],
+                    'event_type' => $fields['eventType'],
+                    'aggregate_type' => $fields['aggregateType'],
+                    'aggregate_id' => $fields['aggregateId'],
+                    'idempotency_key' => $fields['idempotencyKey'],
+                    'order_ref' => is_string($payload['orderRef'] ?? null)
+                        ? $payload['orderRef']
+                        : $fields['aggregateId'],
+                    'correlation_id' => $fields['correlationId'] ?? null,
+                    'trace_id' => $fields['traceId'] ?? null,
+                    'request_id' => $fields['requestId'] ?? null,
+                    'recorded_at' => now(),
                     'payload' => $payload,
                 ]);
             });
