@@ -13,6 +13,14 @@
 | `make codex-workflows-status` | Show installed `codex-workflows` version and managed file count. | cheap | no | no |
 | `make codex-workflows-update-dry-run` | Preview upstream `codex-workflows` managed-file updates. | cheap | no | no |
 | `make codex-workflows-update` | Update managed `.agents/skills` and `.codex/agents` files from the pinned npm package. | cheap | no | no |
+| `make test-markdown-style` | Run markdownlint over repository Markdown. | cheap | no | no |
+| `make test-openapi` | Lint the checkout OpenAPI contract. | cheap | no | no |
+| `make test-root-tools` | Run root npm-managed documentation, OpenAPI, and Codex workflow checks. | cheap | no | no |
+| `make tools-outdated` | Show available updates for root npm-managed tools. | cheap | no | yes |
+| `make tools-audit` | Audit root npm-managed tools for known vulnerabilities. | cheap | no | yes |
+| `npm run tools:check` | Run root npm-managed documentation, OpenAPI, and Codex workflow checks. | cheap | no | no |
+| `npm run tools:outdated` | Show available updates for root npm-managed tools. | cheap | no | yes |
+| `npm run tools:audit` | Audit root npm-managed tools for known vulnerabilities. | cheap | no | yes |
 | `sh scripts/test/checkout-app.sh` | Run checkout app Pest tests, using local PHP or checkout container fallback. | moderate | sometimes | no |
 | `cd apps/checkout && php artisan test --parallel --recreate-databases` | Run checkout tests directly when local PHP dependencies are available. | moderate | no | no |
 | `cd apps/checkout && composer validate` | Validate Composer metadata. | cheap | no | no |
@@ -29,3 +37,22 @@ Managed upstream files live under `.agents/skills` and `.codex/agents`, with
 hashes tracked in `.codex-workflows-manifest.json`. Prefer
 `make codex-workflows-update-dry-run` before applying updates so locally
 modified managed files are visible before the manifest changes.
+
+## Root NPM Policy
+
+Use the root `package.json` for repository-level tooling only:
+
+- Codex workflow tooling.
+- Markdown and documentation checks.
+- OpenAPI, schema, or generated-doc validation.
+- Other repeatable checks shared by multiple apps or services.
+
+Keep app-specific JavaScript dependencies in `apps/checkout/package.json`.
+Keep PHP and Laravel dependencies in `apps/checkout/composer.json`.
+
+Prefer pinned dev dependencies plus `npm run`, `npm exec`, or Make wrappers for
+repeatable workflows. Run `npm install` from the repository root to install the
+shared tools. Avoid floating `npx <tool>@latest` in documented commands
+because it is not reproducible. One-off `npx` use is acceptable for local
+investigation, but promote it to a pinned root dev dependency before making it
+part of validation, CI, or agent runbooks.

@@ -31,6 +31,11 @@ help:
 	@printf '%s\n' '  make codex-workflows-status   Show installed codex-workflows version'
 	@printf '%s\n' '  make codex-workflows-update-dry-run Preview managed workflow updates'
 	@printf '%s\n' '  make codex-workflows-update   Update managed codex-workflows files'
+	@printf '%s\n' '  make test-markdown-style      Run markdownlint over repo Markdown'
+	@printf '%s\n' '  make test-openapi             Lint the checkout OpenAPI contract'
+	@printf '%s\n' '  make test-root-tools          Run root npm-managed tool checks'
+	@printf '%s\n' '  make tools-audit              Audit root npm-managed tools'
+	@printf '%s\n' '  make tools-outdated           Show root npm-managed tool updates'
 	@printf '%s\n' '  make create-auto-merge-mr     Create GitLab MR with squash and auto-merge'
 	@printf '%s\n' '  make install-hooks            Install local Git hooks'
 
@@ -173,6 +178,26 @@ codex-workflows-update-dry-run:
 .PHONY: codex-workflows-update
 codex-workflows-update:
 	npm run codex-workflows:update
+
+.PHONY: test-markdown-style
+test-markdown-style:
+	npm run markdown:lint
+
+.PHONY: test-openapi
+test-openapi:
+	npm run openapi:lint
+
+.PHONY: test-root-tools
+test-root-tools:
+	npm run tools:check
+
+.PHONY: tools-audit
+tools-audit:
+	npm run tools:audit
+
+.PHONY: tools-outdated
+tools-outdated:
+	npm run tools:outdated
 
 .PHONY: create-auto-merge-mr
 create-auto-merge-mr:

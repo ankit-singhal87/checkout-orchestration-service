@@ -1,0 +1,16 @@
+{
+  "globs": [
+    "**/*.md",
+    "!node_modules/**",
+    "!.agents/**",
+    "!apps/checkout/LARAVEL.md",
+    "!apps/checkout/node_modules/**",
+    "!apps/checkout/vendor/**",
+    "!apps/checkout/storage/framework/views/**"
+  ],
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": false
+  }
+}

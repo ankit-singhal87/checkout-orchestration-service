@@ -6,6 +6,16 @@ info:
   description: >
     Phase 2 contract slice for a tenant-aware checkout demo. This is not a
     copy of any vendor OpenAPI document.
+  contact:
+    name: Checkout Orchestration maintainers
+    url: https://gitlab.com/ankit-labs/commerce-platform/checkout-orchestration-service
+tags:
+  - name: Checkout configuration
+    description: Public checkout configuration for the resolved tenant.
+  - name: Checkout state
+    description: Tenant-aware checkout state creation, reads, and mutations.
+  - name: Order confirmation
+    description: Idempotent checkout confirmation and conflict responses.
 servers:
   - url: http://localhost:8080
     description: Default local/TDD Nginx and PHP-FPM path.
@@ -15,7 +25,9 @@ paths:
   /api/checkout/config:
     get:
       summary: Get public checkout configuration
+      description: Return the public checkout settings available to the resolved tenant.
       operationId: getCheckoutConfig
+      tags: [Checkout configuration]
       responses:
         "200":
           description: Checkout configuration for the resolved tenant
@@ -26,7 +38,9 @@ paths:
   /api/checkout/state:
     put:
       summary: Create or resume checkout state
+      description: Create a checkout state or resume the current state for the idempotency key.
       operationId: putCheckoutState
+      tags: [Checkout state]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
@@ -38,7 +52,9 @@ paths:
                 $ref: "#/components/schemas/CheckoutState"
     get:
       summary: Get current checkout state
+      description: Return the current checkout state visible to the resolved tenant.
       operationId: getCheckoutState
+      tags: [Checkout state]
       responses:
         "200":
           description: Current checkout state
@@ -49,7 +65,9 @@ paths:
   /api/checkout/state/address:
     put:
       summary: Update checkout address
+      description: Update the checkout address and return the resulting checkout state.
       operationId: putCheckoutAddress
+      tags: [Checkout state]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
@@ -62,7 +80,9 @@ paths:
   /api/checkout/state/basket/items/{variantId}:
     put:
       summary: Update checkout basket item quantity
+      description: Set a checkout basket item quantity for the resolved tenant.
       operationId: putCheckoutBasketItem
+      tags: [Checkout state]
       parameters:
         - name: variantId
           in: path
@@ -101,7 +121,9 @@ paths:
   /api/checkout/state/shipping-option:
     put:
       summary: Select shipping option
+      description: Select the shipping option and return the resulting checkout state.
       operationId: putShippingOption
+      tags: [Checkout state]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
@@ -114,7 +136,9 @@ paths:
   /api/checkout/state/payment-method:
     put:
       summary: Select payment method
+      description: Select the payment method and return the resulting checkout state.
       operationId: putPaymentMethod
+      tags: [Checkout state]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
@@ -127,7 +151,9 @@ paths:
   /api/checkout/state/order-confirmation:
     post:
       summary: Confirm order
+      description: Confirm the checkout idempotently and return the order confirmation.
       operationId: postOrderConfirmation
+      tags: [Order confirmation]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:

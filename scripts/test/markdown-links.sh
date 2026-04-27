@@ -8,6 +8,8 @@ trap 'rm -f "$tmp_links" "$tmp_code_links" "$tmp_missing_links"' EXIT
 
 find . \
   -path './.git' -prune -o \
+  -path './.agents' -prune -o \
+  -path './node_modules' -prune -o \
   -path './apps/checkout/vendor' -prune -o \
   -path './apps/checkout/node_modules' -prune -o \
   -path './apps/checkout/storage/framework/views' -prune -o \
