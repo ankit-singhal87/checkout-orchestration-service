@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Infrastructure\Persistence\Eloquent\OrderProcessorAuditEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorPoisonEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorProcessedEventRecord;
 use Illuminate\Support\Facades\Redis;
@@ -51,8 +52,14 @@ it('processes an order confirmed stream envelope idempotently', function () {
         ->expectsOutput('Order processor consumed 2 message(s): 1 processed, 1 duplicate, 0 poisoned.')
         ->assertExitCode(0);
 
+    $auditProjection = OrderProcessorAuditEventRecord::query()->first();
+
     expect(OrderProcessorProcessedEventRecord::query()->count())->toBe(1)
         ->and(OrderProcessorProcessedEventRecord::query()->first()?->event_id)->toBe($fields['eventId'])
+        ->and(OrderProcessorAuditEventRecord::query()->count())->toBe(1)
+        ->and($auditProjection?->event_id)->toBe($fields['eventId'])
+        ->and($auditProjection?->idempotency_key)->toBe($fields['idempotencyKey'])
+        ->and($auditProjection?->order_ref)->toBe($fields['aggregateId'])
         ->and(OrderProcessorPoisonEventRecord::query()->count())->toBe(0);
 });
 
@@ -89,7 +96,9 @@ it('dedupes duplicate business idempotency keys across event ids', function () {
         ->assertExitCode(0);
 
     expect(OrderProcessorProcessedEventRecord::query()->count())->toBe(1)
-        ->and(OrderProcessorProcessedEventRecord::query()->first()?->event_id)->toBe($first['eventId']);
+        ->and(OrderProcessorProcessedEventRecord::query()->first()?->event_id)->toBe($first['eventId'])
+        ->and(OrderProcessorAuditEventRecord::query()->count())->toBe(1)
+        ->and(OrderProcessorAuditEventRecord::query()->first()?->event_id)->toBe($first['eventId']);
 });
 
 it('records and acknowledges poison envelopes explicitly', function () {
@@ -123,6 +132,7 @@ it('records and acknowledges poison envelopes explicitly', function () {
     $poison = OrderProcessorPoisonEventRecord::query()->first();
 
     expect(OrderProcessorProcessedEventRecord::query()->count())->toBe(0)
+        ->and(OrderProcessorAuditEventRecord::query()->count())->toBe(0)
         ->and($poison)->not->toBeNull()
         ->and($poison?->stream_message_id)->toBe('3-0')
         ->and($poison?->failure_reason)->toBe('Missing required envelope field [idempotencyKey].');
