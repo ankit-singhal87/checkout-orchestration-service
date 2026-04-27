@@ -13,7 +13,7 @@ See [DISCLAIMER.md](DISCLAIMER.md) for the full independent-project disclaimer.
 
 ## Quick Review
 
-Start with the [human reviewer guide](docs/human/reviewer-guide.md) for a 10-minute path through project status, architecture decisions, checkout orchestration, parity checks, and command entrypoints.
+Start with the [human reviewer guide](wiki/review/reviewer-guide.md) for a 10-minute path through project status, architecture decisions, checkout orchestration, parity checks, and command entrypoints.
 
 ## Quickstart
 
@@ -36,7 +36,7 @@ The default checkout app listens on `http://localhost:8080`. Tenant demo hosts i
 
 ## Documentation
 
-- [Human docs](docs/human/README.md) - reviewer-facing architecture, ADRs, and planning context.
+- [Human docs](wiki/README.md) - reviewer-facing architecture, ADRs, and planning context.
 - [Agent docs](docs/agent/README.md) - low-token operating context for AI coding agents.
 - [Documentation map](docs/README.md) - short audience-based index.
 

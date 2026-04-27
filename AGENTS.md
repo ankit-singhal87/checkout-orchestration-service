@@ -2,7 +2,7 @@
 
 Start with [docs/agent/README.md](docs/agent/README.md) for compact agent
 context. Use
-[docs/human/planning/checkout-mvp-plan.md](docs/human/planning/checkout-mvp-plan.md)
+[wiki/roadmap/checkout-mvp-plan.md](wiki/roadmap/checkout-mvp-plan.md)
 for long-form planning background unless the user explicitly changes direction.
 
 `codex-workflows` is installed as a repo-local Codex tooling layer under
@@ -90,7 +90,7 @@ authority when instructions differ.
 - Push only to GitLab `origin`.
 - Agents may create GitLab merge requests targeting `main` when the user asks
   and an approved tool/token is available. Do not merge automatically.
-- See [docs/agent/mirroring.md](docs/agent/mirroring.md) for the full workflow.
+- See [wiki/runbooks/repository-mirroring.md](wiki/runbooks/repository-mirroring.md) for the full workflow.
 
 ## Commit Messages
 
@@ -125,9 +125,9 @@ authority when instructions differ.
 ## Architecture Principles
 
 - Target PHP 8.5 for Laravel application code and follow
-  [docs/agent/coding-standards/php-8.5.md](docs/agent/coding-standards/php-8.5.md).
+  [docs/standards/php-8.5.md](docs/standards/php-8.5.md).
 - Keep the checkout app as a Laravel modular monolith with clean boundaries; see
-  [docs/human/adr/0006-laravel-clean-boundaries.md](docs/human/adr/0006-laravel-clean-boundaries.md).
+  [wiki/adr/0006-laravel-clean-boundaries.md](wiki/adr/0006-laravel-clean-boundaries.md).
 - Laravel/PHP owns checkout orchestration, Blade UI, public REST APIs,
   validation, persistence, and the first complete happy path.
 - Go is introduced only for selected processors or services with clear

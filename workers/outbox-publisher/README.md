@@ -33,7 +33,7 @@ That runtime is current scaffold and prior implementation baseline. The target a
 - Source: committed MySQL outbox rows.
 - Local stream: `checkout:events`.
 - Publisher identity: `checkout.outbox-publisher`.
-- Message body: the event envelope defined in [domain-events.md](../../docs/agent/contracts/domain-events.md).
+- Message body: the event envelope defined in [domain-events.md](../../docs/contracts/domain-events.md).
 - Ordering: preserve commit order per aggregate where feasible; never reorder events for the same aggregate intentionally.
 - Publish acknowledgement: mark `published_at` only after the transport write succeeds.
 

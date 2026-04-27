@@ -32,7 +32,7 @@ Customer profile management, shipment/carrier flows, loyalty, collection points,
 
 ## Incremental Backlog
 
-1. Freeze the Phase 3 event envelope, consumer group names, retry/poison rules, and idempotent processor contract in [domain-events.md](../contracts/domain-events.md).
+1. Freeze the Phase 3 event envelope, consumer group names, retry/poison rules, and idempotent processor contract in [domain-events.md](../../docs/contracts/domain-events.md).
 2. Add focused tests or smoke scripts that prove `order.confirmed` is published once and can be consumed idempotently.
 3. Add the local worker runtime around the existing Laravel/Redis Streams path with health checks and restart behavior.
 4. Implement the outbox publisher retry metadata and poison isolation without changing checkout response semantics.

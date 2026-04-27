@@ -69,13 +69,13 @@ The gaps above are intentional review boundaries. They should be read as impleme
 ## Source anchors
 
 - [Project overview](../../README.md)
-- [Architecture summary](architecture.md)
-- [Tradeoff summary](tradeoff-summary.md)
-- [MVP planning background](planning/checkout-mvp-plan.md)
+- [Architecture summary](../architecture/summary.md)
+- [Tradeoff summary](../review/tradeoff-summary.md)
+- [MVP planning background](../roadmap/checkout-mvp-plan.md)
 - [Risk register](phase-0-risk-register.md)
-- [Observability decision](adr/0003-observability-otel-first.md)
-- [Checkout MVP pivot](adr/0008-checkout-mvp-architecture-pivot.md)
+- [Observability decision](../adr/0003-observability-otel-first.md)
+- [Checkout MVP pivot](../adr/0008-checkout-mvp-architecture-pivot.md)
 
 ## Where to go from here
 
-Use the [architecture summary](architecture.md) to see current boundaries, the [tradeoff summary](tradeoff-summary.md) to understand decision rationale, and the [MVP planning background](planning/checkout-mvp-plan.md) for longer-term backlog context.
+Use the [architecture summary](../architecture/summary.md) to see current boundaries, the [tradeoff summary](../review/tradeoff-summary.md) to understand decision rationale, and the [MVP planning background](../roadmap/checkout-mvp-plan.md) for longer-term backlog context.

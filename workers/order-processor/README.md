@@ -29,7 +29,7 @@ The target architecture separates order placement from order confirmation:
 - Consumer group: `checkout.order-processor`.
 - Target event type: `order.placed`.
 - Scaffold event types: `order.confirmed`, `payment.capture.succeeded`, `payment.capture.failed`, and `order.confirmation.notification_requested`.
-- Required envelope fields are defined in [domain-events.md](../../docs/agent/contracts/domain-events.md).
+- Required envelope fields are defined in [domain-events.md](../../docs/contracts/domain-events.md).
 
 ## Processor Contract
 

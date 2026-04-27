@@ -44,4 +44,4 @@ Configuration path:
 - Agents may create GitLab merge requests targeting `main` when the user asks.
 - Merge requests should squash branch commits before merge and use a clean squash commit message.
 - Merge remains manual.
-- See [docs/agent/mirroring.md](mirroring.md).
+- See [repository-mirroring.md](repository-mirroring.md).

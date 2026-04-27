@@ -7,5 +7,6 @@
 - `docker/` - container build and runtime configuration.
 - `.gitlab-ci.yml` - primary CI pipeline definition.
 - `Makefile` - canonical local command entrypoint.
-- `docs/human` - reviewer-facing architecture, ADRs, risks, and planning.
-- `docs/agent` - agent operating context, contracts, standards, and workflow.
+- `wiki` - reviewer-facing status, architecture, ADRs, runbooks, and roadmap context.
+- `docs/agent` - compact agent operating context and workflow.
+- `docs/api`, `docs/contracts`, `docs/standards` - stable implementation artifacts.

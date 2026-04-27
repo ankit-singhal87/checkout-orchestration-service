@@ -81,7 +81,7 @@ The order processor runs `php artisan checkout:order-processor:consume` in the `
 
 Phase 3 worker evidence should show:
 
-- Envelope fields from [domain-events.md](contracts/domain-events.md), including event id, tenant, trace/request ids, correlation id, causation id, and idempotency key.
+- Envelope fields from [domain-events.md](../../docs/contracts/domain-events.md), including event id, tenant, trace/request ids, correlation id, causation id, and idempotency key.
 - Consumer group names such as `checkout.order-processor`, with inventory and payment simulator groups added by their lanes.
 - Duplicate delivery replaying safely without duplicate inventory, payment, notification, or audit side effects.
 - Poison-message isolation for invalid envelopes or exhausted retry attempts.

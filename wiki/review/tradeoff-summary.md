@@ -24,7 +24,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Self-managed MySQL in EKS.
 - Why: Managed database operations reduce scope and risk.
 - Consequence: EKS remains for application workloads; local/CI containers are substitutes only.
-- Detail: [RDS decision](adr/0007-production-database-rds-mysql.md).
+- Detail: [RDS decision](../adr/0007-production-database-rds-mysql.md).
 
 ### PHP-FPM baseline vs RoadRunner/Octane default
 
@@ -32,7 +32,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: RoadRunner/Octane as default.
 - Why: Familiar debugging and fast feedback are more valuable for the default loop.
 - Consequence: RoadRunner remains an explicit optional profile.
-- Detail: [Runtime summary](architecture.md).
+- Detail: [Runtime summary](../architecture/summary.md).
 
 ### HTTP local vs HTTPS everywhere
 
@@ -64,7 +64,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Exhaustive protocol matrix.
 - Why: The app does not terminate H3; Caddy edge negotiation is the relevant local signal.
 - Consequence: No claim of full HTTP/3 application coverage.
-- Detail: [Architecture summary](architecture.md).
+- Detail: [Architecture summary](../architecture/summary.md).
 
 ### Laravel modular monolith vs microservices
 
@@ -72,7 +72,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Split every domain into services early.
 - Why: A working checkout path needs cohesive transactions and simple local review.
 - Consequence: Service extraction waits for useful, measurable boundaries.
-- Detail: [Laravel boundary decision](adr/0006-laravel-clean-boundaries.md).
+- Detail: [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md).
 
 ### Transactional outbox/Redis Streams vs direct synchronous side effects
 
@@ -80,7 +80,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Synchronous downstream side effects in checkout confirmation.
 - Why: Order existence must depend on committed MySQL state, not async dependencies.
 - Consequence: Local demo delivery is retryable and idempotent; production-grade delivery is future work.
-- Detail: [Consistency decision](adr/0004-checkout-consistency-model.md).
+- Detail: [Consistency decision](../adr/0004-checkout-consistency-model.md).
 
 ### Agent-assisted implementation with human-readable docs/ADRs
 
@@ -88,7 +88,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Rely on agent notes as the main explanation.
 - Why: Reviewers need durable, concise project documentation.
 - Consequence: Agent operations stay out of the human review path.
-- Detail: [Human review docs](README.md).
+- Detail: [Human review docs](../README.md).
 
 ## Current limitations
 
@@ -98,12 +98,12 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 
 ## Source anchors
 
-- [Architecture summary](architecture.md)
-- [Known gaps](known-gaps.md)
-- [Architecture decisions](adr/README.md)
+- [Architecture summary](../architecture/summary.md)
+- [Known gaps](../status/known-gaps.md)
+- [Architecture decisions](../adr/README.md)
 - [Project overview](../../README.md)
 - [CI pipeline](../../.gitlab-ci.yml)
 
 ## Where to go from here
 
-Read the [architecture summary](architecture.md) for system shape, then use the [architecture decision records](adr/README.md) for deeper rationale and [known gaps](known-gaps.md) for current limitations.
+Read the [architecture summary](../architecture/summary.md) for system shape, then use the [architecture decision records](../adr/README.md) for deeper rationale and [known gaps](../status/known-gaps.md) for current limitations.

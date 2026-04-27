@@ -8,7 +8,7 @@ Shared contracts live here when a boundary is intentionally prepared outside the
 - Contracts are hand-authored for review and boundary discussion.
 - Do not generate proto code until the Go service implementation lane is approved.
 - Generation tooling, package layout, and CI checks must be approved before generated artifacts are added.
-- Prefer documenting expected request/response concepts in [docs/agent/contracts](../docs/agent/contracts) before adding `.proto` files.
+- Prefer documenting expected request/response concepts in [docs/contracts](../docs/contracts) before adding `.proto` files.
 - Use the Phase 3 event contracts and worker READMEs as the first boundary definition for inventory, order processing, audit, and projection behavior.
 - Customer, shipment, email, analytics, and search consumers are downstream of order confirmation and out of scope for this scaffold.
 
@@ -25,7 +25,7 @@ All commands must be idempotent for the same `tenant_id`, `order_id`, item snaps
 - [inventory/v1/inventory.proto](inventory/v1/inventory.proto) defines the tentative inventory reservation, materialization, and release service boundary.
 - [order/v1/order_events.proto](order/v1/order_events.proto) defines the tentative order placed and order confirmed event payloads.
 
-Event envelopes in [domain-events.md](../docs/agent/contracts/domain-events.md) remain the stable integration contract until generated tooling is approved.
+Event envelopes in [domain-events.md](../docs/contracts/domain-events.md) remain the stable integration contract until generated tooling is approved.
 
 ## Supersession Note
 

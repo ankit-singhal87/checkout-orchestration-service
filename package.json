@@ -8,7 +8,7 @@
     "codex-workflows:update": "codex-workflows update",
     "codex-workflows:update:dry-run": "codex-workflows update --dry-run",
     "markdown:lint": "markdownlint-cli2",
-    "openapi:lint": "spectral lint docs/agent/api/openapi.checkout.yaml",
+    "openapi:lint": "spectral lint docs/api/openapi.checkout.yaml",
     "tools:audit": "npm audit --omit=optional",
     "tools:check": "npm run markdown:lint && npm run openapi:lint && npm run codex-workflows:status",
     "tools:outdated": "npm outdated"
