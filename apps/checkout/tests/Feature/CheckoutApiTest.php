@@ -64,6 +64,16 @@ it('confirms an API checkout idempotently', function () {
     expect($first->json('orderRef'))->toBe($second->json('orderRef'))
         ->and(OrderRecord::query()->count())->toBe(1)
         ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(1);
+
+    $outbox = OutboxEventRecord::query()
+        ->where('event_type', 'order.confirmed')
+        ->firstOrFail();
+    $payload = $outbox->payload;
+
+    expect($payload['orderRef'])->toBe($first->json('orderRef'))
+        ->and($payload['correlationId'])->toBe($checkoutId)
+        ->and($payload['causationId'])->toBe('checkout.confirmation:'.$checkoutId)
+        ->and($payload['idempotencyKey'])->toBe('fashion-store:order.confirmed:'.$idempotencyKey);
 });
 
 it('rejects a repeated checkout confirmation with a different idempotency key', function () {

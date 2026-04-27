@@ -248,13 +248,7 @@ final readonly class CheckoutManager
                 'event_type' => 'order.confirmed',
                 'aggregate_type' => 'order',
                 'aggregate_id' => $order->order_ref,
-                'payload' => [
-                    'orderRef' => $order->order_ref,
-                    'tenant' => $tenant->tenantId,
-                    'shop' => $tenant->shopId,
-                    'total' => $order->total_amount,
-                    'currency' => $order->total_currency,
-                ],
+                'payload' => $this->orderConfirmedPayload($tenant, $checkout, $order, $idempotencyKey),
             ]);
 
             return ConfirmCheckoutResult::confirmed($order);
@@ -331,5 +325,28 @@ final readonly class CheckoutManager
         }
 
         return $items;
+    }
+
+    /**
+     * Build the schema-versioned order.confirmed payload and envelope context.
+     *
+     * @return array<string, mixed>
+     */
+    private function orderConfirmedPayload(
+        TenantContext $tenant,
+        CheckoutStateRecord $checkout,
+        OrderRecord $order,
+        string $idempotencyKey,
+    ): array {
+        return [
+            'orderRef' => $order->order_ref,
+            'tenant' => $tenant->tenantId,
+            'shop' => $tenant->shopId,
+            'total' => $order->total_amount,
+            'currency' => $order->total_currency,
+            'correlationId' => $checkout->checkout_id,
+            'causationId' => 'checkout.confirmation:'.$checkout->checkout_id,
+            'idempotencyKey' => $tenant->tenantId.':order.confirmed:'.$idempotencyKey,
+        ];
     }
 }
