@@ -2,20 +2,25 @@
 
 Shared gRPC contracts live here when a boundary is intentionally extracted from Laravel.
 
-## Phase 3 Scope
+## MVP Scope
 
-- Keep this directory as a contract placeholder.
-- Do not generate proto code until a real service boundary is approved.
+- Keep this directory as a contract placeholder for the Go inventory service boundary.
+- Do not generate proto code until the Go service implementation lane is approved.
 - Prefer documenting expected request/response concepts in [docs/agent/contracts](../docs/agent/contracts) before adding `.proto` files.
-- Use the Phase 3 event contracts and worker READMEs as the first boundary definition for inventory, payment, order processing, audit, and projection behavior.
+- Use the Phase 3 event contracts and worker READMEs as the first boundary definition for inventory, order processing, audit, and projection behavior.
 
-## Extraction Criteria
+## Supersession Note
 
-Add `.proto` contracts only after:
+The earlier Laravel/local worker contract is current scaffold and prior implementation baseline. It is superseded as the target architecture by the MVP service boundary: Laravel places orders and publishes `order.placed`; the Go inventory service owns reservation/materialization; the Go order preprocessor confirms orders and publishes `order.confirmed`.
 
-- The Laravel/local worker contract is implemented and replay-safe.
-- The candidate boundary has measured concurrency, async throughput, or latency pressure.
-- Tenant scoping, idempotency keys, retry/poison behavior, and simulator determinism are already documented.
-- A worker lane is explicitly assigned to create the proto contract and generated code policy.
+## Inventory Contract Shape
 
-Until then, event envelopes in [domain-events.md](../docs/agent/contracts/domain-events.md) are the stable integration contract.
+The first gRPC boundary is inventory reservation and materialization:
+
+- `Reserve(order_id, tenant_id, items)` creates or refreshes a tenant-scoped reservation for an order placement.
+- `Materialize(order_id)` converts a valid reservation into committed inventory movement during order confirmation.
+- `Release(order_id)` releases an unused or failed reservation.
+
+All commands must be idempotent for the same `tenant_id`, `order_id`, item snapshot, and idempotency context. Reservations require a TTL so abandoned order placements do not hold stock forever.
+
+Until `.proto` files are committed, event envelopes in [domain-events.md](../docs/agent/contracts/domain-events.md) are the stable integration contract.

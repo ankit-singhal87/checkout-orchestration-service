@@ -1,29 +1,40 @@
 # Inventory Service
 
-Placeholder for a future Go gRPC service that may own stock reservation and release after the Laravel happy path is working.
+Placeholder for the Go gRPC service that owns tenant-scoped stock reservation, materialization, release, and recovery.
 
-## Phase 3 Scope
+## MVP Scope
 
-- Document the likely boundary and contract shape.
-- Avoid implementation until there is a measured concurrency, async, or latency reason to extract from Laravel.
-- Start as a deterministic local processor or Laravel-owned module before any separate service runtime.
+- Document the boundary and contract shape for a Go inventory service.
+- Own inventory reservation and materialization outside Laravel.
+- Keep local/dev behavior deterministic and tenant-scoped.
+- Preserve the current Laravel simulator only as scaffold while the service boundary is introduced.
 
-## Initial Boundary
+## Supersession Note
 
-Laravel remains the source of checkout orchestration. If this service is introduced later, it should expose tenant-scoped reservation commands and deterministic release behavior, while MySQL-backed checkout/order state remains the customer-facing source of truth.
+Earlier docs described inventory as a future extraction after the Laravel happy path. That remains useful implementation history, but it is not the target architecture. The target MVP boundary is:
 
-## Simulator Contract
+- Laravel owns checkout FE/BFF, cart state, tenant validation, data collection, and fast order placement.
+- Go inventory service owns reservation, materialization, release, idempotency, and inventory failure recovery.
+- Go order preprocessor consumes `order.placed`, materializes the reservation, persists the durable order outcome, and emits `order.confirmed`.
 
-- Current local owner: Laravel checkout confirmation reserves inventory synchronously before `orders` and `order.confirmed` are written.
-- Input events after extraction: `order.confirmed` or `inventory.reservation.requested`.
-- Consumer group: `checkout.inventory-reservations`.
-- Output events: `inventory.reservation.succeeded` or `inventory.reservation.failed`.
-- Reservation idempotency key: tenant, order id, SKU, quantity, and order confirmation idempotency key.
-- Reservation outcomes must be deterministic from tenant-scoped fixture stock, SKU, quantity, and idempotency key.
-- Local reservation behavior locks tenant-owned product variants, fails closed for cross-tenant or missing variants, and decrements `stock_available` only when every requested quantity can be satisfied.
-- Failures such as insufficient stock are business outcomes, not transport poison messages.
-- Invalid schema, missing tenant, unsafe payload, or impossible cross-tenant reference is poison-message behavior.
+## Service Contract Shape
 
-## Extraction Guardrail
+- `Reserve(order_id, tenant_id, items)` reserves stock for the order placement snapshot and returns reservation status, reserved items, expiration time, and any rejected lines.
+- `Materialize(order_id)` commits a live reservation into durable inventory movement during order confirmation.
+- `Release(order_id)` releases a live reservation after cancellation, failure, or TTL cleanup.
 
-Keep inventory in Laravel or a local worker until evidence shows a separate runtime is useful. Evidence may include lock contention, throughput pressure, or latency that cannot be addressed cleanly inside the Laravel worker model. Do not add `.proto` files or generated clients before that review.
+`Reserve` must be idempotent for repeated calls with the same tenant, order, item snapshot, and idempotency context. Replays return the existing reservation result. Conflicting replays for the same `order_id` and tenant must fail closed instead of silently replacing the reservation.
+
+`Materialize` and `Release` must also be idempotent. Materializing an already materialized reservation returns the committed result. Releasing an already released or expired reservation returns a terminal no-op result.
+
+Reservations require a TTL. The exact duration is configurable, but the MVP contract assumes a short checkout-oriented hold, such as 10-15 minutes, with expiration handled as an operational cleanup rather than as proof that an order does or does not exist.
+
+## Scaffold Baseline
+
+The current local Laravel simulator is prior implementation scaffold:
+
+- It reserves inventory synchronously before `orders` and `order.confirmed` are written.
+- It locks tenant-owned product variants, fails closed for cross-tenant or missing variants, and decrements `stock_available` only when every requested quantity can be satisfied.
+- Reservation outcomes are deterministic from tenant-scoped fixture stock, SKU, quantity, and idempotency key.
+- Insufficient stock is a business outcome, not transport poison behavior.
+- Invalid schema, missing tenant, unsafe payload, or impossible cross-tenant reference remains poison-message behavior.

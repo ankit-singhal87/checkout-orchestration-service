@@ -55,3 +55,16 @@ The API may read tenant and shop from a valid signed token, but it must verify t
 - Redis keys include a tenant prefix.
 - Search indexes or aliases require tenant filtering.
 - Logs, metrics, and traces include tenant tags only when safe.
+
+## Product Read Path
+
+- MySQL remains the product and inventory source of truth.
+- OpenSearch is a product read model maintained from MySQL through eventual consistency. Checkout correctness must not depend on OpenSearch freshness.
+- Product images are served through CloudFront or a local equivalent in dev mode.
+- Browsers use a constrained search API or proxy that enforces tenant, field, and query limits. Browsers must not receive raw OpenSearch credentials.
+
+## Rate Limiting
+
+- MVP rate limiting is tenant-based first because tenant identity is available before customer identity in guest checkout flows.
+- The design must remain extensible to per-user, per-session, route, and IP limits.
+- Token bucket and sliding window log algorithms are acceptable design concepts for future implementation, but this contract does not require a full rate-limiting implementation now.
