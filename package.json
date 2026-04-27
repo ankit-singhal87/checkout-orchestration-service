@@ -1,0 +1,17 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "checkout-orchestration-service",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codex-workflows:status": "codex-workflows status",
+    "codex-workflows:update": "codex-workflows update",
+    "codex-workflows:update:dry-run": "codex-workflows update --dry-run"
+  },
+  "devDependencies": {
+    "codex-workflows": "0.4.11"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
