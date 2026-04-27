@@ -14,11 +14,13 @@ Laravel remains the source of checkout orchestration. If this service is introdu
 
 ## Simulator Contract
 
-- Input events: `order.confirmed` or `inventory.reservation.requested`.
+- Current local owner: Laravel checkout confirmation reserves inventory synchronously before `orders` and `order.confirmed` are written.
+- Input events after extraction: `order.confirmed` or `inventory.reservation.requested`.
 - Consumer group: `checkout.inventory-reservations`.
 - Output events: `inventory.reservation.succeeded` or `inventory.reservation.failed`.
 - Reservation idempotency key: tenant, order id, SKU, quantity, and order confirmation idempotency key.
 - Reservation outcomes must be deterministic from tenant-scoped fixture stock, SKU, quantity, and idempotency key.
+- Local reservation behavior locks tenant-owned product variants, fails closed for cross-tenant or missing variants, and decrements `stock_available` only when every requested quantity can be satisfied.
 - Failures such as insufficient stock are business outcomes, not transport poison messages.
 - Invalid schema, missing tenant, unsafe payload, or impossible cross-tenant reference is poison-message behavior.
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Infrastructure\Persistence\Eloquent\CartItemRecord;
 use App\Infrastructure\Persistence\Eloquent\CartRecord;
+use App\Infrastructure\Persistence\Eloquent\CheckoutStateRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderRecord;
 use App\Infrastructure\Persistence\Eloquent\OutboxEventRecord;
 use App\Infrastructure\Persistence\Eloquent\ProductVariantRecord;
@@ -140,6 +141,59 @@ it('returns Problem Details when confirming another tenant checkout state', func
         ->assertJsonPath('shop', 'fashion-main');
 });
 
+it('does not confirm when simulated inventory reservation fails', function () {
+    ProductVariantRecord::query()
+        ->where('variant_id', 'fashion-variant-001-purple-s')
+        ->update([
+            'stock_available' => 0,
+            'stock_state' => 'out_of_stock',
+        ]);
+
+    $checkoutId = apiConfirmableCheckout();
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $checkoutId,
+            'idempotencyKey' => checkoutTestNamespace('api-inventory-reservation-fails'),
+        ])
+        ->assertConflict()
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJsonPath('type', 'https://checkout.example.test/problems/checkout-state-conflict')
+        ->assertJsonPath('status', 409)
+        ->assertJsonPath('tenant', 'fashion-store');
+
+    expect(OrderRecord::query()->count())->toBe(0)
+        ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(0)
+        ->and(CheckoutStateRecord::query()->where('checkout_id', $checkoutId)->firstOrFail()->status->value)->toBe('failed');
+});
+
+it('does not reserve inventory or confirm when simulated card authorization fails', function () {
+    $checkoutId = apiConfirmableCheckout(paymentMethod: 'card');
+    $stockBefore = ProductVariantRecord::query()
+        ->where('variant_id', 'fashion-variant-001-purple-s')
+        ->value('stock_available');
+
+    $this
+        ->postJson('http://fashion-demo.localhost/api/checkout/state/order-confirmation', [
+            'checkoutId' => $checkoutId,
+            'idempotencyKey' => checkoutTestNamespace('simulate-payment-decline'),
+        ])
+        ->assertConflict()
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJsonPath('type', 'https://checkout.example.test/problems/checkout-state-conflict')
+        ->assertJsonPath('status', 409)
+        ->assertJsonPath('tenant', 'fashion-store');
+
+    $stockAfter = ProductVariantRecord::query()
+        ->where('variant_id', 'fashion-variant-001-purple-s')
+        ->value('stock_available');
+
+    expect(OrderRecord::query()->count())->toBe(0)
+        ->and(OutboxEventRecord::query()->where('event_type', 'order.confirmed')->count())->toBe(0)
+        ->and($stockAfter)->toBe($stockBefore)
+        ->and(CheckoutStateRecord::query()->where('checkout_id', $checkoutId)->firstOrFail()->status->value)->toBe('failed');
+});
+
 it('updates basket item quantity and invalidates dependent selections', function () {
     $cart = apiCheckoutCart('fashion-store', 'fashion-variant-001-purple-s');
     $checkoutId = $this
@@ -267,6 +321,7 @@ function apiConfirmableCheckout(
     string $variantId = 'fashion-variant-001-purple-s',
     string $tenantId = 'fashion-store',
     string $host = 'fashion-demo.localhost',
+    string $paymentMethod = 'invoice',
 ): string {
     $cart = apiCheckoutCart($tenantId, $variantId);
     $baseUrl = 'http://'.$host;
@@ -299,7 +354,7 @@ function apiConfirmableCheckout(
     test()
         ->putJson($baseUrl.'/api/checkout/state/payment-method', [
             'checkoutId' => $checkoutId,
-            'paymentMethod' => 'invoice',
+            'paymentMethod' => $paymentMethod,
         ])
         ->assertOk()
         ->assertJsonPath('status', 'payment_selected')

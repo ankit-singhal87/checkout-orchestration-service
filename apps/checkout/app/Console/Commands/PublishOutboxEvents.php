@@ -14,6 +14,10 @@ use Throwable;
  */
 final class PublishOutboxEvents extends Command
 {
+    private const int MAX_ATTEMPTS = 3;
+
+    private const int RETRY_DELAY_SECONDS = 60;
+
     protected $signature = 'checkout:outbox:publish {--limit= : Maximum events to publish}';
 
     protected $description = 'Publish unpublished checkout outbox events to Redis Streams.';
@@ -32,12 +36,18 @@ final class PublishOutboxEvents extends Command
         $events = OutboxEventRecord::query()
             ->with('tenant')
             ->whereNull('published_at')
+            ->whereNull('poisoned_at')
+            ->where(function ($query): void {
+                $query
+                    ->whereNull('next_publish_at')
+                    ->orWhere('next_publish_at', '<=', now());
+            })
             ->orderBy('id')
             ->limit($limit)
             ->get();
 
         if ($events->isEmpty()) {
-            $this->info('No unpublished outbox events found.');
+            $this->info('No publishable outbox events found.');
 
             return self::SUCCESS;
         }
@@ -60,6 +70,7 @@ final class PublishOutboxEvents extends Command
                     (string) $event->event_id,
                     $exception->getMessage(),
                 ));
+                $this->recordFailedAttempt($event, $exception);
 
                 return self::FAILURE;
             }
@@ -68,6 +79,24 @@ final class PublishOutboxEvents extends Command
         $this->info(sprintf('Published %d outbox event(s).', $published));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Record retry metadata and mark permanently failed rows as poison.
+     */
+    private function recordFailedAttempt(OutboxEventRecord $event, Throwable $exception): void
+    {
+        $attempts = ((int) $event->publish_attempts) + 1;
+        $isPoison = $attempts >= self::MAX_ATTEMPTS;
+        $attemptedAt = now();
+
+        $event->forceFill([
+            'publish_attempts' => $attempts,
+            'last_publish_attempted_at' => $attemptedAt,
+            'next_publish_at' => $isPoison ? null : $attemptedAt->copy()->addSeconds(self::RETRY_DELAY_SECONDS),
+            'poisoned_at' => $isPoison ? $attemptedAt : null,
+            'last_publish_error' => mb_substr($exception->getMessage(), 0, 1000),
+        ])->save();
     }
 
     /**

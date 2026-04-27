@@ -25,13 +25,17 @@ Placeholder for async post-order side effects such as payment settlement simulat
 - Treat audit projection as rebuildable from events.
 - Send invalid or exhausted messages to the poison path documented in the domain-event contract.
 
+## Local Consumer
+
+Run the first local consumer with `php artisan checkout:order-processor:consume`. It reads from `checkout:events` with consumer group `checkout.order-processor` and currently handles `order.confirmed` envelopes.
+
+The first local side effect is the processed-event ledger in `order_processor_processed_events`. It records the envelope and provides replay safety with unique tenant/processor/event and tenant/processor/idempotency constraints. Invalid envelopes are recorded in `order_processor_poison_events` before the Redis Stream message is acknowledged.
+
 ## Consistency Rule
 
 This worker must never decide whether an order exists. It reacts to committed outbox events after checkout/order writes complete.
 
 ## Incremental Tasks
 
-1. Add a read-only consumer that logs valid `order.confirmed` envelopes with correlation fields.
-2. Add idempotent processed-event storage or a documented local equivalent.
-3. Add the notification stub after duplicate delivery is proven safe.
-4. Add the audit/demo projection after poison handling is visible in the runbook.
+1. Add the notification stub after duplicate delivery is proven safe.
+2. Add the audit/demo projection after poison handling is visible in the runbook.

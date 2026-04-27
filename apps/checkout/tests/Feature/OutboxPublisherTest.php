@@ -92,5 +92,92 @@ it('leaves outbox events unpublished when Redis publishing fails', function () {
         ->artisan('checkout:outbox:publish', ['--limit' => 10])
         ->assertExitCode(1);
 
-    expect($event->fresh()->published_at)->toBeNull();
+    $failedEvent = $event->fresh();
+
+    expect($failedEvent->published_at)->toBeNull()
+        ->and($failedEvent->publish_attempts)->toBe(1)
+        ->and($failedEvent->last_publish_attempted_at)->not->toBeNull()
+        ->and($failedEvent->next_publish_at)->not->toBeNull()
+        ->and($failedEvent->poisoned_at)->toBeNull()
+        ->and($failedEvent->last_publish_error)->toBe('Redis unavailable');
+});
+
+it('marks an outbox event as poison after the final retry attempt fails', function () {
+    $tenant = TenantRecord::query()->where('tenant_id', 'fashion-store')->firstOrFail();
+
+    /** @var OutboxEventRecord $event */
+    $event = OutboxEventRecord::query()->create([
+        'tenant_record_id' => $tenant->id,
+        'event_id' => checkoutTestNamespace('poison-order-confirmed-event'),
+        'event_type' => 'order.confirmed',
+        'aggregate_type' => 'order',
+        'aggregate_id' => checkoutTestNamespace('poison-order-ref'),
+        'payload' => [
+            'orderRef' => checkoutTestNamespace('poison-order-ref'),
+            'tenant' => 'fashion-store',
+        ],
+        'publish_attempts' => 2,
+        'next_publish_at' => now()->subMinute(),
+    ]);
+
+    $connection = \Mockery::mock();
+    $connection
+        ->shouldReceive('command')
+        ->once()
+        ->andThrow(new RuntimeException('Malformed event payload'));
+
+    Redis::shouldReceive('connection')->once()->andReturn($connection);
+
+    $this
+        ->artisan('checkout:outbox:publish', ['--limit' => 10])
+        ->assertExitCode(1);
+
+    $poisonEvent = $event->fresh();
+
+    expect($poisonEvent->published_at)->toBeNull()
+        ->and($poisonEvent->publish_attempts)->toBe(3)
+        ->and($poisonEvent->last_publish_attempted_at)->not->toBeNull()
+        ->and($poisonEvent->next_publish_at)->toBeNull()
+        ->and($poisonEvent->poisoned_at)->not->toBeNull()
+        ->and($poisonEvent->last_publish_error)->toBe('Malformed event payload');
+});
+
+it('skips poison and future scheduled outbox events', function () {
+    $tenant = TenantRecord::query()->where('tenant_id', 'fashion-store')->firstOrFail();
+
+    OutboxEventRecord::query()->create([
+        'tenant_record_id' => $tenant->id,
+        'event_id' => checkoutTestNamespace('already-poison-event'),
+        'event_type' => 'order.confirmed',
+        'aggregate_type' => 'order',
+        'aggregate_id' => checkoutTestNamespace('already-poison-order-ref'),
+        'payload' => [
+            'orderRef' => checkoutTestNamespace('already-poison-order-ref'),
+            'tenant' => 'fashion-store',
+        ],
+        'publish_attempts' => 3,
+        'poisoned_at' => now()->subMinute(),
+        'last_publish_error' => 'Previous permanent failure',
+    ]);
+
+    OutboxEventRecord::query()->create([
+        'tenant_record_id' => $tenant->id,
+        'event_id' => checkoutTestNamespace('future-scheduled-event'),
+        'event_type' => 'order.confirmed',
+        'aggregate_type' => 'order',
+        'aggregate_id' => checkoutTestNamespace('future-scheduled-order-ref'),
+        'payload' => [
+            'orderRef' => checkoutTestNamespace('future-scheduled-order-ref'),
+            'tenant' => 'fashion-store',
+        ],
+        'publish_attempts' => 1,
+        'next_publish_at' => now()->addMinute(),
+        'last_publish_error' => 'Temporary failure',
+    ]);
+
+    Redis::shouldReceive('connection')->never();
+
+    $this
+        ->artisan('checkout:outbox:publish', ['--limit' => 10])
+        ->assertExitCode(0);
 });
