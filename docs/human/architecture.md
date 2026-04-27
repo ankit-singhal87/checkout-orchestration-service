@@ -2,18 +2,26 @@
 
 ## Purpose
 
-This page gives a concise system view for human reviewers. It separates what runs locally, what CI validates, what parity profiles smoke-test, and what the optional AWS-oriented target would use later.
+This page gives a concise system view for human reviewers. It separates what
+runs locally, what CI validates, what parity profiles smoke-test, and what the
+optional AWS-oriented target would use later.
 
 ## Status
 
-The current runnable system is a local Laravel checkout application with MySQL, Redis, optional worker services, optional RoadRunner/Octane, and optional Caddy edge parity. AWS-oriented deployment is documented as a target, not an active production environment.
+The current runnable system is a local Laravel checkout application with MySQL,
+Redis, optional worker services, optional RoadRunner/Octane, and optional Caddy
+edge parity. AWS-oriented deployment is documented as a target, not an active
+production environment.
 
 ## Key points
 
-- Laravel owns storefront routes, Blade views, public checkout APIs, validation, persistence, idempotency, checkout orchestration, and Problem Details rendering.
+- Laravel owns storefront routes, Blade views, public checkout APIs, validation,
+  persistence, idempotency, checkout orchestration, and Problem Details
+  rendering.
 - Nginx/PHP-FPM over HTTP is the default local baseline on port 8080.
 - RoadRunner/Octane is an optional runtime profile, not the default.
-- Caddy is the local edge parity profile for HTTPS, H1, H2, H3, forwarded headers, security headers, and a 2 MB request body limit.
+- Caddy is the local edge parity profile for HTTPS, H1, H2, H3, forwarded
+  headers, security headers, and a 2 MB request body limit.
 - MySQL is the checkout/order source of truth; local and CI use containers, while production planning targets RDS MySQL.
 - Redis supports local cache/session/stream use. Redis Streams carry local async events from the outbox path.
 
@@ -93,15 +101,24 @@ flowchart TB
 
 ### Protocol strategy
 
-External edge traffic may support HTTPS over HTTP/1.1, HTTP/2, and HTTP/3 where configured. HTTP/3/QUIC is edge smoke only in this repository. Laravel/PHP-FPM does not terminate HTTP/3; Caddy handles that local edge profile and reverse-proxies to Nginx.
+External edge traffic may support HTTPS over HTTP/1.1, HTTP/2, and HTTP/3 where
+configured. HTTP/3/QUIC is edge smoke only in this repository. Laravel/PHP-FPM
+does not terminate HTTP/3; Caddy handles that local edge profile and
+reverse-proxies to Nginx.
 
-Local async transport uses Redis Streams. Deploy messaging is planned as an AWS SQS/SNS mapping after guardrails. If internal RPC is introduced, it defaults to protobuf/gRPC over HTTP/2. The current checkout path is Laravel web/API plus local Redis Streams, not a broad RPC service mesh.
+Local async transport uses Redis Streams. Deploy messaging is planned as an AWS
+SQS/SNS mapping after guardrails. If internal RPC is introduced, it defaults to
+protobuf/gRPC over HTTP/2. The current checkout path is Laravel web/API plus
+local Redis Streams, not a broad RPC service mesh.
 
 ## Current limitations
 
 - AWS deployment is planned but not yet provisioned.
 - The observability profile exists, but full application OTLP traces and metrics are not complete.
-- Worker paths are local scaffold/demo support; later target architecture pivots toward Laravel publishing `order.placed`, a Go order preprocessor consuming it, and a Go inventory service materializing reservations before `order.confirmed`.
+- Worker paths are local scaffold/demo support; later target architecture pivots
+  toward Laravel publishing `order.placed`, a Go order preprocessor consuming it,
+  and a Go inventory service materializing reservations before
+  `order.confirmed`.
 - HTTP/3 validation proves edge negotiation in the Caddy profile only.
 
 ## Source anchors
@@ -126,4 +143,6 @@ Local async transport uses Redis Streams. Deploy messaging is planned as an AWS 
 
 ## Where to go from here
 
-Read the [tradeoff summary](tradeoff-summary.md) to understand why these boundaries were chosen, then read [known gaps](known-gaps.md) before reviewing the older [C4 supporting views](architecture/README.md).
+Read the [tradeoff summary](tradeoff-summary.md) to understand why these
+boundaries were chosen, then read [known gaps](known-gaps.md) before reviewing
+the older [C4 supporting views](architecture/README.md).
