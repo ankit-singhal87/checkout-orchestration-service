@@ -20,7 +20,8 @@ Low-token operating entrypoint for AI coding agents.
 - [api/openapi.checkout.yaml](api/openapi.checkout.yaml) - public checkout API contract.
 - [agents.md](agents.md) - named project-agent roles, ownership, and handoff boundaries.
 - [agents/README.md](agents/README.md) - named-agent task shape and production-adjacent requirements.
-- [local-tools.md](local-tools.md), [debugging.md](debugging.md), [mirroring.md](mirroring.md) - detailed operational guides.
+- [local-tools.md](local-tools.md), [debugging.md](debugging.md),
+  [mirroring.md](mirroring.md) - detailed operational guides.
 - [planning](planning) - phase state and roadmap details; read only when phase planning is relevant.
 - [context-handoff.md](context-handoff.md) - compact handoff buffer for context defragmentation.
 - [glossary.md](glossary.md) - short operational definitions.

@@ -1,6 +1,9 @@
 # Checkout Orchestration Service
 
-Independent, work-in-progress, generic headless-commerce checkout orchestration POC. The repository demonstrates a local-first Laravel checkout application with optional parity/runtime profiles and AWS-oriented deployment planning kept separate from the default developer loop.
+Independent, work-in-progress, generic headless-commerce checkout orchestration
+POC. The repository demonstrates a local-first Laravel checkout application with
+optional parity/runtime profiles and AWS-oriented deployment planning kept
+separate from the default developer loop.
 
 ## Status
 
@@ -13,7 +16,9 @@ See [DISCLAIMER.md](DISCLAIMER.md) for the full independent-project disclaimer.
 
 ## Quick Review
 
-Start with the [human reviewer guide](docs/human/reviewer-guide.md) for a 10-minute path through project status, architecture decisions, checkout orchestration, parity checks, and command entrypoints.
+Start with the [human reviewer guide](docs/human/reviewer-guide.md) for a
+10-minute path through project status, architecture decisions, checkout
+orchestration, parity checks, and command entrypoints.
 
 ## Quickstart
 
@@ -24,7 +29,9 @@ make up
 make up-app
 ```
 
-The default checkout app listens on `http://localhost:8080`. Tenant demo hosts include `http://fashion-demo.localhost:8080/shop` and `http://sports-demo.localhost:8080/shop`.
+The default checkout app listens on `http://localhost:8080`. Tenant demo hosts
+include `http://fashion-demo.localhost:8080/shop` and
+`http://sports-demo.localhost:8080/shop`.
 
 ## Execution Modes
 
