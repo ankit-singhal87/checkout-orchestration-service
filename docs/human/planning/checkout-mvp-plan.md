@@ -1,6 +1,6 @@
 ---
 name: Checkout MVP
-overview: Build a multi-tenant SaaS checkout demo inspired by public headless-commerce checkout concepts. The core principle is PHP/Laravel for checkout orchestration, UI, and business flow, with Go reserved for selected internal services/processors where concurrency, async work, or tight latency justify it. The MVP will start in local/dev mode with Laravel, Blade, MVVM-style view models, two seeded tenants, and optional auth after checkout. It will remain AWS/EKS deploy-ready through Terraform and Kubernetes assets, using RoadRunner, Redis, MySQL with multiple schemas, OpenSearch-compatible search, GitLab CI/CD as primary CI, GitHub Actions as mirror validation, Docker, Kubernetes, CloudFront HTTP/3-ready edge delivery, messaging, OpenTelemetry/OTLP as the observability contract, and RFC 9457 Problem Details for API errors.
+overview: Build an independent multi-tenant checkout demo using original simplified headless-commerce contracts and flows. The core principle is PHP/Laravel for checkout orchestration, UI, and business flow, with Go reserved for selected internal services/processors where concurrency, async work, or tight latency justify it. The MVP will start in local/dev mode with Laravel, Blade, MVVM-style view models, two seeded tenants, and optional auth after checkout. AWS-oriented deployment planning remains optional and separate from the default developer loop, using RoadRunner, Redis, MySQL with multiple schemas, OpenSearch-style search projections, GitLab CI/CD as primary CI, mirror validation, Docker, Kubernetes, edge protocol planning, messaging, OpenTelemetry/OTLP as the observability contract, and RFC 9457 Problem Details for API errors.
 todos:
   - id: phase-0-risk-tooling
     content: Define Phase 0 scaffolding, risks, scope guardrails, GitLab token usage, branches, agent guidance, local tools, debugging env, and Cursor/OpenAI/Codex usage boundaries.
@@ -18,7 +18,7 @@ todos:
     content: Add free local Docker Compose baseline for Laravel checkout app, MySQL, Redis, optional OpenSearch/search, optional identity, and optional observability profiles.
     status: completed
   - id: first-services
-    content: Implement the first tenant-aware happy-path checkout UI/API and simulated async processing. Web guest checkout, first public API slice, idempotent order confirmation, and durable outbox row are complete for Phase 1; async publisher remains later work.
+    content: Implement the first tenant-aware happy-path checkout UI/API and simulated async processing. Web guest checkout, first public API slice, idempotent order confirmation, durable outbox rows, local Redis Stream publication, and local consumption support exist for demos; production-grade delivery remains later work.
     status: completed
   - id: observability
     content: Add OpenTelemetry-first logs, metrics, traces, Problem Details errors, and optional exporter profiles for Grafana Cloud, Datadog, Dash0, or a self-hosted Grafana stack.
@@ -68,7 +68,7 @@ Keep C4 diagrams in [docs/human/architecture](../architecture) and use them alon
 
 ## Execution Modes
 
-Split the project into two explicit modes so the MVP can be built for free while still demonstrating cloud readiness.
+Split the project into explicit modes so the MVP can be built for free while keeping AWS-oriented deployment planning separate.
 
 Local/dev mode:
 
@@ -78,14 +78,14 @@ Local/dev mode:
 - Does not require login for shopping or checkout.
 - Allows optional login/signup at any stage, and especially after checkout as an account-creation prompt.
 - Uses Redis Streams for local async events.
-- Uses OpenTelemetry-compatible telemetry and structured logs without requiring a chosen observability backend in local development.
+- Uses OpenTelemetry-aligned telemetry and structured logs without requiring a chosen observability backend in local development.
 - Uses RFC 9457 Problem Details for HTTP/API errors.
 - UI views do not query the database directly. Controllers call application services, application services use repositories/read models, and Blade receives explicit view models.
 
 Deploy mode:
 
 - Targets Amazon EKS through Terraform and Kubernetes manifests for application workloads.
-- Uses RDS MySQL, ElastiCache Redis, optional AWS OpenSearch, CloudFront with HTTP/3 for viewer connections, AWS WAF, ALB Ingress, an OpenTelemetry-compatible telemetry pipeline, optional observability exporter profiles, and AWS SQS/SNS for async messaging.
+- Uses RDS MySQL, ElastiCache Redis, optional AWS OpenSearch, CloudFront with HTTP/3 for viewer connections, AWS WAF, ALB Ingress, an OTLP-oriented telemetry pipeline, optional observability exporter profiles, and AWS SQS/SNS for async messaging.
 - Uses Amazon RDS for MySQL as the production database. Do not run self-managed MySQL inside EKS for production; Docker Compose MySQL and any future `kind` MySQL binding are local/dev/test parity tools only.
 - Keeps cloud deployment manual/optional until an AWS account and budget guardrails exist.
 - Includes cost controls, TTL tags, budget alarms, and destroy runbooks before any `terraform apply`.
@@ -195,15 +195,15 @@ Initial Blade routes for Phase 1:
 - `GET /checkout/confirmation/{orderRef}` - confirmation screen with optional account creation prompt.
 - `GET /auth/login` and `GET /auth/signup` - optional only, not required to complete checkout.
 
-Do not copy any vendor's full OpenAPI document verbatim into this repo. Use public documentation only as a reference for broad resource concepts and flow, then create an original MVP OpenAPI spec in [docs/agent/api/openapi.checkout.yaml](../../agent/api/openapi.checkout.yaml) with simplified schemas.
+Do not copy any vendor's full OpenAPI document verbatim into this repo. Use public documentation only as a reference for broad resource concepts and flow, then create original simplified checkout contracts for this demo.
 
 Where copying a vendor API too closely does not serve a new demo app today:
 
 - Endpoint paths and versioning: keep the idea of a checkout `state`, but do not blindly copy `/api/co/v3/...` as the only public shape if the demo app benefits from clearer local Blade routes and simpler API names.
 - Complete resource breadth: skip loyalty, collection points, address book, carrier integrations, real payment providers, and full account APIs until the core checkout path is working.
-- Exact schemas: create original simplified request/response models focused on the demo, not vendor-compatible payloads.
+- Exact schemas: create original simplified request/response models focused on the demo, not vendor-specific payloads.
 - Token flow: use a signed checkout token concept, but do not copy vendor-specific JWT claims, issuer/audience assumptions, or shop-secret behavior beyond the general pattern.
-- UI behavior: build an original Blade checkout experience using seeded tenants/products; do not replicate proprietary checkout component UI or interaction details.
+- UI behavior: build an original Blade checkout experience using seeded tenants/products; do not copy proprietary checkout component UI or interaction details.
 - Tenant model: design tenant resolution for this SaaS demo using verified domains and internal tenant IDs, not vendor-specific tenant-space naming or URL conventions.
 - Error catalog: use RFC 9457 Problem Details with original problem type URIs and domain errors.
 - Admin/import APIs: do not recreate vendor admin APIs. Seed data and simple internal commands are enough for Phase 1.
@@ -493,7 +493,7 @@ Because there is currently no AWS subscription, the minimum-cost path should not
 
 Recommended free path:
 
-- Build and demo locally with Docker Compose: Laravel through Nginx/PHP-FPM by default, selected workers, MySQL, Redis, optional OpenSearch, OpenTelemetry-compatible local telemetry, and optional RoadRunner/Octane performance profile.
+- Build and demo locally with Docker Compose: Laravel through Nginx/PHP-FPM by default, selected workers, MySQL, Redis, optional OpenSearch, OpenTelemetry-aligned local telemetry, and optional RoadRunner/Octane performance profile.
 - Add optional local Kubernetes with `kind`, `k3d`, or Minikube to prove Kubernetes manifests before using AWS.
 - Simulate CloudFront locally through cache headers and an optional reverse proxy; only add real CloudFront when deploying to AWS.
 - Use GitLab for source, issues, merge requests, CI/CD, and releases.
@@ -531,9 +531,9 @@ Primary hosting and CI:
 - Merge requests and merges are manual GitLab steps.
 - Keep shared CI scripts under [scripts/ci](../../../scripts/ci).
 
-## AI Agent Roles
+## Delivery Roles
 
-Define agent responsibilities in [docs/agent/agents.md](../../agent/agents.md) so work can be delegated safely:
+Define implementation responsibilities so work can be delegated safely:
 
 - Atlas, Architecture Agent: owns service boundaries, ADRs, diagrams, DDD boundaries, and non-functional requirements.
 - Loom, Laravel Checkout Agent: implements public API, Blade UI, RoadRunner config, persistence, idempotency, and validation.
@@ -574,7 +574,7 @@ Initial files and agent guidance:
 - Add [AGENTS.md](../../../AGENTS.md) with project rules for AI agents: scope boundaries, no secret commits, GitLab primary/GitHub mirror, Laravel-first principle, Go extraction rules, testing expectations, and plan adherence.
 - Add [README.md](../../../README.md) with project purpose, local/dev mode, deploy mode, quickstart placeholder, and architecture summary.
 - Add [docs/human/phase-0-risk-register.md](../phase-0-risk-register.md).
-- Add [docs/agent/ai-tooling.md](../../agent/ai-tooling.md).
+- Add AI-tooling guidance for local contributors.
 - Add [docs/human/architecture](../architecture) C4 skeleton.
 - Add [docs/human/adr](../adr) with ADR index and initial ADRs.
 - Add [scripts/ci](../../../scripts/ci) placeholders for shared CI commands.
@@ -641,8 +641,8 @@ Phase 1: Repository foundation and contracts
 
 - Create monorepo layout, shared documentation, Docker Compose, proto contracts, and service READMEs.
 - Add C4 documentation skeleton under [docs/human/architecture](../architecture).
-- Define named project agents in [docs/agent/agents.md](../../agent/agents.md) with ownership boundaries and collaboration rules.
-- Define host tool requirements in [docs/agent/local-tools.md](../../agent/local-tools.md): Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
+- Define named delivery roles with ownership boundaries and collaboration rules.
+- Define host tool requirements: Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
 - Keep MySQL, Redis, OpenSearch, and optional Keycloak container-managed with named volumes for persistent local data. Observability containers are optional profiles.
 - Define tenant model, checkout state machine, latency SLOs, catalog/cart seed model, and original checkout API contract.
 - Define BDD scenarios and TDD expectations before implementing checkout behavior, using Pest, parallel test execution, Faker, Mockery, real MySQL-backed persistence tests, and explicit race-condition scenarios.
@@ -689,7 +689,7 @@ Phase 4: Observability, performance, and read models
 Phase 5: AWS deployment
 
 - Add Terraform for optional EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch, IAM, networking, budgets, and the selected observability exporter.
-- Add Kubernetes manifests for local Kubernetes first, then EKS overlays for all services, config, secrets references, autoscaling, probes, ingress, and the selected OpenTelemetry-compatible collector or agent profile.
+- Add Kubernetes manifests for local Kubernetes first, then EKS overlays for all services, config, secrets references, autoscaling, probes, ingress, and the selected OpenTelemetry-aligned collector or agent profile.
 - Add GitLab CI/CD deploy workflows that default to plan/build/test and require manual approval for cloud deployment.
 - Do not deploy from GitHub Actions.
 
