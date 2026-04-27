@@ -19,6 +19,8 @@ make up-outbox-worker
 
 The worker exits on publisher command failure so Compose can apply its restart policy. It does not implement inventory, payment, notification, or read-model processors.
 
+The order processor is a separate consumer. Start it with `make up-order-processor`; it reads the `checkout:events` stream through consumer group `checkout.order-processor` and currently projects consumed `order.confirmed` envelopes into `order_processor_processed_events`, `order_processor_audit_events`, and `order_processor_poison_events`.
+
 ## Transports
 
 - Local/dev: Redis Streams.

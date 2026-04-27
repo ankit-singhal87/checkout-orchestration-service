@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Infrastructure\Persistence\Eloquent\OutboxEventRecord;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Throwable;
 
@@ -55,6 +56,8 @@ final class PublishOutboxEvents extends Command
         $published = 0;
 
         foreach ($events as $event) {
+            $startedAt = microtime(true);
+
             try {
                 Redis::connection()->command('xadd', [
                     $stream,
@@ -63,8 +66,23 @@ final class PublishOutboxEvents extends Command
                 ]);
 
                 $event->forceFill(['published_at' => now()])->save();
+                Log::info('outbox_event_published', $this->observabilityContext(
+                    event: $event,
+                    status: 'published',
+                    startedAt: $startedAt,
+                    stream: $stream,
+                ));
                 $published++;
             } catch (Throwable $exception) {
+                Log::error('outbox_event_publish_failed', $this->observabilityContext(
+                    event: $event,
+                    status: 'failed',
+                    startedAt: $startedAt,
+                    stream: $stream,
+                    extra: [
+                        'error' => mb_substr($exception->getMessage(), 0, 1000),
+                    ],
+                ));
                 $this->error(sprintf(
                     'Failed to publish outbox event %s: %s',
                     (string) $event->event_id,
@@ -79,6 +97,32 @@ final class PublishOutboxEvents extends Command
         $this->info(sprintf('Published %d outbox event(s).', $published));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Build safe structured context for worker log evidence.
+     *
+     * @return array<string, mixed>
+     */
+    private function observabilityContext(
+        OutboxEventRecord $event,
+        string $status,
+        float $startedAt,
+        string $stream,
+        array $extra = [],
+    ): array {
+        return [
+            ...$extra,
+            'command' => 'checkout:outbox:publish',
+            'processor' => 'checkout.outbox-publisher',
+            'status' => $status,
+            'event_id' => (string) $event->event_id,
+            'event_type' => (string) $event->event_type,
+            'tenant_id' => $event->tenant?->tenant_id,
+            'shop_id' => $event->tenant?->shop_id,
+            'stream' => $stream,
+            'latency_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+        ];
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorAuditEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorPoisonEventRecord;
 use App\Infrastructure\Persistence\Eloquent\OrderProcessorProcessedEventRecord;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 it('processes an order confirmed stream envelope idempotently', function () {
@@ -46,6 +47,27 @@ it('processes an order confirmed stream envelope idempotently', function () {
         ->andReturn(1);
 
     Redis::shouldReceive('connection')->times(3)->andReturn($connection);
+
+    foreach (['processed' => '1-0', 'duplicate' => '1-1'] as $status => $messageId) {
+        Log::shouldReceive('info')
+            ->once()
+            ->with('order_processor_event_consumed', Mockery::on(function (array $context) use (
+                $fields,
+                $status,
+                $messageId,
+            ): bool {
+                return $context['command'] === 'checkout:order-processor:consume'
+                    && $context['processor'] === 'checkout.order-processor'
+                    && $context['status'] === $status
+                    && $context['event_id'] === $fields['eventId']
+                    && $context['event_type'] === 'order.confirmed'
+                    && $context['tenant_id'] === 'fashion-store'
+                    && $context['stream'] === 'checkout:events'
+                    && $context['stream_message_id'] === $messageId
+                    && is_int($context['latency_ms'])
+                    && ! array_key_exists('tenant_record_id', $context);
+            }));
+    }
 
     $this
         ->artisan('checkout:order-processor:consume')
@@ -123,6 +145,20 @@ it('records and acknowledges poison envelopes explicitly', function () {
         ->andReturn(1);
 
     Redis::shouldReceive('connection')->twice()->andReturn($connection);
+
+    Log::shouldReceive('info')
+        ->once()
+        ->with('order_processor_event_consumed', Mockery::on(function (array $context) use ($fields): bool {
+            return $context['command'] === 'checkout:order-processor:consume'
+                && $context['processor'] === 'checkout.order-processor'
+                && $context['status'] === 'poisoned'
+                && $context['event_id'] === $fields['eventId']
+                && $context['event_type'] === 'order.confirmed'
+                && $context['tenant_id'] === 'fashion-store'
+                && $context['stream_message_id'] === '3-0'
+                && is_int($context['latency_ms'])
+                && ! array_key_exists('tenant_record_id', $context);
+        }));
 
     $this
         ->artisan('checkout:order-processor:consume')

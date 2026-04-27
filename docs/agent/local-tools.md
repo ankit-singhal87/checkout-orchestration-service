@@ -31,12 +31,15 @@ make install-host-tools
 make up
 make up-app
 make up-roadrunner
+make up-outbox-worker
+make up-order-processor
 make up-parity
 make down
 make bootstrap-checkout
 make test-checkout
 make test-checkout-runtime
 make test-checkout-parity
+make test-order-processor-runtime
 make validate
 make pre-push
 make pre-push-full
@@ -54,6 +57,8 @@ docker compose -f docker-compose.yml -f docker-compose.caddy.yml up
 ```
 
 The Caddy edge profile covers HTTPS, HTTP/1.1, HTTP/2, and HTTP/3 over QUIC/UDP 443. `make test-checkout-parity` uses a Dockerized HTTP/3 curl image, so the host does not need curl built with HTTP/3.
+
+`make up-outbox-worker` starts the checkout app plus the Redis Streams outbox publisher. `make up-order-processor` starts the same app/worker profile and includes the `checkout-order-processor` service, which runs `php artisan checkout:order-processor:consume` against `checkout:events`. `make test-order-processor-runtime` is a cheap command-registration smoke for that container runtime; it is not a full event-pipeline smoke.
 
 Use `make create-auto-merge-mr` only after the user has authorized MR creation for the branch. It creates or reuses a GitLab MR, enables squash, requests source-branch deletion, and enables auto-merge once checks pass. Set `MR_TITLE`, `MR_DESCRIPTION`, `SQUASH_MESSAGE`, `SOURCE_BRANCH`, or `TARGET_BRANCH` to override defaults.
 
