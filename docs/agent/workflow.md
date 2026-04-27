@@ -9,21 +9,15 @@
 7. Update human docs only if reviewer-facing behavior or architecture changed.
 8. Summarize diff, validation, risks, and any intentionally unchanged mixed docs.
 
-## Codex Workflows Integration
+## Routing Rules
 
-`codex-workflows` recipes and subagents are installed as a reusable Codex
-tooling layer under `.agents/skills` and `.codex/agents`. They can be invoked
-with recipe skills such as `$recipe-implement`, `$recipe-task`,
-`$recipe-review`, and `$recipe-diagnose` when the task benefits from structured
-requirements, design, TDD implementation, or quality gates.
+- Use [agents.md](agents.md) to choose the narrowest named project-agent lane.
+- Use [codex-workflows.md](codex-workflows.md) when a task benefits from an
+  upstream recipe skill.
+- Use [validation.md](validation.md) to pick the cheapest relevant checks.
+- Use [context-handoff.md](context-handoff.md) only for compact cross-session
+  state; move lasting decisions into durable docs.
 
-Repository-local instructions remain authoritative. The root
-[../../AGENTS.md](../../AGENTS.md), this `docs/agent` tree, GitLab-first branch
-workflow, phase boundaries, named project-agent ownership, and validation
-matrix override generic upstream recipe behavior when they differ.
-
-Recipe-generated planning artifacts may use the upstream-standard paths
-`docs/prd`, `docs/design`, `docs/adr`, `docs/ui-spec`, and `docs/plans/tasks`.
-Long-lived project architecture, ADRs, and planning context should still be
-routed into the existing durable docs under `docs/human` and `docs/agent` when
-they become repository policy.
+Do not edit upstream-managed `.agents/skills` or `.codex/agents` files during
+ordinary repository work. Treat them as vendored workflow assets managed through
+the root npm package.
