@@ -28,6 +28,9 @@ help:
 	@printf '%s\n' '  make demo-redis-events        Show recent Redis Stream checkout events'
 	@printf '%s\n' '  make show-context             Show compact agent context handoff'
 	@printf '%s\n' '  make defragment-context       Persist selected handoff lines and drop redundant context'
+	@printf '%s\n' '  make codex-workflows-status   Show installed codex-workflows version'
+	@printf '%s\n' '  make codex-workflows-update-dry-run Preview managed workflow updates'
+	@printf '%s\n' '  make codex-workflows-update   Update managed codex-workflows files'
 	@printf '%s\n' '  make create-auto-merge-mr     Create GitLab MR with squash and auto-merge'
 	@printf '%s\n' '  make install-hooks            Install local Git hooks'
 
@@ -158,6 +161,18 @@ show-context:
 .PHONY: defragment-context
 defragment-context:
 	sh scripts/agent/defragment-context.sh
+
+.PHONY: codex-workflows-status
+codex-workflows-status:
+	npm run codex-workflows:status
+
+.PHONY: codex-workflows-update-dry-run
+codex-workflows-update-dry-run:
+	npm run codex-workflows:update:dry-run
+
+.PHONY: codex-workflows-update
+codex-workflows-update:
+	npm run codex-workflows:update
 
 .PHONY: create-auto-merge-mr
 create-auto-merge-mr:

@@ -46,5 +46,4 @@ override.tf.json
 # IDE and OS files
 .idea/
 .vscode/
-.codex
 .DS_Store

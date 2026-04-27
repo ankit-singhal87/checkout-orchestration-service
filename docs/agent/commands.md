@@ -10,8 +10,22 @@
 | `make up-roadrunner` | Start optional RoadRunner/Octane runtime profile. | moderate | yes | no |
 | `make validate` | Run scaffold and Phase 1 validation. | cheap to moderate | no by default | no |
 | `make pre-push-full` | Run pre-push checks with checkout tests enabled. | expensive | sometimes | no |
+| `make codex-workflows-status` | Show installed `codex-workflows` version and managed file count. | cheap | no | no |
+| `make codex-workflows-update-dry-run` | Preview upstream `codex-workflows` managed-file updates. | cheap | no | no |
+| `make codex-workflows-update` | Update managed `.agents/skills` and `.codex/agents` files from the pinned npm package. | cheap | no | no |
 | `sh scripts/test/checkout-app.sh` | Run checkout app Pest tests, using local PHP or checkout container fallback. | moderate | sometimes | no |
 | `cd apps/checkout && php artisan test --parallel --recreate-databases` | Run checkout tests directly when local PHP dependencies are available. | moderate | no | no |
 | `cd apps/checkout && composer validate` | Validate Composer metadata. | cheap | no | no |
 
 Prefer the cheapest relevant command first. Do not run Docker/parity checks for docs-only changes unless the docs changed those flows.
+
+## Codex Workflows
+
+This repository pins `codex-workflows` in the root `package.json`; keep
+Laravel PHP dependencies in [../../apps/checkout/composer.json](../../apps/checkout/composer.json).
+Use npm only for repository-level Codex workflow tooling here.
+
+Managed upstream files live under `.agents/skills` and `.codex/agents`, with
+hashes tracked in `.codex-workflows-manifest.json`. Prefer
+`make codex-workflows-update-dry-run` before applying updates so locally
+modified managed files are visible before the manifest changes.
