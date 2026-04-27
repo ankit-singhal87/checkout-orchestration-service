@@ -13,6 +13,20 @@ Phase 3 should build peripheral services and workers around the existing Laravel
 5. **Read-model projections:** add search/catalog/order projection workers only after the event envelope and retry behavior are stable.
 6. **Service extraction review:** consider Go only for processors with clear concurrency, async throughput, or latency value. Keep modules in Laravel until the boundary earns a separate runtime.
 
+## Incremental Backlog
+
+1. Freeze the Phase 3 event envelope, consumer group names, retry/poison rules, and idempotent processor contract in [domain-events.md](../contracts/domain-events.md).
+2. Add focused tests or smoke scripts that prove `order.confirmed` is published once and can be consumed idempotently.
+3. Add the local worker runtime around the existing Laravel/Redis Streams path with health checks and restart behavior.
+4. Implement the outbox publisher retry metadata and poison isolation without changing checkout response semantics.
+5. Implement the deterministic inventory reservation processor against tenant-scoped seeded stock.
+6. Implement deterministic payment authorization/capture simulation with no real payment credentials, external webhooks, or provider calls.
+7. Add order confirmation notification and audit projection stubs after the first simulator processor is replay-safe.
+8. Add read-model/search projections only after retry, poison, and replay behavior have validation coverage.
+9. Review service extraction only after a processor shows measured concurrency, throughput, or latency pressure that Laravel workers cannot meet cleanly.
+
+Do not pull Go extraction forward just to create a service boundary. Phase 3 favors stable contracts, Laravel-first processors, and small replay-safe workers before any runtime split.
+
 ## Parallel Work Lanes
 
 These lanes can run concurrently when their editable paths do not overlap:

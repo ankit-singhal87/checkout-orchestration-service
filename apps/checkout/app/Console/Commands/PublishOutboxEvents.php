@@ -30,6 +30,7 @@ final class PublishOutboxEvents extends Command
         }
 
         $events = OutboxEventRecord::query()
+            ->with('tenant')
             ->whereNull('published_at')
             ->orderBy('id')
             ->limit($limit)
@@ -45,20 +46,10 @@ final class PublishOutboxEvents extends Command
 
         foreach ($events as $event) {
             try {
-                $fields = [
-                    'event_id' => (string) $event->event_id,
-                    'event_type' => (string) $event->event_type,
-                    'aggregate_type' => (string) $event->aggregate_type,
-                    'aggregate_id' => (string) $event->aggregate_id,
-                    'tenant_record_id' => (string) $event->tenant_record_id,
-                    'payload' => json_encode($event->payload ?? [], JSON_THROW_ON_ERROR),
-                    'created_at' => $event->created_at?->toJSON() ?? now()->toJSON(),
-                ];
-
                 Redis::connection()->command('xadd', [
                     $stream,
                     '*',
-                    $fields,
+                    $this->streamFields($event),
                 ]);
 
                 $event->forceFill(['published_at' => now()])->save();
@@ -77,5 +68,65 @@ final class PublishOutboxEvents extends Command
         $this->info(sprintf('Published %d outbox event(s).', $published));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Build the Phase 3 Redis Stream envelope for a committed outbox row.
+     *
+     * @return array<string, string>
+     */
+    private function streamFields(OutboxEventRecord $event): array
+    {
+        $payload = $event->payload ?? [];
+        $fields = [
+            'eventId' => (string) $event->event_id,
+            'eventType' => (string) $event->event_type,
+            'schemaVersion' => (string) config('outbox.schema_version', 1),
+            'aggregateType' => (string) $event->aggregate_type,
+            'aggregateId' => (string) $event->aggregate_id,
+            'payload' => json_encode($payload, JSON_THROW_ON_ERROR),
+            'occurredAt' => $event->created_at?->toJSON() ?? now()->toJSON(),
+        ];
+
+        if ($event->tenant !== null) {
+            $fields['tenantId'] = (string) $event->tenant->tenant_id;
+            $fields['shopId'] = (string) $event->tenant->shop_id;
+        }
+
+        foreach (['traceId', 'requestId', 'traceparent'] as $key) {
+            $value = $this->payloadContextValue($payload, $key);
+
+            if ($value !== null) {
+                $fields[$key] = $value;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Read correlation fields from top-level payload or nested context metadata.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function payloadContextValue(array $payload, string $key): ?string
+    {
+        $snakeKey = strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+
+        foreach ([$payload, $payload['context'] ?? null, $payload['metadata'] ?? null] as $source) {
+            if (! is_array($source)) {
+                continue;
+            }
+
+            foreach ([$key, $snakeKey] as $candidate) {
+                $value = $source[$candidate] ?? null;
+
+                if (is_string($value) && trim($value) !== '') {
+                    return trim($value);
+                }
+            }
+        }
+
+        return null;
     }
 }

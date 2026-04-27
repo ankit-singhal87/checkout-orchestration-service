@@ -19,6 +19,11 @@ it('publishes unpublished outbox events to Redis Streams', function () {
         'payload' => [
             'orderRef' => checkoutTestNamespace('order-ref'),
             'tenant' => 'fashion-store',
+            'context' => [
+                'request_id' => 'request-from-outbox-context',
+                'traceId' => 'trace-from-outbox-context',
+                'traceparent' => '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',
+            ],
         ],
     ]);
 
@@ -27,11 +32,26 @@ it('publishes unpublished outbox events to Redis Streams', function () {
         ->shouldReceive('command')
         ->once()
         ->with('xadd', \Mockery::on(function (array $arguments) use ($event): bool {
-            return $arguments[0] === 'checkout:events'
-                && $arguments[1] === '*'
-                && $arguments[2]['event_id'] === $event->event_id
-                && $arguments[2]['event_type'] === 'order.confirmed'
-                && $arguments[2]['tenant_record_id'] === (string) $event->tenant_record_id;
+            if ($arguments[0] !== 'checkout:events' || $arguments[1] !== '*') {
+                return false;
+            }
+
+            $fields = $arguments[2];
+            $payload = json_decode((string) $fields['payload'], true, flags: JSON_THROW_ON_ERROR);
+
+            return $fields['eventId'] === $event->event_id
+                && $fields['eventType'] === 'order.confirmed'
+                && $fields['schemaVersion'] === '1'
+                && $fields['aggregateType'] === 'order'
+                && $fields['aggregateId'] === $event->aggregate_id
+                && $fields['tenantId'] === 'fashion-store'
+                && $fields['shopId'] === 'fashion-main'
+                && $fields['occurredAt'] === $event->created_at?->toJSON()
+                && $fields['requestId'] === 'request-from-outbox-context'
+                && $fields['traceId'] === 'trace-from-outbox-context'
+                && $fields['traceparent'] === '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+                && ! array_key_exists('tenant_record_id', $fields)
+                && $payload['orderRef'] === checkoutTestNamespace('order-ref');
         }))
         ->andReturn('1-0');
 
