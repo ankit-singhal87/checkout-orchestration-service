@@ -6,8 +6,14 @@
 | PHP app change | focused Pest/unit command or `sh scripts/test/checkout-app.sh` | `make pre-push-full` | sometimes | no | moderate to expensive |
 | Docker/runtime change | relevant `make up-*` smoke path | `make pre-push-full` plus runtime smoke target | yes | no | moderate to expensive |
 | CI change | `make validate` and script syntax checks | CI pipeline/MR validation | no locally | no | cheap to moderate |
+| Agent/root tooling change | `make test-root-tools` | `make validate` plus `make tools-audit` when dependencies changed | no | audit uses registry | cheap |
 | Caddy/parity change | `make up-parity` then `make test-checkout-parity` | add default app/runtime checks | yes | no | moderate |
 | Worker/outbox change | focused worker command or `make test-order-processor-runtime` | `make test-worker-runtime-smoke` | yes | no | moderate |
 | ADR/human-doc change | link/term search and markdown link check | `make validate` | no by default | no | cheap |
 
-Do not run expensive Docker/parity validation for docs-only edits unless those docs change Docker/parity instructions.
+`make validate` includes the root npm-managed Markdown, OpenAPI, and
+`codex-workflows` status checks. Run `npm install` first when the root
+`node_modules` directory is missing.
+
+Do not run expensive Docker/parity validation for docs-only edits unless those
+docs change Docker/parity instructions.
