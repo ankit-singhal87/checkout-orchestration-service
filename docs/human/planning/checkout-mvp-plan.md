@@ -1,6 +1,6 @@
 ---
 name: Checkout MVP
-overview: Build a multi-tenant SaaS checkout demo inspired by SCAYLE's checkout stage and public Checkout API concepts. The core principle is PHP/Laravel for checkout orchestration, UI, and business flow, with Go reserved for selected internal services/processors where concurrency, async work, or tight latency justify it. The MVP will start in local/dev mode with Laravel, Blade, MVVM-style view models, two seeded tenants, and optional auth after checkout. It will remain AWS/EKS deploy-ready through Terraform and Kubernetes assets, using RoadRunner, Redis, MySQL with multiple schemas, OpenSearch-compatible search, GitLab CI/CD as primary CI, GitHub Actions as mirror validation, Docker, Kubernetes, CloudFront HTTP/3-ready edge delivery, messaging, OpenTelemetry/OTLP as the observability contract, and RFC 9457 Problem Details for API errors.
+overview: Build a multi-tenant SaaS checkout demo inspired by public headless-commerce checkout concepts. The core principle is PHP/Laravel for checkout orchestration, UI, and business flow, with Go reserved for selected internal services/processors where concurrency, async work, or tight latency justify it. The MVP will start in local/dev mode with Laravel, Blade, MVVM-style view models, two seeded tenants, and optional auth after checkout. It will remain AWS/EKS deploy-ready through Terraform and Kubernetes assets, using RoadRunner, Redis, MySQL with multiple schemas, OpenSearch-compatible search, GitLab CI/CD as primary CI, GitHub Actions as mirror validation, Docker, Kubernetes, CloudFront HTTP/3-ready edge delivery, messaging, OpenTelemetry/OTLP as the observability contract, and RFC 9457 Problem Details for API errors.
 todos:
   - id: phase-0-risk-tooling
     content: Define Phase 0 scaffolding, risks, scope guardrails, GitLab token usage, branches, agent guidance, local tools, debugging env, and Cursor/OpenAI/Codex usage boundaries.
@@ -12,7 +12,7 @@ todos:
     content: Write C4 architecture overview, local/deploy modes, DDD boundaries, multi-tenant checkout flow, ADRs, cost strategy, and named project-agent definitions. Phase 1 C4 docs now distinguish current local/dev state from planned deploy capabilities.
     status: completed
   - id: contracts
-    content: Define SCAYLE-inspired checkout contract, Blade view models, latency SLOs, domain events, and internal service contracts for the Phase 1 API/UI slice.
+    content: Define an original checkout contract, Blade view models, latency SLOs, domain events, and internal service contracts for the Phase 1 API/UI slice.
     status: completed
   - id: local-runtime
     content: Add free local Docker Compose baseline for Laravel checkout app, MySQL, Redis, optional OpenSearch/search, optional identity, and optional observability profiles.
@@ -36,7 +36,7 @@ isProject: false
 
 ## Target Shape
 
-Create a single monorepo with clear service boundaries, free local execution, and optional AWS EKS deployment assets. The demo should prove multi-tenant SaaS checkout architecture with a simple working UI first: tenant isolation, catalog and cart seed data, SCAYLE-inspired checkout flow, DDD boundaries, checkout state transitions, latency SLOs, observability, messaging, and infrastructure automation.
+Create a single monorepo with clear service boundaries, free local execution, and optional AWS EKS deployment assets. The demo should prove multi-tenant SaaS checkout architecture with a simple working UI first: tenant isolation, catalog and cart seed data, checkout orchestration, DDD boundaries, checkout state transitions, latency SLOs, observability, messaging, and infrastructure automation.
 
 Proposed structure:
 
@@ -157,7 +157,7 @@ flowchart LR
 
 
 
-SCAYLE-inspired public API shape:
+Candidate public API shape:
 
 - `GET /api/co/v3/state/config` - checkout configuration, supported countries, payment configuration hints, feature flags, tenant branding, and cacheable public settings.
 - `PUT /api/co/v3/state` - create or resume the checkout state from a signed checkout token containing basket/cart context.
@@ -195,21 +195,21 @@ Initial Blade routes for Phase 1:
 - `GET /checkout/confirmation/{orderRef}` - confirmation screen with optional account creation prompt.
 - `GET /auth/login` and `GET /auth/signup` - optional only, not required to complete checkout.
 
-Do not copy SCAYLE's full OpenAPI document verbatim into this repo. Use the public documentation as a reference for resource concepts and flow, then create an original MVP OpenAPI spec in [docs/agent/api/openapi.checkout.yaml](../../agent/api/openapi.checkout.yaml) with compatible ideas, simplified schemas, and clear attribution in the docs.
+Do not copy any vendor's full OpenAPI document verbatim into this repo. Use public documentation only as a reference for broad resource concepts and flow, then create an original MVP OpenAPI spec in [docs/agent/api/openapi.checkout.yaml](../../agent/api/openapi.checkout.yaml) with simplified schemas.
 
-Where copying SCAYLE too closely does not serve a new demo app today:
+Where copying a vendor API too closely does not serve a new demo app today:
 
 - Endpoint paths and versioning: keep the idea of a checkout `state`, but do not blindly copy `/api/co/v3/...` as the only public shape if the demo app benefits from clearer local Blade routes and simpler API names.
 - Complete resource breadth: skip loyalty, collection points, address book, carrier integrations, real payment providers, and full account APIs until the core checkout path is working.
-- Exact schemas: create original simplified request/response models focused on the demo, not SCAYLE-compatible payloads.
-- Token flow: use a signed checkout token concept, but do not copy SCAYLE-specific JWT claims, issuer/audience assumptions, or shop-secret behavior beyond the general pattern.
-- UI behavior: build an original Blade checkout experience using seeded tenants/products; do not replicate SCAYLE checkout component UI or proprietary interaction details.
-- Tenant model: design tenant resolution for this SaaS demo using verified domains and internal tenant IDs, not SCAYLE tenant-space naming or URL conventions.
+- Exact schemas: create original simplified request/response models focused on the demo, not vendor-compatible payloads.
+- Token flow: use a signed checkout token concept, but do not copy vendor-specific JWT claims, issuer/audience assumptions, or shop-secret behavior beyond the general pattern.
+- UI behavior: build an original Blade checkout experience using seeded tenants/products; do not replicate proprietary checkout component UI or interaction details.
+- Tenant model: design tenant resolution for this SaaS demo using verified domains and internal tenant IDs, not vendor-specific tenant-space naming or URL conventions.
 - Error catalog: use RFC 9457 Problem Details with original problem type URIs and domain errors.
-- Admin/import APIs: do not recreate SCAYLE Admin API. Seed data and simple internal commands are enough for Phase 1.
-- Commercial capabilities: avoid cloning SCAYLE-specific enterprise features. Use original examples that demonstrate architecture: tenant isolation, checkout consistency, observability, and async processing.
+- Admin/import APIs: do not recreate vendor admin APIs. Seed data and simple internal commands are enough for Phase 1.
+- Commercial capabilities: avoid cloning vendor-specific enterprise features. Use original examples that demonstrate architecture: tenant isolation, checkout consistency, observability, and async processing.
 
-Keep from SCAYLE as inspiration:
+Keep as generic headless-commerce inspiration:
 
 - Headless/API-first checkout mindset.
 - Checkout state as the central aggregate/read model.
@@ -223,7 +223,7 @@ Why checkout state instead of only direct order endpoints:
 - Checkout is a multi-step workflow where addresses, shipping, payment methods, stock, vouchers, and totals depend on each other.
 - Guest shoppers need resumable state before they become authenticated customers.
 - A signed checkout token or state handle allows idempotency, retry, fraud checks, stock refresh, and payment redirects without creating an order too early.
-- SCAYLE's public headless checkout flow also centers around initializing/resuming checkout state and repeatedly fetching current state.
+- Public headless checkout flows often center around initializing/resuming checkout state and repeatedly fetching current state.
 
 Avoid `tenants/{tenant}` in public checkout URLs. Tenant identity should be resolved from a verified shop domain, signed token claims, or authenticated API client configuration. A path tenant can be useful for local demos, but it must never be trusted as the authorization boundary.
 
@@ -245,7 +245,7 @@ Primary latency goal:
 
 Endpoint-specific SLOs:
 
-- Current Phase 1 routes use `/api/checkout/...`; `/api/co/v3/...` remains SCAYLE-inspired reference shape for later contract breadth.
+- Current Phase 1 routes use `/api/checkout/...`; broader versioned API shapes remain later contract work.
 - `GET /api/checkout/config`: p95 under `100ms`, cacheable at CloudFront for `60-300s` by tenant and environment.
 - Product listing/card reads: p95 under `250ms`, cacheable at CloudFront for `60s`, with product images served from CDN/static storage.
 - `POST /cart/items` and later storefront cart APIs: p95 under `400ms`, no CDN caching, Redis-backed cart/session write-through to MySQL as needed.
@@ -299,7 +299,7 @@ Core implementation principle:
 - PHP/Laravel owns checkout orchestration, Blade UI, public REST/API endpoints, tenant-aware application services, validation, Eloquent persistence, and the first complete happy path.
 - Go is used selectively for internal services/processors where it clearly helps: inventory reservation, outbox publishing, order processing, payment settlement simulation, search indexing, analytics event consumers, or high-throughput workers.
 - Do not split pricing, catalog, payment, order, and inventory into separate Go services by default. Extract only after the Laravel path is working and the boundary has a clear latency/concurrency reason.
-- Keep the architecture SCAYLE-like: PHP for domain-heavy API/business flow, Go for focused infrastructure or high-throughput internals.
+- Keep the architecture pragmatic: PHP for domain-heavy API/business flow, Go for focused infrastructure or high-throughput internals.
 - Prefer loose coupling, simplicity, and the right tool for the job over maximizing the number of technologies used in every layer.
 - Use RoadRunner capabilities where they simplify distributed architecture: long-running workers for HTTP, efficient queue/job handling, gRPC integration when needed, and potentially workflow integration later.
 
@@ -328,7 +328,7 @@ Recommended deploy observability posture:
 - Choose the exporter/backend as a later operational decision: Grafana Cloud, Datadog, Dash0, or self-hosted Grafana stack.
 - Use a collector/agent only when it adds concrete value: batching, sampling, filtering, redaction, host/container telemetry, credential isolation, or vendor export.
 
-Grafana Cloud is attractive because it has a free tier. Datadog is enterprise-realistic and aligns with SCAYLE's documented exporter path. Dash0 is OpenTelemetry-native. None should be hardwired into application code. The safer design is OTLP-first, then export through an adapter/profile selected later.
+Grafana Cloud is attractive because it has a free tier. Datadog is enterprise-realistic. Dash0 is OpenTelemetry-native. None should be hardwired into application code. The safer design is OTLP-first, then export through an adapter/profile selected later.
 
 In the microservices architecture, treat logging, metrics, traces, error formatting, caching policy, rate limits, tenant resolution, and idempotency as cross-cutting platform capabilities. They should be implemented through shared packages, middleware, gateway filters, collector services, and infrastructure components rather than copied manually into every service.
 
@@ -430,7 +430,7 @@ MySQL remains the source of truth. OpenSearch is a read model/projection rebuilt
 
 ## Multi-Tenant SaaS Model
 
-Model tenants explicitly from day one, because this is the biggest difference between a generic checkout demo and a SCAYLE-like SaaS platform.
+Model tenants explicitly from day one, because this is a core difference between a single-tenant checkout demo and a multi-tenant commerce platform.
 
 Default MVP tenancy approach:
 
@@ -597,7 +597,7 @@ Main risks:
 - Service extraction: extracting Go services too early can add network, contract, and deployment complexity before the Laravel happy path is solid.
 - Observability complexity: OpenTelemetry keeps the system portable, but adding Grafana Cloud, local Grafana, and Datadog at once can distract from the MVP.
 - CI/mirror drift: GitHub must stay a mirror, not a second workflow.
-- API/IP risk: use SCAYLE public docs for concepts only. Do not copy their OpenAPI verbatim or mimic proprietary behavior beyond an original educational demo.
+- API/IP risk: use public documentation for broad concepts only. Do not copy vendor OpenAPI documents verbatim or mimic proprietary behavior beyond an original educational demo.
 - Cloud deployment risk: Terraform must include budgets, manual approvals, TTL tags, and destroy runbooks before any AWS deployment.
 
 Scope guardrails:
@@ -644,7 +644,7 @@ Phase 1: Repository foundation and contracts
 - Define named project agents in [docs/agent/agents.md](../../agent/agents.md) with ownership boundaries and collaboration rules.
 - Define host tool requirements in [docs/agent/local-tools.md](../../agent/local-tools.md): Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
 - Keep MySQL, Redis, OpenSearch, and optional Keycloak container-managed with named volumes for persistent local data. Observability containers are optional profiles.
-- Define tenant model, checkout state machine, latency SLOs, catalog/cart seed model, and SCAYLE-inspired API contract.
+- Define tenant model, checkout state machine, latency SLOs, catalog/cart seed model, and original checkout API contract.
 - Define BDD scenarios and TDD expectations before implementing checkout behavior, using Pest, parallel test execution, Faker, Mockery, real MySQL-backed persistence tests, and explicit race-condition scenarios.
 - Define DDD bounded contexts, MySQL schema ownership, local/deploy mode split, and consistency model.
 - Build the first Laravel + Blade MVVM-style UI for two tenants with seeded product listing, product detail, cart, checkout, and confirmation screens.

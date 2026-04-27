@@ -279,7 +279,7 @@ Phase 1 responsibilities:
 
 - Keep the Laravel-first and local-first architecture coherent.
 - Define tenant model, checkout state machine, consistency model, and service extraction rules.
-- Review contract changes for accidental SCAYLE cloning or premature microservice splits.
+- Review contract changes for accidental vendor-specific cloning or premature microservice splits.
 
 ### Loom - Laravel Checkout Agent
 
@@ -318,7 +318,7 @@ Owns API contracts, proto contracts, schema examples, Problem Details shapes, an
 
 Phase 1 responsibilities:
 
-- Draft an original SCAYLE-inspired checkout API contract without copying SCAYLE schemas.
+- Draft an original checkout API contract without copying vendor schemas.
 - Define internal service contract placeholders only where a future boundary is likely.
 - Keep public errors aligned to RFC 9457 Problem Details.
 

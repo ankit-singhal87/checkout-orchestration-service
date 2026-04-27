@@ -15,4 +15,4 @@ This project uses the C4 model for architecture documentation.
 - Prefer diagrams that clarify boundaries and data flow.
 - Avoid diagramming every class.
 - Keep local/dev mode and deploy mode visibly separate.
-- Document original architecture decisions, not a SCAYLE clone.
+- Document original architecture decisions, not vendor-specific copies.

@@ -17,7 +17,7 @@ Phase 2 is closed. It optimized for interview-demo system completeness, not chec
 - Provider-specific observability dashboards before Phase 3 event/worker evidence is demonstrable.
 - EKS cluster creation, Terraform apply, registry push, cloud `kubectl` context, managed service setup, or deploy workflow before the local `kind` manifest path and explicit approval, budget/cost alerts, TTL/resource ownership tags, destroy runbooks, and rollback checkpoints exist.
 - AWS-only Kubernetes features in base manifests before a separate EKS overlay exists; keep the local base portable and document local-vs-EKS differences.
-- Full SCAYLE-shaped API coverage.
+- Broad commerce API coverage beyond the current checkout demo.
 
 ## Completed Async Slice
 

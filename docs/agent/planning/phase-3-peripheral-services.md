@@ -72,4 +72,4 @@ These lanes can run concurrently when their editable paths do not overlap:
 - OpenSearch production read-model depth beyond initial projections.
 - Go service extraction beyond inventory and order preprocessing.
 - EKS, Terraform apply, registry publishing, cloud queues, managed OpenSearch, managed observability exporters, and deploy automation.
-- Customer profile management, shipments/carriers, loyalty, collection points, address book, vouchers, real payment providers, and full SCAYLE-shaped API breadth.
+- Customer profile management, shipments/carriers, loyalty, collection points, address book, vouchers, real payment providers, and broad commerce API breadth.
