@@ -1,17 +1,53 @@
 # Checkout Orchestration Service
 
-Multi-tenant SaaS checkout demo inspired by public headless checkout concepts. The project starts with a local-first Laravel checkout orchestration app and keeps AWS/EKS deployment assets optional until budget guardrails and destroy runbooks exist.
+Independent generic headless-commerce checkout platform demo. The project starts with a local-first Laravel checkout orchestration app and keeps AWS-oriented production deployment assets optional until budget guardrails and destroy runbooks exist.
+
+## Status
+
+- Work-in-progress architecture POC.
+- Independent generic headless-commerce checkout demo.
+- Not production-ready.
+- Not affiliated with, endorsed by, sponsored by, or based on any vendor's internal implementation.
+
+## Disclaimer
+
+This is an independent learning and architecture demonstration project for a generic headless-commerce checkout platform. It is not affiliated with, endorsed by, sponsored by, or based on any vendor's internal implementation. No claim of compatibility, certification, partnership, or endorsement is made. All third-party names, trademarks, logos, and product references belong to their respective owners.
+
+See [DISCLAIMER.md](DISCLAIMER.md).
+
+## Reviewer Guide
+
+See [docs/reviewer-guide.md](docs/reviewer-guide.md) for the detailed reviewer path. It includes a 10-minute review flow through the project status, architecture decisions, checkout orchestration, runtime parity checks, and local command entrypoints.
+
+## What Works Today
+
+- Local Nginx/PHP-FPM Laravel runtime over HTTP on localhost for fast debugging.
+- Tenant-aware shop/cart/checkout flow.
+- Order confirmation with idempotency.
+- Transactional outbox write.
+- Redis Stream publication/consumer path.
+- Caddy edge parity smoke checks for HTTPS, HTTP/1.1, HTTP/2, and HTTP/3/QUIC.
+- GitLab CI validation.
+
+## Known Gaps
+
+- UI is not polished.
+- No real PSP integration.
+- No real inventory service.
+- No real Keycloak/OIDC integration yet.
+- AWS deployment is documented but not fully provisioned.
+- Production image hardening is future work.
 
 ## Current Phase
 
-This repository is entering Phase 3: peripheral services and workers on top of the completed Phase 1 foundation and closed Phase 2 local checkout/system-completion baseline. Implementation stays Laravel-first and local-first; the default local stack is Nginx/PHP-FPM over HTTP, Caddy owns the local HTTPS/H1/H2/H3 edge parity path, and Phase 3 adds async workers around the checkout core before any service extraction. Cloud deploy assets and broad observability/provider work remain Phase 4+.
+This repository is entering Phase 3: peripheral services and workers on top of the completed Phase 1 foundation and closed Phase 2 local checkout/system-completion baseline. Implementation stays Laravel-first and local-first; the default local stack is Nginx/PHP-FPM over HTTP on localhost for speed and debugging. Caddy owns the separate local HTTPS/H1/H2/H3 edge parity path, and Phase 3 adds async workers around the checkout core before any service extraction. Cloud deploy assets and broad observability/provider work remain Phase 4+.
 
 ## Target Shape
 
 - Laravel owns checkout orchestration, Blade UI, public REST APIs, validation, persistence, and the first happy path.
 - Go is reserved for selected internal processors or services after the Laravel path is working.
 - Local/dev mode runs free or near-free with Docker Compose.
-- Deploy mode is optional and targets AWS through Terraform and Kubernetes assets later.
+- Deploy mode is optional and targets AWS through Terraform and Kubernetes assets later, with RDS MySQL as the production database shape while local/CI use MySQL containers.
 - GitLab is primary. GitHub is a mirror.
 
 ## Local Quickstart
@@ -28,7 +64,7 @@ By default, Docker Compose starts supporting infrastructure. Start the Laravel c
 make up-app
 ```
 
-Use RoadRunner only when testing the optional performance/runtime profile:
+Use RoadRunner/Octane only when testing the optional performance/parity runtime profile; it is not the mandatory baseline:
 
 ```bash
 make up-roadrunner
@@ -40,7 +76,7 @@ For local-production parity, start the Caddy edge path:
 make up-parity
 ```
 
-The parity path uses Caddy in front of the default Nginx/PHP-FPM stack with local HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits. Caddy uses its local internal CA, so use `curl -k` for command-line checks unless you trust the local CA.
+The parity path uses Caddy in front of the default Nginx/PHP-FPM stack with local HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits. Caddy uses its local internal CA, so use `curl -k` for command-line checks unless you trust the local CA. HTTP/3/QUIC coverage here is edge smoke testing only, not a full application protocol test matrix.
 
 The direct Compose form is also supported:
 

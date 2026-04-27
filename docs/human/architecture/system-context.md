@@ -31,7 +31,7 @@ flowchart LR
 
 ## System Responsibilities
 
-- Provide a tenant-aware checkout demo that is original and SCAYLE-inspired without copying proprietary behavior or schemas.
+- Provide an original generic headless-commerce checkout demo without copying proprietary behavior or schemas.
 - Demonstrate transactional checkout consistency with ACID order confirmation, idempotency keys, and a durable outbox event.
 - Keep local development free or near-free with Docker Compose as the fastest demo runtime.
 - Keep AWS/EKS deployment optional and manually approved until cost, ownership, rollback, and destroy guardrails are explicit.

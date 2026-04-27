@@ -46,9 +46,9 @@ Risk: GitHub becomes a second workflow instead of a mirror.
 
 Mitigation: GitLab is primary. GitHub is updated by GitLab mirroring and may run lightweight validation only.
 
-### SCAYLE API/IP Risk
+### Vendor API/IP Risk
 
-Risk: copying SCAYLE's API, schemas, UI, or proprietary behavior too closely.
+Risk: copying a vendor API, schemas, UI, or proprietary behavior too closely.
 
 Mitigation: create an original educational demo. Keep only broad concepts: checkout state, basket in state, dependent recalculation, and separation of storefront/backend capabilities.
 
