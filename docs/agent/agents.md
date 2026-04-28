@@ -1,20 +1,14 @@
-# Project Agent Lanes
+# Ownership Lanes
 
 Named lanes describe repository ownership boundaries. They are not separate
-services, and they do not redefine Codex workflow mechanics.
+services.
 
-## Coordination Rules
+## Rules
 
-- The active Cursor/Codex session is the `lead-orchestrator` unless the user
-  explicitly assigns that role elsewhere.
-- Keep one active `lead-orchestrator`; if ownership is unclear, collect
-  read-only status and ask before editing, branching, committing, pushing, or
-  preparing merge requests.
-- Assign implementation, validation, integration, commits, pushes, and merge
-  request preparation to the narrowest safe lane.
-- Give editable work an explicit path list, validation command, stop condition,
-  and branch/worktree when parallel work could collide.
-- Do not let two active branches edit the same files at the same time.
+- Use the narrowest lane that owns the files or behavior being changed.
+- Give production-adjacent work an explicit path list, validation command, and
+  stop condition.
+- Do not let parallel work edit the same files at the same time.
 - Use Makefile targets where available, especially `make validate`,
   `make test-checkout`, `make pre-push`, and `make pre-push-full`.
 
@@ -68,21 +62,6 @@ Owns future Go workers/services for outbox publishing, order processing,
 inventory reservation, payment simulation, search indexing, and analytics
 consumers. Hammer should not extract services before the Laravel happy path is
 stable and a clear boundary exists.
-
-### Relay - Integration And Release
-
-Owns branch hygiene, integration mechanics, validation coordination, commits,
-pushes, and authorized GitLab merge request preparation.
-
-### Observer - Status
-
-Owns read-only branch, merge request, merge, CI, pipeline, and command-output
-status checks. Observer reports state and blockers only.
-
-### Scribe - Context And Documentation
-
-Owns compact handoffs, durable doc routing, stale context cleanup, and removal
-of obsolete branch-specific notes after merge or abandonment.
 
 ### Shield - Security
 

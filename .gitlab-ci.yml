@@ -102,8 +102,8 @@ worker:runtime-smoke:
         - Makefile
         - scripts/test/worker-runtime.sh
         - scripts/test/order-processor-runtime.sh
-        - docs/agent/local-tools.md
-        - docs/agent/demo-runbook.md
+        - wiki/runbooks/local-tools.md
+        - wiki/runbooks/demo.md
         - docker-compose.yml
         - docker/checkout.Dockerfile
         - apps/checkout/app/Console/**

@@ -15,53 +15,21 @@ for long-form planning background unless the user explicitly changes direction.
 - Keep local/dev mode free or near-free.
 - Keep deploy mode optional and manually approved.
 - Use [docs/agent/agents.md](docs/agent/agents.md) for named project-agent
-  ownership and handoff boundaries.
+  ownership boundaries.
 
-## Agent Execution Strategy
+## Agent Execution Rules
 
-- Treat the active Cursor/Codex session agent as the single
-  `lead-orchestrator` for this repository unless the user explicitly assigns
-  that role to another active session.
-- The user does not need to restate that the active agent is the
-  `lead-orchestrator`; agents must infer it from this file at session start.
-- There must be exactly one active `lead-orchestrator`. If an agent cannot
-  determine who owns orchestration, it must stop after read-only status
-  collection and ask for clarification before assigning workers, editing files,
-  committing, pushing, or preparing merge requests.
-- Codex is not allowed to run production-adjacent work in this repo without an
-  active `lead-orchestrator` because worker routing, collision prevention,
-  stop-condition handling, and integration ownership depend on that role.
-- Use the `lead-orchestrator` only for coordination: current intent, task
-  slicing, worker assignment, ownership boundaries, branch/worktree routing,
-  stop-condition escalation, context defragmentation, and user-facing status.
-- Use named worker agents for implementation, docs, validation, integration,
-  commits, pushes, and merge request preparation.
-- Use Relay for branch integration, validation coordination, commits, pushes,
-  and GitLab merge request preparation.
-- Use Scribe for compact context handoff, stale-context cleanup, and `make defragment-context`.
-- Use specialist agents for bounded work packages with explicit allowed paths,
-  out-of-scope paths, acceptance criteria, and validation commands.
-- Create background specialist tasks for independent streams so investigation,
-  review, docs, tests, and isolated implementation can progress in parallel and
-  unblock problems faster.
-- Prefer read-only advisory agents for architecture, security, contract, and
-  unfamiliar-code reviews.
-- Allow implementation agents to edit only inside their assigned path list.
-- Do not let parallel agents edit the same files at the same time.
+- Keep edits inside the requested scope and relevant ownership lane.
+- Use explicit allowed paths, validation commands, and stop conditions for
+  production-adjacent work.
+- Do not let parallel work edit the same files at the same time.
 - Follow existing coding standards before touching code. When introducing a new
   implementation technology, add or update a coding standards document before
   writing substantial code in that technology.
 - Follow agile slices: BDD scenario, failing Pest test where applicable,
   smallest implementation, validation, then integration.
-- If specialist agents are idle, use them for read-only review, backlog
-  refinement, fixture design, security/observability review, or CI hardening in
-  their own lane.
 - Stop and ask before dependency changes, destructive Git operations, paid cloud
   actions, secret handling, or changes outside the assigned scope.
-- Prefer small, sharp commits that each capture one coherent behavior,
-  guardrail, runtime, or documentation change. When the user has authorized a
-  commit/push workflow, Relay commits completed validated slices automatically
-  instead of batching unrelated work.
 - Commits and pushes happen only when the user asks or when the user has
   explicitly authorized an automatic commit loop for the current branch. Merge
   request creation happens only when the user asks or has enabled agent MR
@@ -72,15 +40,7 @@ for long-form planning background unless the user explicitly changes direction.
 - GitLab is primary. GitHub is a mirror.
 - Use short-lived branches: `feature/*`, `fix/*`, `docs/*`, `experiment/*`,
   and `agent/*`.
-- The `lead-orchestrator` should not implement work directly. Assign direct
-  implementation to a named worker on a short-scoped branch, for example
-  `agent/outbox-publisher` or `docs/git-workflow`.
-- Parallel specialist agents may create their own `agent/<short-scope>`
-  branches, for example `agent/outbox-publisher`, when their work is independent
-  and would otherwise collide with the orchestrator branch.
-- Agent branches must stay narrow, push only to GitLab `origin`, and be
-  integrated by Relay through review, cherry-pick, merge, or a GitLab merge
-  request under orchestrator direction.
+- Branches must stay narrow and push only to GitLab `origin`.
 - Push only to GitLab `origin`.
 - Agents may create GitLab merge requests targeting `main` when the user asks
   and an approved tool/token is available. Do not merge automatically.

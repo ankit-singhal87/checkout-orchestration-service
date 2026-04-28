@@ -12,10 +12,8 @@ Makefile
 .github/workflows/mirror-validation.yml
 wiki/roadmap/checkout-mvp-plan.md
 docs/agent/agents.md
-docs/agent/context-handoff.md
 wiki/status/phase-0-risk-register.md
 wiki/runbooks/ai-tooling.md
-docs/agent/branching-strategy.md
 wiki/runbooks/gitlab-token-usage.md
 wiki/runbooks/repository-mirroring.md
 wiki/runbooks/local-tools.md
@@ -31,7 +29,6 @@ scripts/dev/check-tools.sh
 scripts/dev/install-host-tools.sh
 scripts/dev/up.sh
 scripts/dev/down.sh
-scripts/agent/defragment-context.sh
 scripts/git/create-auto-merge-mr.sh
 "
 

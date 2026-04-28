@@ -611,8 +611,7 @@ AI tooling strategy:
 - Commit messages should be small, coherent, imperative, and describe the actual change, not the tool that made it.
 - Agents may push branches to GitLab when asked. Agents may create GitLab merge requests targeting `main` when the user asks and approved tooling is available; merge remains manual.
 - Merge requests should use squash-on-merge and a clean squash commit message.
-- Treat the active Cursor/Codex session agent as the single `lead-orchestrator` for task slicing, worker routing, integration ownership, validation coordination, commits, and push requests unless the user assigns that role to another active session.
-- Use bounded specialist agents for parallel review or implementation work packages with explicit allowed paths, acceptance criteria, validation commands, and stop conditions.
+- Keep agent work scoped to explicit paths, validation commands, and stop conditions.
 - Increase agent autonomy only when CI validation, path boundaries, and manual GitLab review gates are clear.
 - Require agents to follow existing coding standards, and add a standards document before introducing substantial code in a new implementation technology.
 - Follow agile slices instead of phase-completion batching: scenario, test, smallest implementation, validation, review, integration.
