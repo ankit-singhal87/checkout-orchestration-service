@@ -79,7 +79,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Chosen: Transactional outbox plus local Redis Streams.
 - Alternative: Synchronous downstream side effects in checkout confirmation.
 - Why: Order existence must depend on committed MySQL state, not async dependencies.
-- Consequence: Local demo delivery is retryable and idempotent; production-grade delivery is future work.
+- Consequence: Current local demo delivery is retryable and idempotent for `order.confirmed` scaffold events; the Phase 3 target changes the business boundary to Laravel publishing `order.placed` and Go services producing `order.confirmed`.
 - Detail: [Consistency decision](../../docs/adr/ADR-0004-checkout-consistency-model.md).
 
 ### Agent-assisted implementation with human-readable docs/ADRs
@@ -94,7 +94,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 
 - Some target-shape decisions are documented ahead of full implementation.
 - RoadRunner, Caddy parity, and worker smoke checks are validation slices, not deployment guarantees.
-- The future service boundary described in later ADRs is not yet the complete runtime.
+- The Go inventory and order-preprocessor boundary described in later ADRs is not yet the complete runtime.
 
 ## Source anchors
 

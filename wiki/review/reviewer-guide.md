@@ -14,7 +14,7 @@ The project is a work-in-progress architecture proof of concept for a multi-tena
 - Default local runtime is Laravel behind Nginx/PHP-FPM over HTTP.
 - Optional profiles cover RoadRunner/Octane runtime smoke checks and Caddy HTTPS/H1/H2/H3 edge smoke checks.
 - Order confirmation uses MySQL transactions, idempotency, and a transactional outbox row.
-- Redis Streams publication and a local order processor path exist for demos; production-grade delivery remains future work.
+- Redis Streams publication and a local Laravel order processor path exist for demos; they are scaffold evidence while the Phase 3 target moves toward Go inventory and order-preprocessor boundaries.
 
 ## Details
 
@@ -45,13 +45,13 @@ The project is a work-in-progress architecture proof of concept for a multi-tena
 | Guest checkout | Address, shipping, payment selection, and confirmation are implemented for the local happy path. |
 | Idempotent order confirmation | Confirmation is guarded by tenant and idempotency key inside a MySQL transaction. |
 | Transactional outbox | Successful confirmation writes a committed `order.confirmed` outbox row. |
-| Async local path | Outbox rows can publish to Redis Streams and be consumed by a replay-safe local order processor. |
+| Async local path | Outbox rows can publish to Redis Streams and be consumed by a replay-safe Laravel scaffold order processor. |
 | Runtime checks | CI includes checkout tests, RoadRunner smoke, Caddy parity smoke, and selected worker smoke checks. |
 | Public API errors | API failures target RFC 9457 Problem Details with safe context where implemented. |
 
 ### Suggested demo narrative
 
-Start with the project status in the root overview. Show the default local runtime, then walk through a tenant checkout. Use the checkout manager to explain the transaction boundary, then show the outbox publisher and worker command as the async path. Close with tradeoffs and known gaps so the review stays grounded.
+Start with the project status in the root overview. Show the default local runtime, then walk through a tenant checkout. Use the checkout manager to explain the current Laravel transaction boundary, then show the outbox publisher and worker command as scaffold async evidence. Close with the Phase 3 pivot and known gaps so the review stays grounded.
 
 ### What not to review deeply
 
@@ -68,6 +68,7 @@ Treat the repository like any other codebase: review source, tests, ADRs, and va
 
 - The UI is functional but not polished.
 - Payment and inventory behavior are simulated.
+- The local order processor consumes `order.confirmed` as scaffold evidence; the target Go order preprocessor and inventory service are not implemented yet.
 - Identity integration is not active in the checkout path.
 - AWS deployment and production image hardening remain future work.
 - HTTP/3 coverage is an edge smoke check, not a full application protocol matrix.

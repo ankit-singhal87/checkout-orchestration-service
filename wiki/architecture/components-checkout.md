@@ -30,10 +30,10 @@ flowchart LR
 - `app/Application`: checkout/cart/catalog/tenant use cases and transaction boundaries.
 - `app/Domain`: enums and domain concepts such as checkout status, shipping options, payment methods, stock state, order status, and tenant context.
 - `app/Infrastructure`: Eloquent persistence records for tenant, product, variant, cart, checkout state, order, and outbox tables.
-- `app/Console`: operational commands such as `checkout:outbox:publish`.
+- `app/Console`: operational commands such as `checkout:outbox:publish` and the current scaffold `checkout:order-processor:consume`.
 - `resources/views`: Blade templates that render explicit view models and do not query persistence.
 
-Order confirmation is the core transaction boundary. It creates one order for a tenant/idempotency key, transitions checkout state to confirmed, and writes an `order.confirmed` outbox row.
+Order confirmation is the current Laravel scaffold transaction boundary. It runs simulated payment and inventory checks, creates one order for a tenant/idempotency key, transitions checkout state to confirmed, and writes an `order.confirmed` outbox row. The accepted Phase 3 target moves durable order confirmation toward a Go order preprocessor and Go inventory service after Laravel publishes `order.placed`.
 
 ## Runtime Components
 
@@ -43,11 +43,12 @@ Order confirmation is the core transaction boundary. It creates one order for a 
 - `ProblemDetailsResponse` and framework exception rendering keep public API errors aligned to RFC 9457.
 - `ObserveHttpRequest` adds request and trace IDs to request attributes, response headers, and structured completion logs.
 - `PublishOutboxEvents` publishes unpublished `outbox_events` rows to the Redis Stream `checkout:events` and marks rows published only after Redis accepts the event.
+- `ConsumeOrderConfirmedEvents` consumes current scaffold `order.confirmed` envelopes for replay-safe audit projection and poison-message evidence.
 
 ## Deferred Boundaries
 
 - External broker delivery such as SQS/SNS is later work.
 - OpenSearch indexing is a later read-model projection.
 - Redis-backed route/tenant/customer/IP rate limiting belongs behind an HTTP middleware plus infrastructure adapter, not inside controllers.
-- Go processors/services remain optional after the Laravel happy path and require a documented concurrency, async, or latency reason plus a stable contract.
+- Go inventory and order-preprocessor services are the accepted Phase 3 target boundaries. Other Go processors/services remain optional and require a documented concurrency, async, or latency reason plus a stable contract.
 - Full OTLP traces/metrics and provider-specific observability backend selection are deferred behind the OTLP boundary.

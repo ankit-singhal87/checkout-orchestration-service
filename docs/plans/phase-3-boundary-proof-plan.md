@@ -26,23 +26,23 @@ Customer profile management, shipment/carrier flows, loyalty, collection points,
 1. **ADR/contracts reset:** align architecture docs, public/internal contracts, async event contracts, tenant registry strategy, identity model, read-path strategy, and rate-limit concept around the pivot.
 2. **Proto skeleton:** add minimal gRPC/protobuf shape for inventory reservation/release and order preprocessing, with examples and compatibility notes.
 3. **Go inventory skeleton:** create a thin service boundary with tenant-scoped reserve/release APIs, local persistence strategy, health checks, and focused tests; no full inventory platform.
-4. **Go order preprocessor skeleton:** consume/accept order-confirmed intent, validate tenant/idempotency/envelope metadata, and emit deterministic prepared-order output for later side effects.
+4. **Go order preprocessor skeleton:** consume/accept `order.placed` intent, validate tenant/idempotency/envelope metadata, and emit deterministic prepared-order output for later side effects.
 5. **Laravel boundary integration:** keep Laravel as FE/BFF and checkout owner while wiring only the boundary calls/events needed for the proof; avoid rebuilding internal worker platform breadth.
 6. **Docs/demo narrative:** document the end-to-end demo path, what is real, what is simulated, what remains deferred, and why the stop line prevents scope creep.
 
 ## Incremental Backlog
 
-1. Freeze the Phase 3 event envelope, consumer group names, retry/poison rules, and idempotent processor contract in [domain-events.md](../../docs/contracts/domain-events.md).
-2. Add focused tests or smoke scripts that prove `order.confirmed` is published once and can be consumed idempotently.
-3. Add the local worker runtime around the existing Laravel/Redis Streams path with health checks and restart behavior.
-4. Implement the outbox publisher retry metadata and poison isolation without changing checkout response semantics.
-5. Implement the deterministic inventory reservation processor against tenant-scoped seeded stock.
-6. Implement deterministic payment authorization/capture simulation with no real payment credentials, external webhooks, or provider calls.
-7. Add order confirmation notification and audit projection stubs after the first simulator processor is replay-safe.
+1. Freeze the Phase 3 event envelope, consumer group names, retry/poison rules, and idempotent processor contract in [domain-events.md](../../docs/contracts/domain-events.md), while keeping current Laravel scaffold labels explicit.
+2. Add or update focused tests and smoke scripts that prove the current `order.confirmed` scaffold remains publishable and consumable idempotently.
+3. Keep the local Laravel worker runtime as scaffold evidence with health checks, restart behavior, and command-registration smoke coverage.
+4. Implement or refine outbox publisher retry metadata and poison isolation without changing checkout response semantics.
+5. Add the Go inventory service skeleton for tenant-scoped reserve/release/materialize contracts.
+6. Add the Go order preprocessor skeleton for consuming `order.placed`, validating envelope metadata, materializing reservations, and emitting `order.confirmed`.
+7. Wire only the minimal Laravel boundary changes needed to publish `order.placed` when the Go preprocessor proof is ready.
 8. Add read-model/search projections only after retry, poison, and replay behavior have validation coverage.
-9. Review service extraction only after a processor shows measured concurrency, throughput, or latency pressure that Laravel workers cannot meet cleanly.
+9. Defer customer, shipment, notification, payment-provider depth, and broad worker projections until after the boundary proof is stable.
 
-Do not pull Go extraction forward just to create a service boundary. Phase 3 favors stable contracts, Laravel-first processors, and small replay-safe workers before any runtime split.
+Do not deepen the Laravel-internal worker platform as the target architecture. Phase 3 favors stable contracts, current-scaffold evidence, and skeletal Go inventory/order-preprocessor boundaries.
 
 ## Parallel Work Lanes
 

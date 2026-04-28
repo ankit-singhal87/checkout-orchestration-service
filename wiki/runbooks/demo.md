@@ -1,6 +1,8 @@
 # Phase 2/3 Demo Runbook
 
-Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, order processor consumption, request correlation, and validation. Phase 3 extends the same path with richer retry/poison evidence and deterministic inventory/payment simulators as those lanes land.
+Use this runbook to show the current local system-completion story: tenant-aware checkout, transactional order/outbox writes, Redis Streams publication, order processor consumption, request correlation, and validation.
+
+The Laravel outbox and order-processor workers are local scaffold/demo support. The accepted Phase 3 pivot moves the target MVP architecture toward Go inventory and order-preprocessor service boundaries, so do not treat deeper Laravel-internal worker expansion as the long-term target.
 
 ## Start Local Services
 
@@ -79,13 +81,14 @@ make up-order-processor
 
 The order processor runs `php artisan checkout:order-processor:consume` in the `checkout-order-processor` Compose service. It consumes `order.confirmed` envelopes from `checkout:events` with consumer group `checkout.order-processor`, records replay protection in `order_processor_processed_events`, writes invalid envelopes to `order_processor_poison_events`, and maintains the rebuildable audit projection in `order_processor_audit_events`.
 
-Phase 3 worker evidence should show:
+Current Laravel worker evidence should show:
 
 - Envelope fields from [domain-events.md](../../docs/contracts/domain-events.md), including event id, tenant, trace/request ids, correlation id, causation id, and idempotency key.
-- Consumer group names such as `checkout.order-processor`, with inventory and payment simulator groups added by their lanes.
-- Duplicate delivery replaying safely without duplicate inventory, payment, notification, or audit side effects.
+- Consumer group names such as `checkout.order-processor`.
+- Duplicate delivery replaying safely without duplicate audit side effects.
 - Poison-message isolation for invalid envelopes or exhausted retry attempts.
-- Deterministic inventory/payment simulator results derived from tenant-scoped fixture state and idempotency keys.
+
+Phase 3 target evidence belongs in the Go service lanes: tenant-scoped inventory reservation/release, order preprocessing, and the `order.placed` to `order.confirmed` boundary described in [ADR-0008](../../docs/adr/ADR-0008-checkout-mvp-architecture-pivot.md).
 
 The current smoke target is command registration for the order processor runtime:
 
