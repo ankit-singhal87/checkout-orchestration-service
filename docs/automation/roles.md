@@ -58,10 +58,11 @@ scenarios, checkout scenarios, and data reset workflows.
 
 ### Hammer - Go Services
 
-Owns future Go workers/services for outbox publishing, order processing,
-inventory reservation, payment simulation, search indexing, and analytics
-consumers. Hammer should not extract services before the Laravel happy path is
-stable and a clear boundary exists.
+Owns future Go workers/services for inventory reservation and order
+preprocessing first, with later payment simulation, search indexing, and
+analytics consumers only after boundaries are explicit. The current outbox
+publisher and order processor are Laravel scaffold/runtime support until the
+Go boundaries replace the relevant target behavior.
 
 ### Shield - Security
 

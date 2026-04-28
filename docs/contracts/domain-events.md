@@ -4,6 +4,12 @@ Domain events record committed business facts and feed local Redis Streams or de
 
 ## MVP Events
 
+Current Laravel scaffold emits and consumes:
+
+- `order.confirmed`
+
+Accepted Phase 3 target events include:
+
 - `checkout.state.created`
 - `checkout.address.updated`
 - `checkout.shipping_option.selected`
@@ -66,7 +72,9 @@ Required fields:
 
 Local Redis Streams map the envelope fields to message fields on stream `checkout:events`. Payload remains JSON encoded. Deploy-mode transports should keep the same envelope and only change the transport adapter.
 
-For checkout-created `order.placed` rows, the outbox payload must include `correlationId`, `causationId`, and `idempotencyKey` so the outbox publisher can promote them into Redis Stream envelope fields. `correlationId` is the public checkout id, `causationId` is `checkout.placement:{checkoutId}`, and `idempotencyKey` is `tenantId:order.placed:{checkoutPlacementIdempotencyKey}`.
+Current scaffold `order.confirmed` rows are created by Laravel checkout confirmation. Their payload includes `correlationId`, `causationId`, and `idempotencyKey` so the outbox publisher can promote them into Redis Stream envelope fields. `correlationId` is the public checkout id, `causationId` is `checkout.confirmation:{checkoutId}`, and `idempotencyKey` is `tenantId:order.confirmed:{checkoutConfirmationIdempotencyKey}`.
+
+For target checkout-created `order.placed` rows, the outbox payload must include `correlationId`, `causationId`, and `idempotencyKey` so the outbox publisher can promote them into Redis Stream envelope fields. `correlationId` is the public checkout id, `causationId` is `checkout.placement:{checkoutId}`, and `idempotencyKey` is `tenantId:order.placed:{checkoutPlacementIdempotencyKey}`.
 
 For order-preprocessor-created `order.confirmed` rows, the outbox payload must include `correlationId`, `causationId`, and `idempotencyKey`. `correlationId` is the original placement workflow id, `causationId` is the consumed `order.placed` event id, and `idempotencyKey` is `tenantId:order.confirmed:{orderPlacementIdempotencyKey}`.
 
@@ -86,7 +94,9 @@ Required payload fields:
 - `correlation_id`
 - `causation_id`
 
-`order.confirmed` records that the Go order preprocessor completed inventory materialization through the Go inventory service and saved the durable order outcome.
+In the current Laravel scaffold, `order.confirmed` records that Laravel completed simulated payment authorization, simulated inventory reservation, durable order creation, and checkout confirmation in one MySQL transaction.
+
+In the Phase 3 target architecture, `order.confirmed` records that the Go order preprocessor completed inventory materialization through the Go inventory service and saved the durable order outcome.
 
 Required payload fields:
 
@@ -109,7 +119,7 @@ Consumer group names are stable deployment contracts:
 - `checkout.outbox-publisher` publishes committed outbox rows to the transport.
 - `checkout.inventory-reservations` consumes inventory reservation requests.
 - `checkout.payment-simulator` consumes payment authorization and capture requests.
-- `checkout.order-processor` consumes `order.placed` events and confirms orders through the Go order preprocessor boundary.
+- `checkout.order-processor` currently consumes `order.confirmed` events for Laravel scaffold audit/replay evidence. In the Phase 3 target architecture, it consumes `order.placed` events and confirms orders through the Go order preprocessor boundary.
 - `checkout.audit-projection` consumes events for local audit/demo projection.
 
 Consumer names may include the runtime and instance id, for example `order-processor-1`. They are not durable contracts.

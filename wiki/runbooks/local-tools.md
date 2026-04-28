@@ -1,6 +1,6 @@
 # Local Tools
 
-## Host Tools Required For Phase 1
+## Host Tools Required For Local Development
 
 - Git
 - Docker
@@ -80,7 +80,7 @@ Run these through Docker Compose with named volumes or bind-mounted config:
 - PHP and Composer for Laravel bootstrap and local test execution.
 - MySQL with `mysql-data` for durable local schemas and seed data.
 - Redis with `redis-data` for append-only local cache/stream state.
-- OpenSearch by default with `opensearch-data`; use Elasticsearch only if a later ADR changes the search backend.
+- Optional OpenSearch under the `search` profile with `opensearch-data`; use Elasticsearch only if a later ADR changes the search backend.
 - Optional observability profile selected later. Local checkout development should not require Grafana Cloud, Datadog, Dash0, Prometheus, Loki, Tempo, or Grafana.
 - Grafana with `grafana-data`.
 - Keycloak with `keycloak-data`, optional and not required for guest checkout.

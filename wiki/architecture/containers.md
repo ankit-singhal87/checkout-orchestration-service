@@ -33,6 +33,7 @@ Current local default is intentionally small:
 - `make up-parity` layers Caddy in front of the default web stack for local-production edge parity: HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits.
 - Keep HTTPS and the reverse proxy out of the default TDD loop. Future gRPC endpoints are the exception and must use HTTP/2 even on the fast path.
 - The outbox publisher is a Laravel command, `checkout:outbox:publish`, exposed for demos through `make demo-outbox-publish`.
+- `checkout-outbox-worker` and `checkout-order-processor` are optional Laravel scaffold workers behind the `worker` profile. The order processor currently consumes `order.confirmed` for replay-safe audit/demo evidence, not as the target owner of order confirmation.
 
 Optional local profiles:
 
@@ -57,7 +58,7 @@ flowchart LR
   Otlp -. selected later .-> Backend[Grafana Cloud / Datadog / Dash0 / self-hosted]
 ```
 
-Deploy mode remains optional and manually approved. RoadRunner/Octane is an optional parity/performance profile, while Kubernetes, OpenSearch production projections, external cloud message brokers, and cloud telemetry exporters stay behind later slices. Phase 3 focuses on local peripheral workers and services around the existing checkout core.
+Deploy mode remains optional and manually approved. RoadRunner/Octane is an optional parity/performance profile, while Kubernetes, OpenSearch production projections, external cloud message brokers, and cloud telemetry exporters stay behind later slices. Phase 3 focuses on proving the target boundary where Laravel publishes `order.placed`, a Go order preprocessor consumes it, and a Go inventory service materializes reservations before `order.confirmed`.
 
 Amazon EKS is the production target for application workloads. Production MySQL runs on Amazon RDS for MySQL, not as a self-managed StatefulSet or other in-cluster database on EKS. Local Docker Compose MySQL, and any future `kind` MySQL binding, exist only for development, testing, and local manifest validation.
 
@@ -67,5 +68,5 @@ Amazon EKS is the production target for application workloads. Production MySQL 
 - Production MySQL is Amazon RDS for MySQL; this keeps managed backups, patching, Multi-AZ/failover options, and stateful database operations outside EKS.
 - OpenSearch is a rebuildable projection/read model only.
 - The transactional outbox table is the durability boundary; Redis Streams publication is local/demo async delivery and remains retryable.
-- Go workers/services require a documented concurrency, async, or latency reason plus a stable contract.
+- Go inventory and order-preprocessor services are the accepted Phase 3 target boundaries. Other Go workers/services require a documented concurrency, async, or latency reason plus a stable contract.
 - Observability backend selection stays behind the OTLP boundary.

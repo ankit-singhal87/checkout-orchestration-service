@@ -12,8 +12,8 @@ Proposed structure:
 
 - [apps/checkout](../../apps/checkout) - Laravel PHP app served by Nginx/PHP-FPM in the default local path and optionally by RoadRunner/Octane in the performance profile, containing the Blade checkout UI, public checkout API, application services, Eloquent models, and checkout domain orchestration.
 - [services/inventory-service](../../services/inventory-service) - optional Go gRPC service for stock reservation/release once the Laravel happy path is stable.
-- [workers/order-processor](../../workers/order-processor) - selected Go worker for async order side effects, payment settlement simulation, search indexing, analytics, and notification events.
-- [workers/outbox-publisher](../../workers/outbox-publisher) - Go or Laravel worker that publishes committed outbox events to Redis Streams locally or SQS/SNS in deploy mode.
+- [workers/order-processor](../../workers/order-processor) - placeholder for the target Go order-preprocessor boundary. The current runnable scaffold is the Laravel `checkout:order-processor:consume` command, which consumes `order.confirmed` for local audit/replay evidence.
+- [workers/outbox-publisher](../../workers/outbox-publisher) - placeholder for the outbox transport boundary. The current runnable implementation is the Laravel `checkout:outbox:publish` command and Docker Compose `checkout-outbox-worker` service.
 - [proto](../../proto) - shared gRPC contracts.
 - [seed](../../seed) - deterministic tenant, catalog, product image, variation, cart, and checkout seed data.
 - [infra/terraform](../../infra/terraform) - optional HashiCorp Terraform for VPC, EKS, CloudFront, RDS MySQL, ElastiCache Redis, OpenSearch/Elastic option, IAM, budgets, and a selected observability exporter.
@@ -42,7 +42,7 @@ Split the project into explicit modes so the MVP can be built for free while kee
 
 Local/dev mode:
 
-- Runs with Docker Compose first: Laravel through Nginx/PHP-FPM by default, MySQL, Redis, local OpenSearch, optional Keycloak later, local workers, and optional RoadRunner/Octane performance profile.
+- Runs with Docker Compose first: Laravel through Nginx/PHP-FPM by default, MySQL, Redis, optional local workers, optional OpenSearch, optional Keycloak, and optional RoadRunner/Octane performance profile.
 - Starts with a simple Laravel + Blade UI using MVVM-style view models.
 - Seeds two tenants with random but deterministic catalog, product variation, cart, and checkout data.
 - Does not require login for shopping or checkout.
@@ -66,7 +66,7 @@ flowchart LR
   DockerCompose --> LaravelBlade[LaravelBladeCheckout]
   DockerCompose --> LocalMySQL[(MySQLMultipleSchemas)]
   DockerCompose --> RedisStreams[(RedisStreams)]
-  DockerCompose --> LocalSearch[(LocalOpenSearch)]
+  DockerCompose -. optional .-> LocalSearch[(LocalOpenSearch)]
   DeployMode[DeployMode] --> EKS[AmazonEKS]
   EKS --> RDS[(RDSMySQL)]
   EKS --> ElastiCache[(ElastiCacheRedis)]
@@ -112,9 +112,8 @@ flowchart LR
   CheckoutApi --> Catalog[CatalogService]
   Catalog --> Search[(OpenSearchOrElastic)]
   CheckoutApi --> Redis[(RedisSessionLocksAndCache)]
-  CheckoutApi --> Pricing[GoPricingService]
-  CheckoutApi --> Inventory[GoInventoryService]
-  CheckoutApi --> Payment[GoPaymentService]
+  CheckoutApi -. Phase3 target .-> Inventory[GoInventoryService]
+  CheckoutApi -. later target .-> Payment[PaymentAdapterOrSimulator]
   CheckoutApi --> Order[OrderContext]
   CheckoutApi --> Events[OutboxAndMessaging]
   Events --> Worker[OrderProcessorWorker]
@@ -123,28 +122,18 @@ flowchart LR
   CheckoutApi --> Observability[OTelLogsMetricsTraces]
 ```
 
-Candidate public API shape:
+Current public API shape:
 
-- `GET /api/co/v3/state/config` - checkout configuration, supported countries, payment configuration hints, feature flags, tenant branding, and cacheable public settings.
-- `PUT /api/co/v3/state` - create or resume the checkout state from a signed checkout token containing basket/cart context.
-- `GET /api/co/v3/state` - return the current checkout state, including basket, addresses, available shipping options, available payment methods, totals, validation errors, and next allowed actions.
-- `PATCH /api/co/v3/state` - update partial checkout-level state such as customer email, consent flags, custom data, or newsletter opt-in.
-- `PUT /api/co/v3/state/addresses/{type}` - create or update `billing` or `shipping` address.
-- `DELETE /api/co/v3/state/addresses/{type}` - delete an address.
-- `POST /api/co/v3/state/addresses/copy` - copy billing address to shipping or shipping to billing.
-- `PUT /api/co/v3/state/shipping-options/{id}` - select an available shipping option.
-- `PUT /api/co/v3/state/payment-methods/{id}` - select a payment method.
-- `PATCH /api/co/v3/state/payment-methods/{id}` - update payment method details or payment-specific metadata.
-- `POST /api/co/v3/state/order-confirmation` - confirm order by starting the payment flow and returning updated state or redirect/action details.
-- `PUT /api/co/v3/state/basket/items/{id}` - update basket item quantity; quantity `0` removes the item.
-- `POST /api/co/v3/state/vouchers` - add voucher code to the order.
-- `DELETE /api/co/v3/state/vouchers/{code}` - remove voucher code from the order.
-- `GET /api/co/v3/state/collection-points` - search carrier collection points by postal code/address.
-- `PUT /api/co/v3/state/loyalty` - attach or register loyalty information.
-- `DELETE /api/co/v3/state/loyalty` - detach loyalty information.
-- `GET /api/co/v3/address-book` - retrieve authenticated customer addresses.
-- `GET /api/storefront/pre-purchase/products` - demo-only catalog endpoint for seeded product cards with images, prices, badges, and variation options.
-- `POST /api/storefront/cart/items` - demo-only cart endpoint for adding selected product variations before checkout state is initialized.
+- `GET /api/checkout/config` - checkout configuration, tenant branding, shipping options, payment methods, and feature flags for the resolved host tenant.
+- `PUT /api/checkout/state` - create or resume checkout state for a tenant-visible cart handle.
+- `GET /api/checkout/state?checkoutId={id}` - return the current checkout state, including basket, selected address, available shipping options, available payment methods, totals, and next allowed actions.
+- `PUT /api/checkout/state/address` - update the current shipping address.
+- `PUT /api/checkout/state/basket/items/{variantId}` - update basket item quantity; quantity `0` removes the item.
+- `PUT /api/checkout/state/shipping-option` - select the shipping option.
+- `PUT /api/checkout/state/payment-method` - select a simulated payment method.
+- `POST /api/checkout/state/order-confirmation` - confirm checkout idempotently with a request-body `idempotencyKey` and return the committed order summary.
+
+Historical candidate API shapes used `/api/co/v3/...` and broader resource breadth. Those remain future contract ideas only; the current source of truth is [openapi.checkout.yaml](../api/openapi.checkout.yaml) plus [apps/checkout/routes/api.php](../../apps/checkout/routes/api.php).
 
 Initial Blade routes for Phase 1:
 
@@ -157,7 +146,7 @@ Initial Blade routes for Phase 1:
 - `POST /checkout/address` - submit shipping/billing address.
 - `POST /checkout/shipping-option` - select shipping option.
 - `POST /checkout/payment-method` - select simulated payment method.
-- `POST /checkout/confirm` - place order and start async post-order processing.
+- `POST /checkout/confirm` - confirm checkout, create the local order, and write the current scaffold `order.confirmed` outbox event.
 - `GET /checkout/confirmation/{orderRef}` - confirmation screen with optional account creation prompt.
 - `GET /auth/login` and `GET /auth/signup` - optional only, not required to complete checkout.
 
@@ -619,7 +608,7 @@ Phase 1: Repository foundation and contracts
 
 Phase 2: Local runnable checkout path - closed baseline
 
-- Implement Laravel checkout API with RoadRunner.
+- Implement Laravel checkout API with Nginx/PHP-FPM as the default local path and RoadRunner/Octane as an optional performance profile.
 - Implement initial domain/application services inside Laravel before extracting services.
 - Add Go order processor, outbox publisher, or inventory service only after the Laravel happy path works and the boundary is useful.
 - Add MySQL migrations across multiple schemas for tenants, products, variations, carts, checkout state, orders, identity, and inventory reservations.
@@ -629,15 +618,14 @@ Phase 2: Local runnable checkout path - closed baseline
 - Add Pest integration tests for the full happy path against real MySQL.
 - Add concurrent execution tests for idempotency, inventory reservation, checkout state transitions, and outbox publishing.
 
-Phase 3: Peripheral services and workers
+Phase 3: Architecture pivot and boundary proof
 
-- Harden the Laravel checkout core enough to produce trustworthy worker inputs: tenant-safe checkout state, idempotent order creation, inventory/payment simulator interfaces, Problem Details coverage, and double-submit tests.
+- Keep the existing Laravel outbox publisher and order processor as local scaffold/demo support.
+- Reset the target MVP architecture around Laravel publishing `order.placed`, a Go order preprocessor consuming it, and a Go inventory service materializing reservations before `order.confirmed`.
 - Harden the async backbone: MySQL outbox to Redis Streams delivery, message envelope fields, consumer groups, retry policy, poison message handling, idempotent processors, and trace/request propagation.
-- Add local worker runtime support in Docker Compose with health checks, restart policy, Make targets, and CI smoke coverage for event publish and consume.
-- Implement first peripheral workers as small processors: inventory reservation, payment authorization/capture simulation, order confirmation side effects, notification stubs, and audit/event journal projection.
+- Use the current Laravel worker runtime for local evidence while contracts and skeletal Go boundaries are introduced.
 - Add search/catalog/order projection workers only after the event envelope and retry behavior are stable.
-- Consider Go only for processors with clear concurrency, async throughput, or latency value. Keep modules in Laravel until the boundary earns a separate runtime.
-- Run implementation in parallel lanes where paths do not overlap: core checkout, async backbone, worker runtime, inventory/payment simulators, observability contracts, contracts/docs, and security review.
+- Run implementation in parallel lanes where paths do not overlap: architecture/contracts, Go inventory skeleton, Go order preprocessor skeleton, Laravel boundary integration, docs/demo narrative, observability contracts, and security review.
 
 Phase 4: Observability, performance, and read models
 
@@ -673,13 +661,13 @@ Phase 6: Demo polish
 - Shopping and checkout do not require login.
 - Optional login/signup may happen before checkout, during checkout, or after checkout.
 - Tenancy is shared-database with strict tenant scoping for the MVP.
-- Local MySQL uses multiple schemas aligned to DDD bounded contexts.
+- Local MySQL currently uses one checkout database with tenant-scoped tables; multiple schemas remain a deploy/future isolation option.
 - Checkout/order writes use ACID transactions; async projections and side effects use eventual consistency.
 - Kubernetes target is local Kubernetes first and Amazon EKS optionally for application workloads.
 - Search default is local OpenSearch, then AWS OpenSearch when an AWS account is available, with Elastic Cloud covered as a documented alternative.
 - MySQL source of truth is local MySQL for dev/test and Amazon RDS for MySQL for production deploy mode; self-managed MySQL in EKS is not a production target.
 - Redis target is local Redis first and ElastiCache only for optional cloud deployment.
-- RoadRunner runs Laravel in production-style PHP containers.
+- Nginx/PHP-FPM is the default local Laravel runtime; RoadRunner/Octane is an optional production-style performance profile.
 - OpenTelemetry/OTLP is the standard telemetry interface; the observability backend remains swappable through explicit profiles.
 - RFC 9457 Problem Details is the standard HTTP error format.
 

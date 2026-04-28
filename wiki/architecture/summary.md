@@ -97,6 +97,8 @@ External edge traffic may support HTTPS over HTTP/1.1, HTTP/2, and HTTP/3 where 
 
 Local async transport uses Redis Streams. Deploy messaging is planned as an AWS SQS/SNS mapping after guardrails. If internal RPC is introduced, it defaults to protobuf/gRPC over HTTP/2. The current checkout path is Laravel web/API plus local Redis Streams, not a broad RPC service mesh.
 
+The sequence above describes the runnable local Phase 2 baseline. It is not the target Phase 3 MVP service architecture: accepted pivot work moves order placement toward Laravel publishing `order.placed`, a Go order preprocessor consuming it, and a Go inventory service materializing reservations before `order.confirmed`.
+
 ## Current limitations
 
 - AWS deployment is planned but not yet provisioned.

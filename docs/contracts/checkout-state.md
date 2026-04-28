@@ -2,7 +2,7 @@
 
 Checkout state is the central aggregate/read model for the customer-facing checkout flow. It lets guest shoppers resume checkout before an order exists.
 
-## State Machine
+## Current Scaffold State Machine
 
 ```mermaid
 stateDiagram-v2
@@ -10,11 +10,8 @@ stateDiagram-v2
   Created --> Addressed: add address
   Addressed --> ShippingSelected: select shipping
   ShippingSelected --> PaymentSelected: select payment
-  PaymentSelected --> Confirming: place order
-  Confirming --> Confirmed: order confirmed
-  Confirming --> PaymentActionRequired: payment action needed
-  Confirming --> Failed: validation or payment failure
-  PaymentActionRequired --> Confirmed: payment completed
+  PaymentSelected --> Confirmed: simulated payment/inventory succeeds
+  PaymentSelected --> Failed: simulated payment/inventory fails
   Failed --> Addressed: update state
   Confirmed --> [*]
 ```
@@ -25,10 +22,10 @@ Status slugs used by APIs:
 - `addressed`
 - `shipping_selected`
 - `payment_selected`
-- `confirming`
-- `payment_action_required`
 - `confirmed`
 - `failed`
+
+`confirming` and `payment_action_required` are target or later states, not current API status values.
 
 ## Required Concepts
 
@@ -45,9 +42,10 @@ Status slugs used by APIs:
 ## Consistency Rules
 
 - Basket, address, shipping, payment, voucher, and confirmation mutations recalculate dependent state.
+- Current Laravel scaffold confirms orders directly: simulated payment authorization and simulated inventory reservation run inside checkout confirmation before the durable `orders` row and `order.confirmed` outbox row are committed.
 - Laravel owns the FE/BFF checkout flow, cart state, data collection, tenant validation, and the fast order placement write.
-- Order placement accepts the shopper's final checkout intent, persists an idempotent placement record, and emits `order.placed`.
-- Order confirmation is a separate service boundary: the Go order preprocessor consumes `order.placed`, materializes the inventory reservation through the Go inventory service, saves the durable order outcome, and emits `order.confirmed`.
+- Target order placement accepts the shopper's final checkout intent, persists an idempotent placement record, and emits `order.placed`.
+- Target order confirmation is a separate service boundary: the Go order preprocessor consumes `order.placed`, materializes the inventory reservation through the Go inventory service, saves the durable order outcome, and emits `order.confirmed`.
 - Customer-facing order confirmation must only be shown after the durable MySQL order record exists.
 - Async side effects happen through the outbox after the relevant placement or confirmation write commits.
 - A duplicate placement or confirmation request with the same tenant, checkout/order, and idempotency key must resolve to the same committed result or the same deterministic failure.
@@ -67,8 +65,9 @@ Baseline simulator behavior:
 
 ## Phase 3 Event Triggers
 
-- Entering `Confirming` records `checkout.order.confirmation_requested`.
-- Committing the placement intent records `order.placed`.
+- Current scaffold checkout confirmation records `order.confirmed` after the local order commit.
+- Target entering `Confirming` records `checkout.order.confirmation_requested`.
+- Target committing the placement intent records `order.placed`.
 - Go inventory owns tenant-scoped reservation, materialization, release, and failure recovery semantics.
 - Go order preprocessor consumes `order.placed` and records `order.confirmed` only after inventory materialization and durable order outcome persistence.
 - Extracted payment processors consume capture request events only after the order commit or after an explicit deterministic simulator event.

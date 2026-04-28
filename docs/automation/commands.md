@@ -8,8 +8,12 @@
 | `make up-app` | Start Nginx/PHP-FPM checkout app over HTTP. | moderate | yes | no |
 | `make up-parity` | Start Caddy HTTPS/H1/H2/H3 edge profile. | moderate | yes | no |
 | `make up-roadrunner` | Start optional RoadRunner/Octane runtime profile. | moderate | yes | no |
+| `make up-outbox-worker` | Start checkout app plus Laravel outbox publisher worker. | moderate | yes | no |
+| `make up-order-processor` | Start checkout app plus Laravel order processor scaffold worker. | moderate | yes | no |
 | `make validate` | Run scaffold and Phase 1 validation. | cheap to moderate | no by default | no |
 | `make pre-push-full` | Run pre-push checks with checkout tests enabled. | expensive | sometimes | no |
+| `make test-worker-runtime-smoke` | Smoke test outbox and order processor worker runtime. | moderate | yes | no |
+| `make test-order-processor-runtime` | Smoke test order processor command registration. | moderate | yes | no |
 | `make test-markdown-style` | Run markdownlint over repository Markdown. | cheap | no | no |
 | `make test-openapi` | Lint the checkout OpenAPI contract. | cheap | no | no |
 | `make test-root-tools` | Run root npm-managed tool checks. | cheap | no | no |
