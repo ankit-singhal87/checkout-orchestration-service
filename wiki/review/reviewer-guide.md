@@ -22,8 +22,8 @@ The project is a work-in-progress architecture proof of concept for a multi-tena
 
 1. Read the [project overview](../../README.md).
 2. Skim the [architecture summary](../architecture/summary.md).
-3. Review the [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md).
-4. Review the [RDS MySQL decision](../adr/0007-production-database-rds-mysql.md).
+3. Review the [Laravel boundary decision](../../docs/adr/ADR-0006-laravel-clean-boundaries.md).
+4. Review the [RDS MySQL decision](../../docs/adr/ADR-0007-production-database-rds-mysql.md).
 5. Inspect the [checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php).
 6. Skim the [local command entrypoints](../../Makefile).
 

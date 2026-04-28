@@ -10,8 +10,10 @@ Makefile
 .env.example
 .gitlab-ci.yml
 .github/workflows/mirror-validation.yml
-wiki/roadmap/checkout-mvp-plan.md
-docs/agent/agents.md
+docs/prd/checkout-mvp-prd.md
+docs/design/checkout-mvp-architecture-design.md
+docs/plans/checkout-mvp-work-plan.md
+docs/automation/roles.md
 wiki/status/phase-0-risk-register.md
 wiki/runbooks/ai-tooling.md
 wiki/runbooks/gitlab-token-usage.md
@@ -19,7 +21,7 @@ wiki/runbooks/repository-mirroring.md
 wiki/runbooks/local-tools.md
 wiki/runbooks/debugging.md
 wiki/architecture/README.md
-wiki/adr/README.md
+docs/adr/README.md
 docker-compose.yml
 observability/otel-collector.yml
 observability/prometheus.yml

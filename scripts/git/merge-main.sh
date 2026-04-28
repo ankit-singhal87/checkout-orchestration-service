@@ -51,8 +51,8 @@ docs/api/openapi.checkout.yaml
 wiki/architecture/README.md
 docs/standards/php-8.5.md
 docs/contracts/problem-details.md
-wiki/status/phase-1-foundation.md
-wiki/roadmap/checkout-mvp-plan.md
+docs/plans/phase-1-foundation-plan.md
+docs/plans/checkout-mvp-work-plan.md
 scripts/ci/validate-phase1.sh
 scripts/dev/up.sh
 scripts/test/checkout-app.sh

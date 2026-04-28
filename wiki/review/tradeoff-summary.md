@@ -24,7 +24,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Self-managed MySQL in EKS.
 - Why: Managed database operations reduce scope and risk.
 - Consequence: EKS remains for application workloads; local/CI containers are substitutes only.
-- Detail: [RDS decision](../adr/0007-production-database-rds-mysql.md).
+- Detail: [RDS decision](../../docs/adr/ADR-0007-production-database-rds-mysql.md).
 
 ### PHP-FPM baseline vs RoadRunner/Octane default
 
@@ -72,7 +72,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Split every domain into services early.
 - Why: A working checkout path needs cohesive transactions and simple local review.
 - Consequence: Service extraction waits for useful, measurable boundaries.
-- Detail: [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md).
+- Detail: [Laravel boundary decision](../../docs/adr/ADR-0006-laravel-clean-boundaries.md).
 
 ### Transactional outbox/Redis Streams vs direct synchronous side effects
 
@@ -80,7 +80,7 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 - Alternative: Synchronous downstream side effects in checkout confirmation.
 - Why: Order existence must depend on committed MySQL state, not async dependencies.
 - Consequence: Local demo delivery is retryable and idempotent; production-grade delivery is future work.
-- Detail: [Consistency decision](../adr/0004-checkout-consistency-model.md).
+- Detail: [Consistency decision](../../docs/adr/ADR-0004-checkout-consistency-model.md).
 
 ### Agent-assisted implementation with human-readable docs/ADRs
 
@@ -100,10 +100,10 @@ These decisions reflect the current work-in-progress checkout demo. Some decisio
 
 - [Architecture summary](../architecture/summary.md)
 - [Known gaps](../status/known-gaps.md)
-- [Architecture decisions](../adr/README.md)
+- [Architecture decisions](../../docs/adr/README.md)
 - [Project overview](../../README.md)
 - [CI pipeline](../../.gitlab-ci.yml)
 
 ## Where to go from here
 
-Read the [architecture summary](../architecture/summary.md) for system shape, then use the [architecture decision records](../adr/README.md) for deeper rationale and [known gaps](../status/known-gaps.md) for current limitations.
+Read the [architecture summary](../architecture/summary.md) for system shape, then use the [architecture decision records](../../docs/adr/README.md) for deeper rationale and [known gaps](../status/known-gaps.md) for current limitations.

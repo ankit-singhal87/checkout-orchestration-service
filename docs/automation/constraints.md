@@ -8,5 +8,5 @@
 - Do not break existing Makefile targets.
 - Do not change application behavior unless the task explicitly asks for implementation work.
 - Do not pollute human docs with agent chatter.
-- Do not put reviewer-facing prose into agent docs unless it is needed for agent operation.
+- Do not put reviewer-facing prose into automation docs unless it is needed for execution.
 - Keep local/dev mode free or near-free; cloud/deploy work requires explicit approval.

@@ -1,13 +1,13 @@
 # Phase 2 System Completion Baseline
 
-Phase 2 is closed. It optimized for interview-demo system completeness, not checkout feature breadth. New peripheral services, workers, and async processing belong to [phase-3-peripheral-services.md](phase-3-peripheral-services.md). Remaining observability, service extraction, and deploy breadth belongs to Phase 4+ unless the active Phase 3 plan pulls a narrow slice forward.
+Phase 2 is closed. It optimized for interview-demo system completeness, not checkout feature breadth. New peripheral services, workers, and async processing belong to [phase-3-boundary-proof-plan.md](phase-3-boundary-proof-plan.md). Remaining observability, service extraction, and deploy breadth belongs to Phase 4+ unless the active Phase 3 plan pulls a narrow slice forward.
 
 ## Priority Order
 
 1. **Async boundary:** publish existing `outbox_events` to Redis Streams with an at-least-once Laravel command before considering a Go worker. **Current status:** implemented as `checkout:outbox:publish`; demo helpers are `make demo-outbox-publish` and `make demo-redis-events`.
 2. **Runtime story:** keep the default local path fast and familiar with Nginx/PHP-FPM over HTTP, and keep production-boundary behavior in explicit parity/performance profiles. **Current status:** `make up-app` starts Nginx/PHP-FPM over HTTP/1.1; `make up-roadrunner` starts the optional RoadRunner/Octane performance profile; `make up-parity` adds Caddy for HTTPS, HTTP/1.1, HTTP/2, HTTP/3 over QUIC/UDP 443, forwarded headers, security headers, and request-size limits.
 3. **Observability path:** make request logs, trace/request IDs, and local collector docs easy to demo before adding provider-specific exporters.
-4. **Demo runbook:** document a short path that starts local services, walks two tenants through checkout, shows an outbox event, and verifies tests. **Current status:** [demo.md](../runbooks/demo.md).
+4. **Demo runbook:** document a short path that starts local services, walks two tenants through checkout, shows an outbox event, and verifies tests. **Current status:** [demo.md](../../wiki/runbooks/demo.md).
 5. **Cloud/deploy shape:** keep Docker Compose as the fastest/default app demo runtime and use `kind` as the default local Kubernetes validation target for EKS-parity manifest work. Amazon EKS is the intended production Kubernetes target, but AWS/EKS/Terraform deployment remains unapproved until budget guardrails, ownership/TTL tags, rollback checkpoints, and destroy workflows are explicit.
 
 ## Deferred to Phase 4+

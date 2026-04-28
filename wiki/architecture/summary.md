@@ -121,8 +121,8 @@ Local async transport uses Redis Streams. Deploy messaging is planned as an AWS 
 - [Checkout orchestration implementation](../../apps/checkout/app/Application/Checkout/CheckoutManager.php)
 - [Outbox publisher command](../../apps/checkout/app/Console/Commands/PublishOutboxEvents.php)
 - [Order processor command](../../apps/checkout/app/Console/Commands/ConsumeOrderConfirmedEvents.php)
-- [Laravel boundary decision](../adr/0006-laravel-clean-boundaries.md)
-- [RDS MySQL decision](../adr/0007-production-database-rds-mysql.md)
+- [Laravel boundary decision](../../docs/adr/ADR-0006-laravel-clean-boundaries.md)
+- [RDS MySQL decision](../../docs/adr/ADR-0007-production-database-rds-mysql.md)
 
 ## Where to go from here
 
