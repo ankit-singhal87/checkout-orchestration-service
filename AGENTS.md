@@ -5,12 +5,6 @@ context. Use
 [wiki/roadmap/checkout-mvp-plan.md](wiki/roadmap/checkout-mvp-plan.md)
 for long-form planning background unless the user explicitly changes direction.
 
-`codex-workflows` is installed as a repo-local Codex tooling layer under
-`.agents/skills` and `.codex/agents`. Its recipe skills may be used for
-structured planning, TDD implementation, review, diagnosis, and reverse
-engineering, but this file and the `docs/agent` operating model remain the
-authority when instructions differ.
-
 ## Scope Boundaries
 
 - Phase 0 is scaffolding, documentation, guardrails, CI placeholders, and local tooling only.

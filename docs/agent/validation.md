@@ -11,9 +11,8 @@
 | Worker/outbox change | focused worker command or `make test-order-processor-runtime` | `make test-worker-runtime-smoke` | yes | no | moderate |
 | ADR/human-doc change | link/term search and markdown link check | `make validate` | no by default | no | cheap |
 
-`make validate` includes the root npm-managed Markdown, OpenAPI, and
-`codex-workflows` status checks. Run `npm install` first when the root
-`node_modules` directory is missing.
+`make validate` includes root npm-managed checks. Run `npm install` first when
+the root `node_modules` directory is missing.
 
 Do not run expensive Docker/parity validation for docs-only edits unless those
 docs change Docker/parity instructions.

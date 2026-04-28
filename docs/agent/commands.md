@@ -10,15 +10,12 @@
 | `make up-roadrunner` | Start optional RoadRunner/Octane runtime profile. | moderate | yes | no |
 | `make validate` | Run scaffold and Phase 1 validation. | cheap to moderate | no by default | no |
 | `make pre-push-full` | Run pre-push checks with checkout tests enabled. | expensive | sometimes | no |
-| `make codex-workflows-status` | Show installed `codex-workflows` version and managed file count. | cheap | no | no |
-| `make codex-workflows-update-dry-run` | Preview upstream `codex-workflows` managed-file updates. | cheap | no | no |
-| `make codex-workflows-update` | Update managed `.agents/skills` and `.codex/agents` files from the pinned npm package. | cheap | no | no |
 | `make test-markdown-style` | Run markdownlint over repository Markdown. | cheap | no | no |
 | `make test-openapi` | Lint the checkout OpenAPI contract. | cheap | no | no |
-| `make test-root-tools` | Run root npm-managed documentation, OpenAPI, and Codex workflow checks. | cheap | no | no |
+| `make test-root-tools` | Run root npm-managed tool checks. | cheap | no | no |
 | `make tools-outdated` | Show available updates for root npm-managed tools. | cheap | no | yes |
 | `make tools-audit` | Audit root npm-managed tools for known vulnerabilities. | cheap | no | yes |
-| `npm run tools:check` | Run root npm-managed documentation, OpenAPI, and Codex workflow checks. | cheap | no | no |
+| `npm run tools:check` | Run root npm-managed tool checks. | cheap | no | no |
 | `npm run tools:outdated` | Show available updates for root npm-managed tools. | cheap | no | yes |
 | `npm run tools:audit` | Audit root npm-managed tools for known vulnerabilities. | cheap | no | yes |
 | `sh scripts/test/checkout-app.sh` | Run checkout app Pest tests, using local PHP or checkout container fallback. | moderate | sometimes | no |
@@ -27,22 +24,10 @@
 
 Prefer the cheapest relevant command first. Do not run Docker/parity checks for docs-only changes unless the docs changed those flows.
 
-## Codex Workflows
-
-This repository pins `codex-workflows` in the root `package.json`; keep
-Laravel PHP dependencies in [../../apps/checkout/composer.json](../../apps/checkout/composer.json).
-Use npm only for repository-level Codex workflow tooling here.
-
-Managed upstream files live under `.agents/skills` and `.codex/agents`, with
-hashes tracked in `.codex-workflows-manifest.json`. Prefer
-`make codex-workflows-update-dry-run` before applying updates so locally
-modified managed files are visible before the manifest changes.
-
 ## Root NPM Policy
 
 Use the root `package.json` for repository-level tooling only:
 
-- Codex workflow tooling.
 - Markdown and documentation checks.
 - OpenAPI, schema, or generated-doc validation.
 - Other repeatable checks shared by multiple apps or services.
@@ -62,8 +47,8 @@ part of validation, CI, or agent runbooks.
 Update root npm tooling deliberately:
 
 - Run `make tools-outdated` to inspect available updates.
-- Update one tool family per branch, for example Codex workflows, Markdown
-  tooling, or OpenAPI tooling.
+- Update one tool family per branch, for example Markdown tooling or OpenAPI
+  tooling.
 - Prefer exact versions in `devDependencies`; let `package-lock.json` record the
   transitive dependency graph.
 - Run `npm install` after editing root npm dependencies.
