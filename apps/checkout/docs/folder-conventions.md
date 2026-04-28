@@ -1,6 +1,6 @@
 # Checkout App Folder Conventions
 
-The checkout app starts as a Laravel modular monolith with Clean Architecture / hexagonal boundaries. See [wiki/adr/0006-laravel-clean-boundaries.md](../../../wiki/adr/0006-laravel-clean-boundaries.md).
+The checkout app starts as a Laravel modular monolith with Clean Architecture / hexagonal boundaries. See [ADR-0006-laravel-clean-boundaries.md](../../../docs/adr/ADR-0006-laravel-clean-boundaries.md).
 
 Dependency direction:
 

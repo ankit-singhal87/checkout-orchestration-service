@@ -10,7 +10,7 @@ This document records what is implemented in the repository after the Phase 1 fo
 - **Local runtime:** Docker Compose starts MySQL/Redis by default, the checkout app behind `COMPOSE_PROFILES=app`, and optional search/observability/identity profiles. The checkout container runs pending migrations and idempotent seeders, then starts PHP-FPM behind Nginx over HTTP/1.1 for the default local path. `make up-roadrunner` starts the optional RoadRunner/Octane performance profile, and `make up-parity` adds a Caddy HTTPS/H1/H2/H3 edge path.
 - **Observability baseline:** Laravel adds request/trace correlation headers, propagates trace IDs into Problem Details, and emits structured HTTP completion logs to JSON stderr in local containers. Full OTLP metrics/traces and exporter selection remain later work.
 - **Testing and guardrails:** Pest feature tests with real MySQL in CI; parallel execution via `php artisan test --parallel` in [scripts/test/checkout-app.sh](../../scripts/test/checkout-app.sh); migration immutability and Markdown link hygiene are enforced by shared validation scripts. Common local commands are aggregated in [Makefile](../../Makefile).
-- **Standards:** PHP 8.5-oriented standards in [docs/standards/php-8.5.md](../../docs/standards/php-8.5.md); clean boundaries in [wiki/adr/0006-laravel-clean-boundaries.md](../adr/0006-laravel-clean-boundaries.md).
+- **Standards:** PHP 8.5-oriented standards in [docs/standards/php-8.5.md](../../docs/standards/php-8.5.md); clean boundaries in [ADR-0006-laravel-clean-boundaries.md](../../docs/adr/ADR-0006-laravel-clean-boundaries.md).
 - **Not yet wired** for this snapshot: vouchers, address copy/delete, collection points, loyalty, address book, first dedicated worker runtime, OpenSearch indexing/read model wiring, full OpenTelemetry metrics/traces/export, and AWS deploy assets. These are Phase 3 or Phase 4+ concerns depending on the active plan.
 
 ## Laravel surface
@@ -51,7 +51,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 
 ## Documentation and contracts (living docs)
 
-- **Plan:** [wiki/roadmap/checkout-mvp-plan.md](../roadmap/checkout-mvp-plan.md) (source of truth for phase scope).
+- **Plan:** [checkout-mvp-work-plan.md](../../docs/plans/checkout-mvp-work-plan.md) (source of truth for phase scope).
 - **BDD feature files:** [apps/checkout/tests/Behavior/features](../../apps/checkout/tests/Behavior/features) (scenarios; executable automation can grow with Gauge or Pest mappings later).
 - **Contracts:** [docs/contracts](../../docs/contracts) (checkout state, problem details, tenant model, BDD/TDD, seed data, etc.).
 
@@ -61,7 +61,7 @@ All tenant-scoped routes use the `tenant` middleware (host → `TenantContext`).
 - RoadRunner/Octane long-running worker safety and production-style runtime hardening beyond the optional local performance profile.
 - OpenTelemetry metrics/traces and exporter profile selection.
 
-See [phase-3-peripheral-services.md](phase-3-peripheral-services.md) for the active Phase 3 priority order. [phase-2-system-completion.md](phase-2-system-completion.md) is now the closed Phase 2 baseline.
+See [phase-3-boundary-proof-plan.md](../../docs/plans/phase-3-boundary-proof-plan.md) for the active Phase 3 priority order. [phase-2-system-completion-plan.md](../../docs/plans/phase-2-system-completion-plan.md) is now the closed Phase 2 baseline.
 
 ## How to re-verify locally
 

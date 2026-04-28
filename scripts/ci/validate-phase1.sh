@@ -49,7 +49,7 @@ infra/terraform/README.md
 infra/k8s/README.md
 docker/README.md
 docker/checkout.Dockerfile
-wiki/status/phase-1-foundation.md
+docs/plans/phase-1-foundation-plan.md
 docs/api/openapi.checkout.yaml
 docs/contracts/tenant-model.md
 docs/contracts/checkout-state.md
@@ -59,7 +59,7 @@ docs/contracts/seed-data.md
 docs/contracts/latency-slos.md
 docs/contracts/bdd-tdd.md
 docs/standards/php-8.5.md
-wiki/adr/0006-laravel-clean-boundaries.md
+docs/adr/ADR-0006-laravel-clean-boundaries.md
 scripts/test/behavior-specs.sh
 scripts/test/checkout-app.sh
 scripts/test/markdown-links.sh

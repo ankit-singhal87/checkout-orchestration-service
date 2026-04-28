@@ -1,38 +1,8 @@
----
-name: Checkout MVP
-overview: Build an independent multi-tenant checkout demo using original simplified headless-commerce contracts and flows. The core principle is PHP/Laravel for checkout orchestration, UI, and business flow, with Go reserved for selected internal services/processors where concurrency, async work, or tight latency justify it. The MVP will start in local/dev mode with Laravel, Blade, MVVM-style view models, two seeded tenants, and optional auth after checkout. AWS-oriented deployment planning remains optional and separate from the default developer loop, using RoadRunner, Redis, MySQL with multiple schemas, OpenSearch-style search projections, GitLab CI/CD as primary CI, mirror validation, Docker, Kubernetes, edge protocol planning, messaging, OpenTelemetry/OTLP as the observability contract, and RFC 9457 Problem Details for API errors.
-todos:
-  - id: phase-0-risk-tooling
-    content: Define Phase 0 scaffolding, risks, scope guardrails, GitLab token usage, branches, agent guidance, local tools, debugging env, and Cursor/OpenAI/Codex usage boundaries.
-    status: completed
-  - id: repo-foundation
-    content: Create monorepo structure with service, infra, docs, proto, Docker, and GitLab CI folders.
-    status: completed
-  - id: architecture-docs
-    content: Write C4 architecture overview, local/deploy modes, DDD boundaries, multi-tenant checkout flow, ADRs, cost strategy, and named project-agent definitions. Phase 1 C4 docs now distinguish current local/dev state from planned deploy capabilities.
-    status: completed
-  - id: contracts
-    content: Define an original checkout contract, Blade view models, latency SLOs, domain events, and internal service contracts for the Phase 1 API/UI slice.
-    status: completed
-  - id: local-runtime
-    content: Add free local Docker Compose baseline for Laravel checkout app, MySQL, Redis, optional OpenSearch/search, optional identity, and optional observability profiles.
-    status: completed
-  - id: first-services
-    content: Implement the first tenant-aware happy-path checkout UI/API and simulated async processing. Web guest checkout, first public API slice, idempotent order confirmation, durable outbox rows, local Redis Stream publication, and local consumption support exist for demos; production-grade delivery remains later work.
-    status: completed
-  - id: observability
-    content: Add OpenTelemetry-first logs, metrics, traces, Problem Details errors, and optional exporter profiles for Grafana Cloud, Datadog, Dash0, or a self-hosted Grafana stack.
-    status: pending
-  - id: eks-infra
-    content: Add optional Terraform and Kubernetes deployment assets for EKS, RDS, ElastiCache, OpenSearch, and Datadog with cost controls.
-    status: pending
-  - id: ci-demo
-    content: Add GitLab CI/CD as primary CI/CD, GitHub Actions mirror validation, and demo runbooks for build, test, deploy, and walkthrough.
-    status: pending
-isProject: false
----
+# Checkout MVP Architecture Design
 
-# Multi-Tenant Checkout MVP Demo Plan
+This design preserves the technical architecture from the original MVP roadmap.
+Product scope now lives in [the PRD](../prd/checkout-mvp-prd.md), and delivery
+sequencing lives in [the work plan](../plans/checkout-mvp-work-plan.md).
 
 ## Target Shape
 
@@ -51,7 +21,7 @@ Proposed structure:
 - [docker](../../docker) - Dockerfiles and local development images.
 - [.gitlab-ci.yml](../../.gitlab-ci.yml) - primary GitLab CI/CD pipeline for lint, test, build, scan, images, preview/demo checks, and optional deploy.
 - [.github/workflows](../../.github/workflows) - optional mirror validation only.
-- [docs](../../docs) and [wiki](../README.md) - artifacts, contracts, runbooks, diagrams, and agent handoff docs.
+- [docs](../../docs) and [wiki](../../wiki/README.md) - artifacts, contracts, runbooks, diagrams, and agent handoff docs.
 
 ## Documentation Model
 
@@ -64,7 +34,7 @@ C4 deliverables:
 - Component Diagrams: checkout orchestration components, tenant resolution, cart/checkout/order contexts, outbox publisher, observability adapters, Problem Details adapter, cache/rate-limit/idempotency adapters.
 - Code Diagrams: only for high-value areas such as checkout state machine, order confirmation transaction, inventory reservation, and outbox publishing.
 
-Keep C4 diagrams in [wiki/architecture](../architecture) and use them alongside ADRs. Prefer diagrams that clarify service boundaries and data flow rather than documenting every class.
+Keep C4 diagrams in [wiki/architecture](../../wiki/architecture) and use them alongside ADRs. Prefer diagrams that clarify service boundaries and data flow rather than documenting every class.
 
 ## Execution Modes
 
@@ -473,7 +443,7 @@ Example cart summary fields:
 
 Default MVP recommendation: use local OpenSearch for the free demo, then support AWS OpenSearch first through Terraform when an AWS account exists. This keeps infrastructure under AWS/EKS/IAM networking, simplifies private access from EKS, and avoids cross-vendor operational setup for the first cloud milestone.
 
-Document Elastic Cloud as an alternative in [wiki/adr/search-platform.md](../adr/search-platform.md):
+Document Elastic Cloud as an alternative in [ADR-0009-search-platform-direction.md](../adr/ADR-0009-search-platform-direction.md):
 
 - AWS OpenSearch benefits: native AWS IAM/VPC integration, simpler Terraform ownership, lower vendor sprawl, easier private networking from EKS.
 - AWS OpenSearch risks: version/API drift from Elastic, fewer Elastic-native features, licensing/plugin differences.
@@ -569,10 +539,10 @@ Initial files and agent guidance:
 
 - Add [AGENTS.md](../../AGENTS.md) with project rules for AI agents: scope boundaries, no secret commits, GitLab primary/GitHub mirror, Laravel-first principle, Go extraction rules, testing expectations, and plan adherence.
 - Add [README.md](../../README.md) with project purpose, local/dev mode, deploy mode, quickstart placeholder, and architecture summary.
-- Add [wiki/status/phase-0-risk-register.md](../status/phase-0-risk-register.md).
+- Add [wiki/status/phase-0-risk-register.md](../../wiki/status/phase-0-risk-register.md).
 - Add AI-tooling guidance for local contributors.
-- Add [wiki/architecture](../architecture) C4 skeleton.
-- Add [wiki/adr](../adr) with ADR index and initial ADRs.
+- Add [wiki/architecture](../../wiki/architecture) C4 skeleton.
+- Add [docs/adr](../adr) with ADR index and initial ADRs.
 - Add [scripts/ci](../../scripts/ci) placeholders for shared CI commands.
 
 Local tools and debugging setup:
@@ -635,7 +605,7 @@ Phase 0: Scaffolding, risk, and tooling setup
 Phase 1: Repository foundation and contracts
 
 - Create monorepo layout, shared documentation, Docker Compose, proto contracts, and service READMEs.
-- Add C4 documentation skeleton under [wiki/architecture](../architecture).
+- Add C4 documentation skeleton under [wiki/architecture](../../wiki/architecture).
 - Define named delivery roles with ownership boundaries and collaboration rules.
 - Define host tool requirements: Git, Docker, and Docker Compose are required; PHP 8.5, Composer, Node.js, and debugging helpers are recommended for editor productivity.
 - Keep MySQL, Redis, OpenSearch, and optional Keycloak container-managed with named volumes for persistent local data. Observability containers are optional profiles.

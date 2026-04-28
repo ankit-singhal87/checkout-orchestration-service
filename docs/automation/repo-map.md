@@ -8,5 +8,5 @@
 - `.gitlab-ci.yml` - primary CI pipeline definition.
 - `Makefile` - canonical local command entrypoint.
 - `wiki` - reviewer-facing status, architecture, ADRs, runbooks, and roadmap context.
-- `docs/agent` - compact agent operating context and workflow.
+- `docs/automation` - compact execution context and workflow.
 - `docs/api`, `docs/contracts`, `docs/standards` - stable implementation artifacts.

@@ -16,7 +16,7 @@ Local development is the primary mode. AWS-oriented deployment planning exists, 
 - Use the [architecture summary](architecture/summary.md) for runtime, checkout, worker, and protocol boundaries.
 - Use the [tradeoff summary](review/tradeoff-summary.md) for the highest-signal decisions.
 - Use the [known gaps](status/known-gaps.md) page to avoid over-reading current maturity.
-- Agent-operational documentation lives in [agent docs](../docs/agent/README.md) and is not required for human review.
+- Automation guidance lives in [docs/automation](../docs/automation/README.md) and is not required for human review.
 
 ## Details
 
@@ -26,9 +26,9 @@ Local development is the primary mode. AWS-oriented deployment planning exists, 
 | System and runtime shape | [Architecture summary](architecture/summary.md) |
 | Decision rationale | [Tradeoff summary](review/tradeoff-summary.md) |
 | Current limitations | [Known gaps](status/known-gaps.md) |
-| Deeper decision records | [Architecture decisions](adr/README.md) |
+| Deeper decision records | [Architecture decisions](../docs/adr/README.md) |
 | Older C4 supporting views | [Architecture evidence](architecture/README.md) |
-| Longer roadmap context | [MVP planning background](roadmap/checkout-mvp-plan.md) |
+| Longer roadmap context | [MVP work plan](../docs/plans/checkout-mvp-work-plan.md) |
 
 ## Current limitations
 
@@ -39,8 +39,8 @@ Local development is the primary mode. AWS-oriented deployment planning exists, 
 ## Source anchors
 
 - [Project overview](../README.md)
-- [Architecture decisions](adr/README.md)
-- [Phase 1 foundation summary](status/phase-1-foundation.md)
+- [Architecture decisions](../docs/adr/README.md)
+- [Phase 1 foundation plan](../docs/plans/phase-1-foundation-plan.md)
 - [Risk register](status/phase-0-risk-register.md)
 
 ## Where to go from here

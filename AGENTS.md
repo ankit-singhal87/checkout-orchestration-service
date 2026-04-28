@@ -1,8 +1,8 @@
 # Agent Guidance
 
-Start with [docs/agent/README.md](docs/agent/README.md) for compact agent
-context. Use
-[wiki/roadmap/checkout-mvp-plan.md](wiki/roadmap/checkout-mvp-plan.md)
+Start with [docs/automation/README.md](docs/automation/README.md) for compact
+automation guidance. Use
+[docs/plans/checkout-mvp-work-plan.md](docs/plans/checkout-mvp-work-plan.md)
 for long-form planning background unless the user explicitly changes direction.
 
 ## Scope Boundaries
@@ -14,7 +14,7 @@ for long-form planning background unless the user explicitly changes direction.
   or AWS deployment in Phase 0.
 - Keep local/dev mode free or near-free.
 - Keep deploy mode optional and manually approved.
-- Use [docs/agent/agents.md](docs/agent/agents.md) for named project-agent
+- Use [docs/automation/roles.md](docs/automation/roles.md) for named project-agent
   ownership boundaries.
 
 ## Agent Execution Rules
@@ -81,7 +81,7 @@ for long-form planning background unless the user explicitly changes direction.
 - Target PHP 8.5 for Laravel application code and follow
   [docs/standards/php-8.5.md](docs/standards/php-8.5.md).
 - Keep the checkout app as a Laravel modular monolith with clean boundaries; see
-  [wiki/adr/0006-laravel-clean-boundaries.md](wiki/adr/0006-laravel-clean-boundaries.md).
+  [docs/adr/ADR-0006-laravel-clean-boundaries.md](docs/adr/ADR-0006-laravel-clean-boundaries.md).
 - Laravel/PHP owns checkout orchestration, Blade UI, public REST APIs,
   validation, persistence, and the first complete happy path.
 - Go is introduced only for selected processors or services with clear

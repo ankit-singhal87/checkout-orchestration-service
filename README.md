@@ -37,7 +37,7 @@ The default checkout app listens on `http://localhost:8080`. Tenant demo hosts i
 ## Documentation
 
 - [Human docs](wiki/README.md) - reviewer-facing architecture, ADRs, and planning context.
-- [Agent docs](docs/agent/README.md) - low-token operating context for AI coding agents.
+- [Automation guide](docs/automation/README.md) - low-token operating context for agents and local automation.
 - [Documentation map](docs/README.md) - short audience-based index.
 
 ## Known Gaps
