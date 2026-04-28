@@ -1,6 +1,6 @@
 # GitLab Token Usage
 
-The `cursor-dev-agent-git` token is for local Git over HTTPS only.
+The local agent Git token is for local Git over HTTPS only.
 
 ## Allowed Use
 

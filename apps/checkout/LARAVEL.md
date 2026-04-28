@@ -31,7 +31,7 @@ You can also watch bite-sized lessons with real-world projects on [Laravel Learn
 
 ## Agentic Development
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Laravel's predictable structure and conventions make it suitable for AI coding agents such as Codex. Install [Laravel Boost](https://laravel.com/docs/ai) to support AI-assisted workflows:
 
 ```bash
 composer require laravel/boost --dev

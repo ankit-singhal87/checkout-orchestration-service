@@ -68,7 +68,7 @@ Use `make install-host-tools` only for local workstation bootstrap or repair. It
 
 ## Debugging Tools
 
-- Cursor or VS Code PHP Debug extension for listening to Xdebug connections.
+- VS Code PHP Debug or another PHP/Xdebug-capable IDE listener.
 - Xdebug installed in the PHP 8.5 Laravel container, disabled by default and enabled with `XDEBUG_MODE=debug`.
 - RoadRunner CLI inside the Laravel container for the optional performance profile; not required on the host.
 - Delve for Go debugging later, preferably in the Go worker container or a dedicated debug image.

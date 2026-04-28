@@ -11,7 +11,7 @@
 - Do not force HTTPS or the reverse proxy into every TDD loop. If a future endpoint is gRPC, use HTTP/2 even in the fast path.
 - Use `docker compose exec checkout php artisan optimize:clear` to clear normal Laravel runtime caches. Use RoadRunner reload commands only in the optional performance profile.
 - Xdebug belongs in the Laravel PHP container, disabled by default for performance.
-- The host only needs an IDE listener such as the Cursor or VS Code PHP Debug extension.
+- The host only needs an IDE listener such as VS Code PHP Debug or another PHP/Xdebug-capable debugger.
 - Use path mappings from the container app path, for example `/app`, to the host workspace path.
 - Enable Xdebug with `XDEBUG_MODE=debug COMPOSE_PROFILES=app sh scripts/dev/up.sh` when stepping through code.
 - Set your IDE listener to port `9003`; the container uses `host.docker.internal` to connect back to the host.
