@@ -1,22 +1,22 @@
 # AI Tooling
 
-## Cursor
+## Codex
 
-Cursor is the primary implementation environment. Agents should work through normal Git branches and GitLab merge requests.
+Codex is the primary implementation environment. Agents should work through normal Git branches and GitLab merge requests.
 Agent commits should be small, coherent, and named with clean imperative messages, not generic tool-generated text.
 
-The `cursor-dev-agent-git` GitLab token is only for local Git over HTTPS.
+The local agent Git token is only for local Git over HTTPS.
 
 Use it like a password when Git prompts for credentials:
 
 - Username: your GitLab username.
-- Password: the `cursor-dev-agent-git` token.
+- Password: the local agent Git token.
 
 Do not store this token in `.env`, docs, scripts, CI variables, shell history, or repository files.
 
-## ChatGPT/Codex
+## Codex Review Uses
 
-Use the ChatGPT/Codex plan as a separate assistant for:
+Use Codex for:
 
 - architecture review
 - second opinions
@@ -24,17 +24,9 @@ Use the ChatGPT/Codex plan as a separate assistant for:
 - code review prompts
 - documentation review
 
-Do not assume a ChatGPT/Codex subscription pays for Cursor model usage.
+Do not use separate provider API keys unless a separate API budget is intentional.
 
-## Provider API Keys In Cursor
-
-Cursor can use provider API keys, but OpenAI API usage is billed separately from ChatGPT/Codex subscriptions.
-
-Only add a provider API key to Cursor if a separate API budget is intentional.
-
-Configuration path:
-
-`Cursor Settings > Models > Provider > Add key > Verify > Save`
+Keep provider credentials outside the repository and outside committed shell history.
 
 ## Repository Hosting
 

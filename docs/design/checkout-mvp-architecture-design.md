@@ -506,7 +506,7 @@ Phase 0 establishes the project operating model before feature implementation. I
 
 GitLab token usage:
 
-- Use the `cursor-dev-agent-git` GitLab personal access token only for Git over HTTPS from Cursor/local tooling.
+- Use the local agent Git personal access token only for Git over HTTPS from local tooling.
 - Required scopes: `read_user`, `read_repository`, and `write_repository`.
 - Treat the token as a password. Do not commit it, paste it into docs, place it in `.env`, or expose it in CI logs.
 - For Git HTTPS operations, use the GitLab username as the username and the token as the password when prompted.
@@ -565,8 +565,8 @@ Scope guardrails:
 
 AI tooling strategy:
 
-- Cursor is the primary IDE/agent environment for implementation.
-- Cursor work should produce normal commits for GitLab. GitHub receives mirrored updates from GitLab.
+- Codex is the primary agent environment for implementation.
+- Codex work should produce normal commits for GitLab. GitHub receives mirrored updates from GitLab.
 - Commit messages should be small, coherent, imperative, and describe the actual change, not the tool that made it.
 - Agents may push branches to GitLab when asked. Agents may create GitLab merge requests targeting `main` when the user asks and approved tooling is available; merge remains manual.
 - Merge requests should use squash-on-merge and a clean squash commit message.
@@ -574,17 +574,15 @@ AI tooling strategy:
 - Increase agent autonomy only when CI validation, path boundaries, and manual GitLab review gates are clear.
 - Require agents to follow existing coding standards, and add a standards document before introducing substantial code in a new implementation technology.
 - Follow agile slices instead of phase-completion batching: scenario, test, smallest implementation, validation, review, integration.
-- Use the ChatGPT/Codex $200 plan as a separate assistant for second opinions, architecture review, test-case generation, and code review prompts.
-- Do not assume the ChatGPT/Codex subscription pays for Cursor model usage. Cursor supports provider API keys, but OpenAI API usage is billed separately from ChatGPT Plus/Pro/Codex subscriptions.
-- If using a separate OpenAI API key in Cursor, configure it through `Cursor Settings > Models`, add the provider key, verify, and save. Treat this as separate API billing and note that provider-key usage may not have the same privacy/billing behavior as Cursor's included plan.
-- Recommended default: use the Cursor $20 plan for day-to-day implementation and the ChatGPT/Codex plan outside Cursor for review/research unless a separate OpenAI API budget is intentionally created.
+- Use Codex for second opinions, architecture review, test-case generation, and code review prompts.
+- Do not use separate provider API keys unless a separate API budget is intentionally created.
 
 ## Implementation Phases
 
 Phase 0: Scaffolding, risk, and tooling setup
 
 - Create the public GitLab repository as primary and the public GitHub repository as a read-only mirror fed by GitLab.
-- Use `cursor-dev-agent-git` only for local Git HTTPS access to GitLab; do not reuse it for CI, registry, API automation, or deploys.
+- Use the local agent Git token only for local Git HTTPS access to GitLab; do not reuse it for CI, registry, API automation, or deploys.
 - Protect `main` and define short-lived branch naming: `feature/*`, `fix/*`, `docs/*`, and `experiment/*`.
 - Create initial docs-only commit with [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), C4 docs skeleton, ADR skeleton, risk register, AI tooling notes, [.gitignore](../../.gitignore), [.editorconfig](../../.editorconfig), and `.env.example`.
 - Add GitLab CI/CD skeleton and optional GitHub mirror validation.

@@ -69,7 +69,7 @@ See [phase-3-boundary-proof-plan.md](../../docs/plans/phase-3-boundary-proof-pla
 ```bash
 make test-checkout
 make validate-phase1
-MIGRATION_IMMUTABILITY_BASE_REF=origin/cursor/phase-1-foundation make pre-push
+MIGRATION_IMMUTABILITY_BASE_REF=origin/main make pre-push
 ```
 
 When changing persistence or routes, run the same commands before pushing.

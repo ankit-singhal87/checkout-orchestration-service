@@ -55,7 +55,7 @@ for long-form planning background unless the user explicitly changes direction.
 - Use a body only when it explains motivation, tradeoffs, validation, or follow-up risk.
 - Prefer verbs like `Add`, `Update`, `Fix`, `Document`, `Refine`, `Remove`,
   `Align`, `Enable`, or `Harden`.
-- Do not use generic tool-generated messages such as `Added by cursor`.
+- Do not use generic tool-generated messages such as `Added by agent`.
 - Do not mention vendor inspiration or competitor names in commit messages.
 - Keep commits small and coherent; split unrelated docs, runtime, test,
   and implementation changes unless a single atomic slice requires them together.
@@ -72,7 +72,7 @@ for long-form planning background unless the user explicitly changes direction.
 
 - Never commit secrets, credentials, private keys, tokens, `.env`, Terraform
   state, or generated kubeconfigs.
-- The `cursor-dev-agent-git` token is only for local Git over HTTPS and must not
+- The local agent Git token is only for local Git over HTTPS and must not
   be used for CI, API automation, registry pushes, or deploys.
 - Keep placeholders in `.env.example`; real values stay outside the repository.
 
